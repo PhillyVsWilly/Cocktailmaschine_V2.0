@@ -19,3 +19,4 @@ queue.c:2269:7:vQueueAddToRegistry	12	static
 queue.c:2298:14:pcQueueGetName	0	static
 queue.c:2326:7:vQueueUnregisterQueue	8	static
 queue.c:1625:6:vQueueDelete	8	static
+queue.c:2358:7:vQueueWaitForMessageRestricted	16	static

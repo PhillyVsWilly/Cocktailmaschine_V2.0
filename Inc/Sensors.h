@@ -2,6 +2,7 @@
 #define SENSORS_H_ 
 
 #include <stdint.h>
+#include "stm32f3xx_hal.h"
 
 typedef unsigned char uint_8; 
 
@@ -68,6 +69,8 @@ void vReadSensorValues_Module_4(void);
 void vReadSensorValues_Module_5(void);
 void vReadSensorValues_Module_6(void);
 void vReadSensorValues_Module_7(void);
+
+void vReadAnalogPin(GPIO_TypeDef*, int);
 
 #endif 
 

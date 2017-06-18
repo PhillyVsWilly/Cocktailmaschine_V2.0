@@ -19,11 +19,13 @@ tasks.c:2181:7:pcTaskGetName	0	static
 tasks.c:2499:12:xTaskIncrementTick	48	static
 tasks.c:2017:12:xTaskResumeAll	32	static
 tasks.c:1140:7:vTaskDelayUntil	16	static
+tasks.c:1224:7:vTaskDelay	8	static
 tasks.c:3131:8:prvIdleTask	8	static
 tasks.c:2761:6:vTaskSwitchContext	8	static
 tasks.c:1566:7:vTaskSuspend	16	static
 tasks.c:2820:6:vTaskPlaceOnEventList	8	static
 tasks.c:2837:6:vTaskPlaceOnUnorderedEventList	8	static
+tasks.c:2863:7:vTaskPlaceOnEventListRestricted	16	static
 tasks.c:2894:12:xTaskRemoveFromEventList	16	static
 tasks.c:2962:12:xTaskRemoveFromUnorderedEventList	16	static
 tasks.c:3007:6:vTaskSetTimeOutState	8	static

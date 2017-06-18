@@ -8,6 +8,8 @@
 
 static InputValues_t* ptrInput;
 
+extern ADC_HandleTypeDef hadc1, hadc3;
+
 void vReadSensorValues (InputValues_t* input)
 {
 	ptrInput = input;
@@ -60,3 +62,33 @@ void vReadSensorValues (InputValues_t* input)
 {
 	return;
 }
+
+
+ /***************************************************/
+ void vReadAnalogPin(GPIO_TypeDef* port, int pin)
+ {
+ 	ADC_HandleTypeDef adc;
+
+ 	if(port == GPIOA)
+ 	{
+ 		adc = hadc1;
+ 	}
+ 	else
+ 	{
+ 		adc = hadc3;
+ 	}
+ 	//Delete later
+ 	HAL_ADC_Start(&adc);
+ 	  /* Wait for the end of conversion */
+ 		if (HAL_ADC_PollForConversion(&adc, 10) != HAL_TIMEOUT)
+ 	{
+ 		/* Get the converted value of regular channel */
+ 		int KeyConvertedValue = HAL_ADC_GetValue(&adc);
+ 		DPRINT_MESSAGE("ADC Value: %d\r\n", KeyConvertedValue);
+ 	}
+
+ 	else
+ 	{
+ 		DPRINT_MESSAGE("ADC Timeout");
+ 	}
+ }
