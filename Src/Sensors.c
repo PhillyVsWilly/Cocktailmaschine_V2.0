@@ -1,9 +1,62 @@
+#include "main.h"
 #include "Sensors.h"
 #include "stm32f3xx_hal.h"
+#include "VirtualInput.h"
+
+#define DEBUG_ENABLED TRUE
+#include "Debug.h"
+
+static InputValues_t* ptrInput;
 
 void vReadSensorValues (InputValues_t* input)
 {
-		//Read the Button State (Pin 13 at GPIO C)
-    input->Button = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
-		//read, and save the inputs here
+	ptrInput = input;
+
+//Read Module 1
+#if MODULE_1_USE_VIRTUAL_INPUT
+	DPRINT_WARNING("Module 1: Using virtual Input");
+	updateVirtualnput_Module_1(ptrInput);
+#else
+	vReadSensorValues_Module_1();
+#endif
+
+//TODO: Bitte für alle Module wiederholen!
+
+}
+
+ void vReadSensorValues_Module_1()
+{
+	//Read the Button State (Pin 13 at GPIO C)
+    ptrInput->Button = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
+	//read, and save the inputs here
+}
+
+ void vReadSensorValues_Module_2()
+{
+	return;
+}
+
+ void vReadSensorValues_Module_3()
+{
+	return;
+}
+
+ void vReadSensorValues_Module_4()
+{
+	return;
+}
+
+ void vReadSensorValues_Module_5()
+{
+	return;
+}
+
+ void vReadSensorValues_Module_6()
+{
+	return;
+}
+
+ void vReadSensorValues_Module_7()
+{
+	return;
 }

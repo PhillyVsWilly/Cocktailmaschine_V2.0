@@ -134,6 +134,9 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
+#if USE_VIRTUAL_INPUTS
+  // Hier die Timer für die virtuellen Inputs
+#endif
   /* USER CODE END RTOS_TIMERS */
 
   /* Create the thread(s) */

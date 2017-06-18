@@ -44,7 +44,6 @@ void vMainCycle(void const* pvParameters)
   while (1)
   {
 		DPRINT_MESSAGE("Main Cycle Start\n");
-		DPRINT_WARNING("Warning\n");
 
 		//Store Tick Count
 		TickType_t xLastWakeTime;
