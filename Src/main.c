@@ -51,7 +51,14 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */
+#include "user_tasks.h"
+#include "Sensors.h"
+#include "Evaluation.h"
+#include "Actuators.h"
+#include "Debug.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -62,7 +69,11 @@ osThreadId defaultTaskHandle;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+InputValues_t Input_Storage;
+OutputValues_t Output_Storage;
+SystemState_t System_State;
 
+osThreadId mainCycleHandle;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -131,7 +142,8 @@ int main(void)
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
- //Therad 1
+  osThreadDef(MainCycle, vMainCycle, MAIN_CYCLE_PRIORITY, 0, 400);
+  mainCycleHandle = osThreadCreate(osThread(MainCycle),NULL);
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_QUEUES */

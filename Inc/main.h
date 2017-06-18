@@ -51,7 +51,7 @@
   /* Includes ------------------------------------------------------------------*/
 
 /* USER CODE BEGIN Includes */
-
+#include "project_conf.h"
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
