@@ -5,6 +5,7 @@
 #include "stm32f3xx_hal.h"
 
 typedef unsigned char uint_8; 
+typedef char bool;
 
 typedef struct {
 	int placeholder;
@@ -27,7 +28,9 @@ typedef struct {
 } Module_3_Pumping_Input_t;
 
 typedef struct {
-	uint_8 lightbarrier_stations[4];
+	bool lichtschranke_1;
+	bool lichtschranke_2;
+	int Waage_2;
 } Module_1_Transportation_Input_t;
 
 //Gravity_Input stores the Input values for the Gravity Station
@@ -58,6 +61,8 @@ typedef struct {
 	
 		
 } InputValues_t;
+
+
 
 
 

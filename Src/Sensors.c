@@ -17,7 +17,7 @@ void vReadSensorValues (InputValues_t* input)
 //Read Module 1
 #if MODULE_1_USE_VIRTUAL_INPUT
 	DPRINT_WARNING("Module 1: Using virtual Input");
-	updateVirtualnput_Module_1(ptrInput);
+	updateVirtualInput_Module_1(ptrInput);
 #else
 	vReadSensorValues_Module_1();
 #endif

@@ -8,10 +8,15 @@
 #include "VirtualInput.h"
 #include "Sensors.h"
 
+int timer_variable = 0;
+
 void updateVirtualInput_Module_1(InputValues_t* input)
 {
-
- //TODO
+	//Beispiel
+	if(timer_variable == 5)
+	{
+		 input->Transportation->lichtschranke_1 = 1;
+	}
 }
 
 
