@@ -22,6 +22,53 @@ void vReadSensorValues (InputValues_t* input)
 	vReadSensorValues_Module_1();
 #endif
 
+//Read Module 2
+#if MODULE_2_USE_VIRTUAL_INPUT
+	DPRINT_WARNING("Module 2: Using virtual Input");
+	updateVirtualInput_Module_2(ptrInput);
+#else
+	vReadSensorValues_Module_2();
+#endif
+
+//Read Module 3
+#if MODULE_3_USE_VIRTUAL_INPUT
+	DPRINT_WARNING("Module 3: Using virtual Input");
+	updateVirtualInput_Module_3(ptrInput);
+#else
+	vReadSensorValues_Module_3();
+#endif
+
+//Read Module 4
+#if MODULE_4_USE_VIRTUAL_INPUT
+	DPRINT_WARNING("Module 4: Using virtual Input");
+	updateVirtualInput_Module_4(ptrInput);
+#else
+	vReadSensorValues_Module_4();
+#endif
+
+//Read Module 5
+#if MODULE_5_USE_VIRTUAL_INPUT
+	DPRINT_WARNING("Module 5: Using virtual Input");
+	updateVirtualInput_Module_5(ptrInput);
+#else
+	vReadSensorValues_Module_5();
+#endif
+
+//Read Module 6
+#if MODULE_6_USE_VIRTUAL_INPUT
+	DPRINT_WARNING("Module 6: Using virtual Input");
+	updateVirtualInput_Module_6(ptrInput);
+#else
+	vReadSensorValues_Module_6();
+#endif
+
+//Read Module 7
+#if MODULE_7_USE_VIRTUAL_INPUT
+	DPRINT_WARNING("Module 7: Using virtual Input");
+	updateVirtualInput_Module_7(ptrInput);
+#else
+	vReadSensorValues_Module_7();
+#endif
 //TODO: Bitte für alle Module wiederholen!
 
 }
