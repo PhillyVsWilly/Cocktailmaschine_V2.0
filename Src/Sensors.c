@@ -15,7 +15,7 @@ void vReadSensorValues (InputValues_t* input)
 {
 	ptrInput = input;
 
-//Read Module 1
+//Read Module 1:
 #if MODULE_1_USE_VIRTUAL_INPUT
 	DPRINT_WARNING("Module 1: Using virtual Input");
 	updateVirtualInput_Module_1(ptrInput);
@@ -23,7 +23,7 @@ void vReadSensorValues (InputValues_t* input)
 	vReadSensorValues_Module_1();
 #endif
 
-//Read Module 2
+//Read Module 2:
 #if MODULE_2_USE_VIRTUAL_INPUT
 	DPRINT_WARNING("Module 2: Using virtual Input");
 	updateVirtualInput_Module_2(ptrInput);
@@ -70,7 +70,6 @@ void vReadSensorValues (InputValues_t* input)
 #else
 	vReadSensorValues_Module_7();
 #endif
-//TODO: Bitte für alle Module wiederholen!
 
 }
 

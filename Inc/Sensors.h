@@ -7,44 +7,52 @@
 typedef unsigned char uint_8; 
 typedef char bool;
 
-typedef struct {
-	int placeholder;
-} Module_6_Handling_Input_t;
 
 typedef struct {
-	int safety[10]; //Contains the Sensor Inputs of the safety and service sensors
-} Module_5_Sensors_Input_t;
+	bool start;
+	bool stop;
+} Module_1_Transportation_Input_t;
+
+//Gravity_Input stores the Input values for the Gravity Station
+typedef struct {
+	bool start;
+	int information_sensor; // Bin mir nicht sicher, welcher Datentyp hier gefordert wird...
+	float position_baum; // English word for this?
+	bool platform;
+} Module_2_Gravity_Input_t;
+
+typedef struct {
+	int hose; // Schlauch
+	bool liquid_level;
+	bool pos_start;
+} Module_3_Pumping_Input_t;
 
 typedef struct {
 	uint8_t start;
-	float desired_weight;
 	uint_8 position_up;
 	uint_8 position_down;
 	float weight;
 } Module_4_Pouring_Input_t;
 
 typedef struct {
-	int placeholder;
-} Module_3_Pumping_Input_t;
+	int handling[2]; // Anzahl der benötigten Infos nicht gegeben: FlaschenID, weigth...???
+	int safety[10]; //Contains the Sensor Inputs of the safety and service sensors
+	bool right_glass;
+	int modules_finished[7]; // Contains Modul's signals
+} Module_5_Sensors_Input_t;
 
+// Welche Infos kommen? -> Muss noch vervollständigt werden.
 typedef struct {
-	bool lichtschranke_1;
-	bool lichtschranke_2;
-	int Waage_2;
-} Module_1_Transportation_Input_t;
-
-//Gravity_Input stores the Input values for the Gravity Station
-typedef struct {
-	int placeholder;
-} Module_2_Gravity_Input_t;
+	uint8_t flaschen_ID;
+	float desired_weight;
+} Module_6_Handling_Input_t;
 
 typedef struct {
 	int placeholder;
 }Module_7_Ice_Input_t;
 
-typedef struct {
-	int placeholder;
-} Module_x_Name_t;
+
+
 //Define the Type where all input values will be stored later.
 //Same idea as in Evaluation.h, a struct for each module to keep the oversight.
 typedef struct {
@@ -57,11 +65,9 @@ typedef struct {
 	Module_5_Sensors_Input_t Sensors;
 	Module_6_Handling_Input_t Handling;
 	Module_7_Ice_Input_t Ice;
-	Module_x_Name_t Module_x_Name;
 	
 		
 } InputValues_t;
-
 
 
 

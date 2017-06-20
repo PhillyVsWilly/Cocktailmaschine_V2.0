@@ -15,7 +15,7 @@ void updateVirtualInput_Module_1(InputValues_t* input)
 	//Beispiel
 	if(timer_variable == 5)
 	{
-		 input->Transportation.lichtschranke_1 = 1;
+		 input->Transportation.start = 1;
 	}
 }
 
