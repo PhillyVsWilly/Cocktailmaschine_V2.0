@@ -59,7 +59,7 @@ void vMainCycle(void const* pvParameters)
 		vWriteActuatorValues(Output_Storage);
 
 		//Delay until next Second
-		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1000));
+		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(2000));
 
 		/************************************/
 		//Delete later

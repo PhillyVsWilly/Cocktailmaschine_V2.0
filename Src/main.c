@@ -55,10 +55,13 @@
 #include "Sensors.h"
 #include "Evaluation.h"
 #include "Actuators.h"
+
+#define DEBUG_ENABLED 1
 #include "Debug.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "stm32f3xx_nucleo.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -66,6 +69,8 @@ ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc3;
 
 osThreadId defaultTaskHandle;
+
+int led_status = 0;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -121,7 +126,8 @@ int main(void)
   MX_ADC1_Init();
 
   /* USER CODE BEGIN 2 */
-
+  BSP_LED_On(LED2);
+  DPRINT_MESSAGE("Here1\r\n");
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -421,6 +427,7 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+
     osDelay(1);
   }
   /* USER CODE END 5 */ 

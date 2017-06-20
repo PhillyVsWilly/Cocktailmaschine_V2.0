@@ -2,8 +2,10 @@
 #define ACUATORS_H_
 
 #include <stdint.h>
+#include "Sensors.h"
 
 typedef unsigned char uint_8; 
+
 
 
 typedef struct {
@@ -22,10 +24,7 @@ typedef struct {
 	bool signal_sensor; // Wenn Ursprung erreicht, Signal an Sensor pos_start.
 }Pouring_t;
 
-typedef struct {
-	uint_8 motor;
-	bool signal_sensor; // Wenn Ursprung erreicht, Signal an Sensor pos_start.
-}Pouring_t;
+
 
 
 //Define the Type where all output values will be stored later

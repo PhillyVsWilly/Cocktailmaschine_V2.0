@@ -51,6 +51,9 @@ typedef struct {
 	int placeholder;
 }Module_7_Ice_Input_t;
 
+typedef struct {
+	int placeholder
+} Module_x_Name_t;
 
 
 //Define the Type where all input values will be stored later.
@@ -65,6 +68,7 @@ typedef struct {
 	Module_5_Sensors_Input_t Sensors;
 	Module_6_Handling_Input_t Handling;
 	Module_7_Ice_Input_t Ice;
+	Module_x_Name_t Module_x_Name;
 	
 		
 } InputValues_t;
