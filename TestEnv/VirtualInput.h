@@ -8,6 +8,8 @@
 #ifndef VIRTUALINPUT_H_
 #define VIRTUALINPUT_H_
 
+#include "Sensors.h"
+
 void updateVirtualInput_Module_1(InputValues_t*);
 void updateVirtualInput_Module_2(InputValues_t*);
 void updateVirtualInput_Module_3(InputValues_t*);

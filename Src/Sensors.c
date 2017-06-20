@@ -10,6 +10,7 @@ static InputValues_t* ptrInput;
 
 extern ADC_HandleTypeDef hadc1, hadc3;
 
+
 void vReadSensorValues (InputValues_t* input)
 {
 	ptrInput = input;
@@ -72,6 +73,7 @@ void vReadSensorValues (InputValues_t* input)
 //TODO: Bitte für alle Module wiederholen!
 
 }
+
 
  void vReadSensorValues_Module_1()
 {
