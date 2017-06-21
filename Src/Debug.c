@@ -47,7 +47,7 @@ int debugPrintError(char* s, ...) {
 		va_list arg;
 		int done;
 		
-		va_start (arg, s);
+		va_start (arg,s);
 		
 		char *a=(char*)malloc(sizeof(char)*(strlen(s) + strlen("Error: ") + 1));
 		snprintf(a, strlen(s) + strlen("Error: ") + 1, "Error: %s", s);

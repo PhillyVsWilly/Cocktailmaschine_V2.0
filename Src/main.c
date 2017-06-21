@@ -152,7 +152,14 @@ int main(void)
   /* definition and creation of mainCycle */
   osThreadDef(mainCycle, mainCycleStart, osPriorityAboveNormal, 0, 128);
   mainCycleHandle = osThreadCreate(osThread(mainCycle), NULL);
-  DPRINT_MESSAGE("Here10\r\n");
+  if (mainCycleHandle == NULL)
+  {
+	  DPRINT_MESSAGE("Main Task is Null");
+  }
+  else
+  {
+	  DPRINT_MESSAGE("Main Task is not Null");
+  }
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* USER CODE END RTOS_THREADS */
@@ -428,34 +435,36 @@ static void MX_GPIO_Init(void)
 void mainCycleStart(void const * argument)
 {
   BSP_LED_On(LED2);
+  osDelay(500);
+  BSP_LED_Off(LED2);
+  osDelay(500);
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
   while(1)
   {
-	  int i = 0;
-	 /* if(i == 0)
-	  {
-		  BSP_LED_Off(LED2);
-	  }else{
-		  BSP_LED_On(LED2);
-	  }
-	  i=1-i;*/
-	  DPRINT_MESSAGE("Main Cycle Start");
+	  BSP_LED_On(LED2);
+	  osDelay(500);
+	  BSP_LED_Off(LED2);
+	  osDelay(500);
+
+	  DPRINT_MESSAGE("Main Cycle Start\r\n");
 	  TickType_t startTicks = xTaskGetTickCount();
 
 	  //Read Sensors
-	  vReadSensorValues(&Input_Storage);
+	  //vReadSensorValues(&Input_Storage);
 
 	  //Calculate Output
-	  vEvaluate(Input_Storage, &System_State, &Output_Storage);
+	  //vEvaluate(Input_Storage, &System_State, &Output_Storage);
 
 	  //Set output
-	  vWriteActuatorValues(Output_Storage);
+	  //vWriteActuatorValues(Output_Storage);
 
 	  TickType_t endTicks = xTaskGetTickCount();
-	  DPRINT_MESSAGE("Main Cycle End: Needed %d Ticks", endTicks-startTicks);
+	  int time_diff = (int)endTicks-(int)startTicks;
+	  printf("Main Cycle End: Needed %d Ticks\r\n", time_diff);
 
-	  vTaskDelayUntil(&startTicks, 1000);
+	  //vTaskDelayUntil(&startTicks,1000);
+	  osDelay(1000);
 
   }
   /* USER CODE END 5 */ 
