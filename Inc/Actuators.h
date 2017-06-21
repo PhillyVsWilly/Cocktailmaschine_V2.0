@@ -36,7 +36,7 @@ typedef struct {
 	Pouring_t Pouring;
 	int allow_modules[7]; // Anweisung an die Module, ob erlaubt mit Arbeit zu beginnen.
 	int placeholder_handling;
-	int placeholder_ice
+	int placeholder_ice;
 } OutputValues_t;
 
 

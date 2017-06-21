@@ -52,7 +52,7 @@ typedef struct {
 }Module_7_Ice_Input_t;
 
 typedef struct {
-	int placeholder
+	int placeholder;
 } Module_x_Name_t;
 
 

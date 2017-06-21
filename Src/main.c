@@ -51,7 +51,6 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */
-#include "user_tasks.h"
 #include "Sensors.h"
 #include "Evaluation.h"
 #include "Actuators.h"
@@ -68,10 +67,10 @@
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc3;
 
-osThreadId defaultTaskHandle;
+osThreadId mainCycleHandle;
+osTimerId Timer_TestEnvHandle;
 
-int led_status = 0;
-
+extern int virtual_testenv_timer_variable;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 InputValues_t Input_Storage;
@@ -86,7 +85,8 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_ADC3_Init(void);
 static void MX_ADC1_Init(void);
-void StartDefaultTask(void const * argument);
+void mainCycleStart(void const * argument);
+void TestEnvCallback(void const * argument);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -138,21 +138,23 @@ int main(void)
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
 
+  /* Create the timer(s) */
+  /* definition and creation of Timer_TestEnv */
+  osTimerDef(Timer_TestEnv, TestEnvCallback);
+  Timer_TestEnvHandle = osTimerCreate(osTimer(Timer_TestEnv), osTimerPeriodic, NULL);
+
   /* USER CODE BEGIN RTOS_TIMERS */
-  /* start timers, add new ones, ... */
 #if MODULE_1_USE_VIRTUAL_INPUTS | MODULE_2_USE_VIRTUAL_INPUTS //TODO: Alle weiteren Module hinzufügen
-  // Hier die Timer für die virtuellen Inputs
+  ososTimerStart(Timer_TestEnvHandle, 200)
 #endif
   /* USER CODE END RTOS_TIMERS */
 
   /* Create the thread(s) */
-  /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
-  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+  /* definition and creation of mainCycle */
+  osThreadDef(mainCycle, mainCycleStart, osPriorityAboveNormal, 0, 128);
+  mainCycleHandle = osThreadCreate(osThread(mainCycle), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
-  osThreadDef(MainCycle, vMainCycle, MAIN_CYCLE_PRIORITY, 0, 400);
-  mainCycleHandle = osThreadCreate(osThread(MainCycle),NULL);
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -419,18 +421,46 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* StartDefaultTask function */
-void StartDefaultTask(void const * argument)
+/* mainCycleStart function */
+void mainCycleStart(void const * argument)
 {
 
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
   for(;;)
   {
+	  DPRINT_MESSAGE("Main Cycle Start");
+	  TickType_t startTicks = xTaskGetTickCount();
 
-    osDelay(1);
+	  //Read Sensors
+	  vReadSensorValues(&Input_Storage);
+
+	  //Calculate Output
+	  vEvaluate(Input_Storage, &System_State, &Output_Storage);
+
+	  //Set output
+	  vWriteActuatorValues(Output_Storage);
+
+	  TickType_t endTicks = xTaskGetTickCount();
+	  DPRINT_MESSAGE("Main Cycle End: Needed %d Ticks", endTicks-startTicks);
+
+	  vTaskDelayUntil(&startTicks, 1000);
+
   }
   /* USER CODE END 5 */ 
+}
+
+/* TestEnvCallback function */
+void TestEnvCallback(void const * argument)
+{
+  /* USER CODE BEGIN TestEnvCallback */
+  if(virtual_testenv_timer_variable >= 75)
+  {
+	  virtual_testenv_timer_variable = 0;
+  } else {
+	  virtual_testenv_timer_variable++;
+  }
+  /* USER CODE END TestEnvCallback */
 }
 
 /**

@@ -8,12 +8,12 @@
 #include "VirtualInput.h"
 #include "Sensors.h"
 
-int timer_variable = 0;
+int virtual_testenv_timer_variable = 0;
 
 void updateVirtualInput_Module_1(InputValues_t* input)
 {
 	//Beispiel
-	if(timer_variable == 5)
+	if(virtual_testenv_timer_variable == 5)
 	{
 		 input->Transportation.start = 1;
 	}
