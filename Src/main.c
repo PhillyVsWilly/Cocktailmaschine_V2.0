@@ -126,8 +126,7 @@ int main(void)
   MX_ADC1_Init();
 
   /* USER CODE BEGIN 2 */
-  BSP_LED_On(LED2);
-  DPRINT_MESSAGE("Here1\r\n");
+
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -153,6 +152,7 @@ int main(void)
   /* definition and creation of mainCycle */
   osThreadDef(mainCycle, mainCycleStart, osPriorityAboveNormal, 0, 128);
   mainCycleHandle = osThreadCreate(osThread(mainCycle), NULL);
+  DPRINT_MESSAGE("Here10\r\n");
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* USER CODE END RTOS_THREADS */
@@ -163,8 +163,11 @@ int main(void)
  
 
   /* Start scheduler */
+  DPRINT_MESSAGE("Here2\r\n");
   osKernelStart();
   
+  DPRINT_MESSAGE("Here3\r\n");
+
   /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
@@ -424,11 +427,19 @@ static void MX_GPIO_Init(void)
 /* mainCycleStart function */
 void mainCycleStart(void const * argument)
 {
-
+  BSP_LED_On(LED2);
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
-  for(;;)
+  while(1)
   {
+	  int i = 0;
+	 /* if(i == 0)
+	  {
+		  BSP_LED_Off(LED2);
+	  }else{
+		  BSP_LED_On(LED2);
+	  }
+	  i=1-i;*/
 	  DPRINT_MESSAGE("Main Cycle Start");
 	  TickType_t startTicks = xTaskGetTickCount();
 
