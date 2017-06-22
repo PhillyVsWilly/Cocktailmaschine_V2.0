@@ -2,7 +2,7 @@
 #define SENSORS_H_ 
 
 #include <stdint.h>
-#include "stm32f7xx_hal.h"
+#include "stm32f3xx_hal.h"
 
 typedef unsigned char uint_8; 
 typedef char bool;

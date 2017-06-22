@@ -1,6 +1,6 @@
 #include "main.h"
 #include "Sensors.h"
-#include "stm32f7xx_hal.h"
+#include "stm32f3xx_hal.h"
 #include "VirtualInput.h"
 
 #define DEBUG_ENABLED TRUE
@@ -8,7 +8,7 @@
 
 static InputValues_t* ptrInput;
 
-extern ADC_HandleTypeDef hadc1;
+extern ADC_HandleTypeDef hadc1, hadc3;
 
 
 void vReadSensorValues (InputValues_t* input)
@@ -117,9 +117,14 @@ void vReadSensorValues (InputValues_t* input)
  {
  	ADC_HandleTypeDef adc;
 
-
+ 	if(port == GPIOA)
+ 	{
  		adc = hadc1;
-
+ 	}
+ 	else
+ 	{
+ 		adc = hadc3;
+ 	}
  	//Delete later
  	HAL_ADC_Start(&adc);
  	  /* Wait for the end of conversion */
