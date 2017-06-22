@@ -35,7 +35,7 @@ void vInit_Module_1_Transport(Module_State_x_Name_t* state, State_General_t* ptr
  *Beim Eis: Überlaufbecken nicht voll
  *Deshalb wird ihr auch nicht der Systemzustand übergeben
  **/
-int vCheckForGeneralErrors(InputValues_t input)
+static int vCheckForGeneralErrors(InputValues_t input)
 {
 
 	if(input.Module_x_Name.placeholder > 10.0)
@@ -73,10 +73,6 @@ void vEvaluate_Module_1_Transportation(InputValues_t input, Module_State_1_Trans
 			case INACTIVE:
 				//Do something
 				DPRINT_MESSAGE("I'm in State %d\n", state->state);
-				if(state->var_a == TRUE)
-				{
-					vSwitchState(state, STATE2);
-				}
 				break;
 			case ACTIVE:
 				//Do something
@@ -89,7 +85,7 @@ void vEvaluate_Module_1_Transportation(InputValues_t input, Module_State_1_Trans
 			return;
 }
 
-void vSwitchState(Module_State_x_Name_t* state, int state_new)
+void vSwitchState(Module_State_1_Transportation_t* state, int state_new)
 {
 	//Hier kommt alles rein, was bei jedem(!) Zustandswechsel passieren soll
 	DPRINT_MESSAGE("Switching states from State %d to State %d\r\n", state->state, state_new);

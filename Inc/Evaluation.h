@@ -11,13 +11,21 @@ typedef char bool;
 
 enum operation_mode {startup, normal, repair, stop};
 
+typedef struct{
+	uint8_t Bottle_ID;
+	uint16_t desired_weight;
+}desired_ingredient;
+
 /*Type Definitions for System States*/
 typedef struct{ 
 	int operation_mode ;
+	desired_ingredient ingredient[4];  //Die aktuell gewünschte Zutat, ein Eintrag für jedes Modul
 	} State_General_t;
 
 typedef struct{
-	int placeholder;
+	State_General_t* ptrGeneralState;
+	int state;
+	bool var_a;
 	} Module_State_1_Transportation_t;
 
 typedef struct{

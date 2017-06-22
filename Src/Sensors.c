@@ -1,6 +1,6 @@
 #include "main.h"
 #include "Sensors.h"
-#include "stm32f3xx_hal.h"
+#include "stm32f7xx_hal.h"
 #include "VirtualInput.h"
 
 #define DEBUG_ENABLED TRUE

@@ -28,9 +28,9 @@ typedef struct {
 //Muss noch Hardwaremaessig umgesetzt werden, hier als Platzhalter fuer was wir brauchen
 typedef struct {
 	uint_8 motor;
-	uint_8 startUp []; //Array fuer Werte um langsames Anfahren des Transportbandes zu ermoeglichen
-	uint_8 windDown []; //Array fuer Werte um langsames stoppen des Transportbandes zu ermoeglichen
-	bool LED_Status //LED die leuchten soll wenn das Transportband steht, damit man ein neues Glas reinstellen kann
+	uint_8 startUp[10]; //Array fuer Werte um langsames Anfahren des Transportbandes zu ermoeglichen
+	uint_8 windDown[10]; //Array fuer Werte um langsames stoppen des Transportbandes zu ermoeglichen
+	bool LED_Status; //LED die leuchten soll wenn das Transportband steht, damit man ein neues Glas reinstellen kann
 }Transport_t;
 
 //Muss noch Hardwaremaessig umgesetzt werden, hier als Platzhalter fuer was wir brauchen
