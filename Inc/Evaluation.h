@@ -18,6 +18,9 @@ typedef struct{
 
 typedef struct{
 	int placeholder;
+	bool stopForNewGlass; //True wenn das Band für x Sekunden warten soll damit ein neues Glas auf das Band gestellt werden kann
+	bool transportCanStart; //bool set if all safety and service sensors are ok to signal Transport belt that it can start
+	TickType_t startTicket = 0;
 	} Module_State_1_Transportation_t;
 
 typedef struct{

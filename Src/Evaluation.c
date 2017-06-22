@@ -15,11 +15,11 @@ void vEvaluate(InputValues_t input, SystemState_t* state, OutputValues_t* output
 			output->LED2 = 0;
 		}
 		
-		vEvaluate_Module_1_Transportation(input, &(state->Transportation), output);
-		vEvaluate_Module_2_Gravity(input, &(state->Gravity), output);
-		vEvaluate_Module_3_Pumping(input, &(state->Pumping), output);
-		vEvaluate_Module_4_Pouring(input, &(state->Pouring), output);
-		vEvaluate_Module_5_Sensors(input, &(state->Sensors), output);
-		vEvaluate_Module_6_Handling(input, &(state->Handling), output);	
+		vEvaluate_Module_1_Transportation(input, state, output);
+		vEvaluate_Module_2_Gravity(input, state, output);
+		vEvaluate_Module_3_Pumping(input, state, output);
+		vEvaluate_Module_4_Pouring(input, state, output);
+		vEvaluate_Module_5_Sensors(input, state, output);
+		vEvaluate_Module_6_Handling(input,state, output);
 		
 }
