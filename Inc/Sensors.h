@@ -2,29 +2,31 @@
 #define SENSORS_H_ 
 
 #include <stdint.h>
-#include "stm32f3xx_hal.h"
+#include "stm32f7xx_hal.h"
 
 typedef unsigned char uint_8; 
 typedef char bool;
 
 
 typedef struct {
-	bool start;
-	bool stop;
+	bool start;		//Band start
+	bool inModule2; //Glas in Modul 2
+	bool inModule3; //Glas in Modul 3
+	bool inModule4; //Glas in Modul 4
+	bool inModule5; //Glas in Modul 5
 } Module_1_Transportation_Input_t;
 
 //Gravity_Input stores the Input values for the Gravity Station
 typedef struct {
 	bool start;
-	int information_sensor; // Bin mir nicht sicher, welcher Datentyp hier gefordert wird...
-	float position_baum; // English word for this?
-	bool platform; //TODO: Welcher Wert fuer Plattofrm unten/oben?
+	int position_tree; // English word for this? Well, tree :D
+	bool sensor_up;
+	bool sensor_down;
 } Module_2_Gravity_Input_t;
 
 typedef struct {
-	int hose; // Schlauch
-	bool liquid_level;
-	bool pos_start;
+	bool start;
+	float weight_glass;
 } Module_3_Pumping_Input_t;
 
 typedef struct {
@@ -35,8 +37,7 @@ typedef struct {
 } Module_4_Pouring_Input_t;
 
 typedef struct {
-	int handling[2]; // Anzahl der benötigten Infos nicht gegeben: FlaschenID, weigth...???
-	int safety[10]; //Contains the Sensor Inputs of the safety and service sensors
+	int safety_push_buttons[10]; //Contains the Sensor Inputs of the safety and service sensors
 	bool right_glass;
 	int modules_finished[7]; // Contains Modul's signals
 } Module_5_Sensors_Input_t;
