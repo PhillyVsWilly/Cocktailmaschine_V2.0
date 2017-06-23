@@ -11,6 +11,7 @@ typedef unsigned char uint_8;
 typedef struct {
 	uint_8 move_baum;
 	uint_8 move_platform;
+	bool platform_Position_Down; //TRUE wenn plattform unten ist und baum gedreht werden kann
 }Gravity_t;
 
 typedef struct {

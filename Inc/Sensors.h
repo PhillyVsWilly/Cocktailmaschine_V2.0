@@ -18,7 +18,7 @@ typedef struct {
 	bool start;
 	int information_sensor; // Bin mir nicht sicher, welcher Datentyp hier gefordert wird...
 	float position_baum; // English word for this?
-	bool platform;
+	bool platform; //TODO: Welcher Wert fuer Plattofrm unten/oben?
 } Module_2_Gravity_Input_t;
 
 typedef struct {

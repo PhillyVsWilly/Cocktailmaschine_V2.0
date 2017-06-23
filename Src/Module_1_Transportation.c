@@ -1,6 +1,5 @@
 #include "Module_common.h"
 #include "Module_1_Transportation.h"
-#include "Evaluation.h"
 
 #include "Sensors.h"
 #include "Evaluation.h"
@@ -105,11 +104,11 @@ void vEvaluate_Module_1_Transportation(InputValues_t input, SystemState_t state,
 					output->Transport.LED_Status = TRUE;
 				}
 				TickType_t currentTickets = xTaskGetTickCount();
-				if (state->startTicket + 5000 = currentTickets && state->transportCanStart == TRUE) {
+				if (state->startTicket + 5000 <= currentTickets && state->transportCanStart == TRUE) {
 					state->startTicket == 0;
 					output->Transport.startUp == TRUE;
-					vSwitchState(state, ACTIVE);
 					output.Transport.LED_Status = FALSE;
+					vSwitchState(state, ACTIVE);
 				}
 				break;
 			default:

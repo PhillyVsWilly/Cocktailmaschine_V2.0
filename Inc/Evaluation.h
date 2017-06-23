@@ -25,6 +25,12 @@ typedef struct{
 
 typedef struct{
 	int placeholder;
+	bool glassInStation; //Bool um festzustellen ob sich noch ein Glas in der Station befindet
+	bool treeInPosition;
+	bool finished; //Getraenk fertig
+    LinkedList drinkList;
+    uint_8 currentDrinkList [8][2];
+    TickType startTicket = 0;
 	} Module_State_2_Gravity_t;
 
 typedef struct{
