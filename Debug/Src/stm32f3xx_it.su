@@ -1,2 +1,0 @@
-stm32f3xx_it.c:54:6:SysTick_Handler	0	static
-stm32f3xx_it.c:75:6:TIM1_UP_TIM16_IRQHandler	0	static
