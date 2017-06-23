@@ -1,6 +1,6 @@
 #include "Actuators.h"
 
-#include "stm32f3xx_nucleo.h"
+#include "stm32f7xx_nucleo_144.h"
 
 
 void vInitActuatorValues(OutputValues_t* output_values)
