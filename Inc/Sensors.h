@@ -19,7 +19,7 @@ typedef struct {
 //Gravity_Input stores the Input values for the Gravity Station
 typedef struct {
 	bool start;
-	int position_tree; // English word for this? Well, tree :D
+	int position_tree;
 	bool sensor_up;
 	bool sensor_down;
 } Module_2_Gravity_Input_t;
@@ -30,9 +30,9 @@ typedef struct {
 } Module_3_Pumping_Input_t;
 
 typedef struct {
-	uint8_t start;
-	uint_8 position_up;
-	uint_8 position_down;
+	int start;
+	bool position_up;
+	bool position_down;
 	float weight;
 } Module_4_Pouring_Input_t;
 
@@ -44,7 +44,7 @@ typedef struct {
 
 // Welche Infos kommen? -> Muss noch vervollständigt werden.
 typedef struct {
-	uint8_t flaschen_ID;
+	int flaschen_ID;
 	float desired_weight;
 } Module_6_Handling_Input_t;
 
