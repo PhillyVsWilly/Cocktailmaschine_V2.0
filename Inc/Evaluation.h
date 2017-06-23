@@ -11,25 +11,26 @@ typedef char bool;
 
 enum operation_mode {startup, normal, repair, stop};
 
-typedef struct{
-	uint8_t Bottle_ID;
-	uint16_t desired_weight;
-}desired_ingredient;
-
 /*Type Definitions for System States*/
 typedef struct{ 
 	int operation_mode ;
-	desired_ingredient ingredient[4];  //Die aktuell gewünschte Zutat, ein Eintrag für jedes Modul
 	} State_General_t;
 
 typedef struct{
-	State_General_t* ptrGeneralState;
-	int state;
-	bool var_a;
+	int placeholder;
+	bool stopForNewGlass; //True wenn das Band fÃ¼r x Sekunden warten soll damit ein neues Glas auf das Band gestellt werden kann
+	bool transportCanStart; //bool set if all safety and service sensors are ok to signal Transport belt that it can start
+	TickType_t startTicket = 0;
 	} Module_State_1_Transportation_t;
 
 typedef struct{
 	int placeholder;
+	bool glassInStation; //Bool um festzustellen ob sich noch ein Glas in der Station befindet
+	bool treeInPosition;
+	bool finished; //Getraenk fertig
+    LinkedList drinkList;
+    uint_8 currentDrinkList [8][2];
+    TickType startTicket = 0;
 	} Module_State_2_Gravity_t;
 
 typedef struct{
