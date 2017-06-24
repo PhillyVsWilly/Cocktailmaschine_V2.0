@@ -26,6 +26,7 @@ typedef struct {
 
 typedef struct {
 	bool start;
+	int valve_position;//1-8 oder -1 wenn sich das ventil zwischen 2 tastern befindet
 	float weight_glass;
 } Module_3_Pumping_Input_t;
 

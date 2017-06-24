@@ -12,7 +12,7 @@ enum states {REFERENCE, MOVING_TREE, FILLED_GLASS, GLASS_IN_STATION, MOVE_PLATTF
 void vInit_Module_2_Gravity(Module_State_2_Gravity_t*, State_General_t*);
 void vEvaluate_Module_2_Gravity(InputValues_t, SystemState_t*, OutputValues_t*);
 void vSwitchState(Module_State_2_Gravity_t*, int);
-void vFillDrinkList(listNode *node);
-void vShuffleDrinks(uint_8 list[][]);
+//void vFillDrinkList(listNode *node);
+//void vShuffleDrinks(uint_8 list[][]);
 
 #endif

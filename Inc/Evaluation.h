@@ -1,8 +1,11 @@
 #ifndef EVALUATION_H_ 
 #define EVALUATION_H_
 
+#include "FIFO_Queue.h"
 #include "Sensors.h"
 #include "Actuators.h"
+#include "FreeRTOS.h"
+
 
 #define TRUE 1
 #define FALSE 0
@@ -20,7 +23,7 @@ typedef struct{
 	int placeholder;
 	bool stopForNewGlass; //True wenn das Band für x Sekunden warten soll damit ein neues Glas auf das Band gestellt werden kann
 	bool transportCanStart; //bool set if all safety and service sensors are ok to signal Transport belt that it can start
-	TickType_t startTicket = 0;
+	TickType_t startTicket;
 	} Module_State_1_Transportation_t;
 
 typedef struct{
@@ -28,20 +31,27 @@ typedef struct{
 	bool glassInStation; //Bool um festzustellen ob sich noch ein Glas in der Station befindet
 	bool treeInPosition;
 	bool finished; //Getraenk fertig
-    LinkedList drinkList;
+    //list drinkList;
     uint_8 currentDrinkList [8][2];
-    TickType startTicket = 0;
+    TickType_t startTicket;
 	} Module_State_2_Gravity_t;
 
 typedef struct{
 	int placeholder;
+	State_General_t* ptrGeneralState;
+	int state;
+	bool valveInTransit; //Bool that tracks if the valve is in transit
+	bool valveInPosition;
+	bool finished; //Getraenk fertig
+	FIFO_Queue drinkQueue;
+
 	} Module_State_3_Pumping_t;
 
 typedef struct{
 	int state;
-	LinkedList drinkList;
+	//list drinkList;
 	float drinkWeight;
-	listNode *currentNode;
+	//listNode *currentNode;
 	} Module_State_4_Pouring_t;
 
 typedef struct{
