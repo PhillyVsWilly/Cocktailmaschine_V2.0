@@ -9,7 +9,7 @@
 #define DEBUG_ENABLED 1
 #include "Debug.h"
 
-#define MODULE_NUMBER 1
+#define MODULE_NUMBER 2
 #define EMPTY_WEIGHT 15 //TODO Gewicht eines leeren Schlittens (muss noch gewogen werden)
 
 void vInit_Module_1_Transport(Module_State_2_Gravity_t* state, State_General_t* ptrGeneralState)
@@ -46,7 +46,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, SystemState_t* state, Outpu
 			}
 
 			//Ausführen von Funktionen basierend auf dem Zustand
-			switch (state->state){
+			switch (state->Gravity.state){
 				case INACTIVE:
 					output->Gravity.move_baum = 0;
 					output->Gravity.move_platform = 0;
@@ -58,6 +58,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, SystemState_t* state, Outpu
 					//Drives everything to its reference point
 					DPRINT_MESSAGE("I'm in State %d\n", state.Gravity->state);
 					if (output->Gravity.platform_Position_Down == TRUE) {
+						output->Gravity.move_platform = 0;
 						vSwitchState(state->Gravity, ACTIVE);
 					} else {
 						output->Gravity.move_platform = -1; //Plattform soll herunterfahren
@@ -68,11 +69,12 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, SystemState_t* state, Outpu
 					DPRINT_MESSAGE("I'm in State %d\n", state.Gravity->state);
 					if (list_get(state->Gravity.drinkList, 0) != 0 && state->Gravity.treeInPosition == false) {
 						DPRINT_MESSAGE("Gravity: Getränk ist in Liste, fahre Baum auf passende Position");
-						fillDrinkList(list_get(state.Gravity.drinkList, 1));
+						fillDrinkList(list_get(state.Gravity.drinkList, 0));
 						//TODO Datenstruktur für Getränke festlegen
 						vSwitchState(state.Gravity, MOVING_TREE);
 					}
 					if (input.Gravity.information_sensor > EMPTY_WEIGHT) {
+						state->Sensors.modules_finished[MODULE_NUMBER - 2] = 0;
 						vSwitchState(state.Gravity, GLASS_IN_STATION);
 					}
 					break;
@@ -125,6 +127,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, SystemState_t* state, Outpu
 					break;
 				case FILLED_GLASS:
 					state->Gravity.finished = TRUE;
+					state->Sensors.modules_finished [MODULE_NUMBER - 2] = 1;
 					if (input.Gravity.information_sensor = EMPTY_WEIGHT) {
 						list_head(state->Gravity.drinkList, NULL, TRUE);
 						vSwitchState(state.Gravity, ACTIVE);

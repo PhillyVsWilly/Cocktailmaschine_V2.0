@@ -24,7 +24,7 @@ typedef struct{
 	} Module_State_1_Transportation_t;
 
 typedef struct{
-	int placeholder;
+	int state;
 	bool glassInStation; //Bool um festzustellen ob sich noch ein Glas in der Station befindet
 	bool treeInPosition;
 	bool finished; //Getraenk fertig
@@ -38,11 +38,15 @@ typedef struct{
 	} Module_State_3_Pumping_t;
 
 typedef struct{
-	int placeholder;
+	int state;
+	LinkedList drinkList;
+	float drinkWeight;
+	listNode *currentNode;
 	} Module_State_4_Pouring_t;
 
 typedef struct{
 	int placeholder;
+	int modules_finished[7]; //Contains modules signals
 	} Module_State_5_Sensors_t;
 
 typedef struct{
