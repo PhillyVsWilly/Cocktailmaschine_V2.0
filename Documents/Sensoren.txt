@@ -1,0 +1,135 @@
+﻿Startmodul:
+	Wartungstüren offen
+		digital
+		5V
+		LOW: geschlossen; HIGH: offen
+		->PD0
+	
+	Lichtschranke beim Einstellen
+		digital
+		5V
+		LOW: Lichtschranke frei; HIGH: Lichtschranke wurde unterbrochen
+		->PF2
+	
+Eis:
+	Wartungstüren offen
+		digital
+		5V
+		LOW: geschlossen; HIGH: offen
+		->PF1
+	
+	Waage
+		analog
+		0-3,3V
+		muss noch ausgemessen werden
+		->A0
+		
+	Lichtschranke bei Eis (einmal für Würfeleis und einmal für crushed ice)
+		digital
+		5V
+		LOW: Eis fast leer; HIGH: Es gibt noch Eis
+		->PF0
+	
+Pumpe:
+	Wartungstüren offen
+		digital
+		5V
+		LOW: geschlossen; HIGH: offen
+		->PE2
+	
+	Waage
+		analog
+		0-3,3V
+		muss noch ausgemessen werden
+		->A1
+	
+	Position des Ventils
+		analoge Stufen
+		0V: kein Ventil/zwischen den ventilen
+		3,3: Ventil, das am weitesten drin ist, ist geschaltet
+		8 Ventile insgesamt-> Signallevel bei 0,4125V;0,825V;1,2375V;...;2,8875V;3,3V
+		Tolernzbereich muss ausreichend groß sein, wegen Bauteiltoleranzen, und weil der Pull-down Widerstand das Signal nách unten verfälscht. Ich würde einfach mal sagen in beide Richtungen so viel wie geht, also +/-0,20625V
+		->A2		
+
+Einschenken:
+	Wartungstüren offen
+		digital
+		5V
+		LOW: geschlossen; HIGH: offen
+		->PE4
+		
+	Waage
+		analog
+		0-3,3V
+		muss noch ausgemessen werden
+		->A3
+		
+	Endtaster hinten
+		digital
+		5V
+		LOW: Taster nicht gedrückt; HIGH: Taster gedrückt
+		->PE5
+	
+	Endraster vorne
+		digital
+		5V
+		LOW: Taster nicht gedrückt; HIGH: Taster gedrückt
+		->PE6
+	
+Rondell:
+
+	Wartungstüren offen
+		digital
+		5V
+		LOW: geschlossen; HIGH: offen
+		->PE3
+		
+	Waage
+		analog
+		0-3,3V
+		muss noch ausgemessen werden
+		->A4
+		
+	Endtaster oben
+		digital
+		5V
+		LOW: Taster nicht gedrückt; HIGH: Taster gedrückt
+		->PF8
+	
+	Endraster unten
+		digital
+		5V
+		LOW: Taster nicht gedrückt; HIGH: Taster gedrückt
+		->PF7
+	
+	Einschenktaster (gibt an, wenn der Ausschank genau über dem Glas ist)
+		digital
+		5V
+		LOW: Taster nicht gedrückt; HIGH: Taster gedrückt
+		->PB15
+		
+	Drehgeber(zur groben Drehpositionsbestimmung des Rondells)
+		analog
+		0-3,3V
+		Eine Drehung um 360° entsprechen einem Spannungsverlauf von 0 bis 3,3V; zyklisch; Nullpunkt noch nicht festgelegt
+		->A6	
+
+Endmodul:
+
+	Wartungstüren offen
+		digital
+		5V
+		LOW: geschlossen; HIGH: offen
+		->PB9
+		
+	Lichtschranke beim Herausholen
+		digital
+		5V
+		LOW: Lichtschranke frei; HIGH: Lichtschranke wurde unterbrochen
+		->PA15
+		
+	Endtaster für das Glas
+		digital
+		5V
+		LOW: kein Glas da; HIGH: Glas da
+		->PB12
