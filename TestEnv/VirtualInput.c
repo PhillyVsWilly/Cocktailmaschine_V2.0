@@ -28,6 +28,7 @@ void updateVirtualInput_Module_1(InputValues_t* input)
 			break;
 		case 30:
 			input->Transportation.inModule5 = 1;
+			input->Transportation.inModule7 = 1;
 			break;
 		case 65:
 			input->Transportation.inModule2 = 0;
@@ -163,7 +164,19 @@ void updateVirtualInput_Module_6(InputValues_t* input)
 
 void updateVirtualInput_Module_7(InputValues_t* input)
 {
-//TODO
+	switch(virtual_testenv_timer_variable)
+	{
+	case 35:
+		input->Ice.weigth = 1;
+		break;
+	case 38:
+		input->Ice.weigth = 1,8;
+		break;	
+	case 40:
+		input->Ice.ice_level = 0;
+	case 65:
+		input->Ice.doors_open = 1;
+	}
 
 }
 

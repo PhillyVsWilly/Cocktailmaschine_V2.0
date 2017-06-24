@@ -19,18 +19,23 @@ typedef struct {
 //Gravity_Input stores the Input values for the Gravity Station
 typedef struct {
 	bool start;
+	bool doors_open;
 	int position_tree;
 	bool sensor_up;
 	bool sensor_down;
+	bool button_fill_in;			// high, when glass directly beneath the the tree
 } Module_2_Gravity_Input_t;
 
 typedef struct {
+	bool doors_open;
 	bool start;
 	float weight_glass;
+	float ventil;
 } Module_3_Pumping_Input_t;
 
 typedef struct {
 	int start;
+	bool doors_open;
 	bool position_up;
 	bool position_down;
 	float weight;
@@ -40,16 +45,24 @@ typedef struct {
 	int safety_push_buttons[10]; //Contains the Sensor Inputs of the safety and service sensors
 	bool right_glass;
 	int modules_finished[7]; // Contains Modul's signals
+	bool start_doors_open;
+	bool start_light_barrier;
+	bool end_doors_open;
+	bool end_light_barrier;
+	bool glass_finished;
 } Module_5_Sensors_Input_t;
 
-// Welche Infos kommen? -> Muss noch vervollständigt werden.
+
 typedef struct {
 	int flaschen_ID;
 	float desired_weight;
 } Module_6_Handling_Input_t;
 
 typedef struct {
-	int placeholder;
+	bool doors_open;
+	float weight;
+	bool ice_level;
+	bool crushed_ice_level;
 }Module_7_Ice_Input_t;
 
 typedef struct {
