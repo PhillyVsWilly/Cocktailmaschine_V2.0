@@ -27,7 +27,6 @@ void updateVirtualInput_Module_1(InputValues_t* input)
 			input->Transportation.inModule4 = 1;
 			break;
 		case 30:
-			input->Transportation.inModule5 = 1;
 			input->Transportation.inModule7 = 1;
 			break;
 		case 65:
@@ -51,16 +50,16 @@ void updateVirtualInput_Module_2(InputValues_t* input)
 			input->Gravity.sensor_up = 0;	
 			break;
 		case 20:									
-			input->Gravity.position_tree = 1;		// tree moving to desired position -> altering voltage
+			input->Gravity.position_tree = 0.5;		// tree moving to desired position -> altering voltage
 			break;
 		case 21:
-			input->Gravity.position_tree = 2;
+			input->Gravity.position_tree = 0.7;
 			break;
 		case 24:
-			input->Gravity.position_tree = 4;
+			input->Gravity.position_tree = 1.3;
 			break;
 		case 26: 
-			input->Gravity.position_tree = 6;		// reached desired position
+			input->Gravity.position_tree = 2;		// reached desired position
 			break;
 		case 28:									// glass getting lifted
 			input->Gravity.sensor_down = 0;	
@@ -74,6 +73,8 @@ void updateVirtualInput_Module_2(InputValues_t* input)
 		case 57:	
 			input->Gravity.sensor_down = 1;
 			break;
+		case 65:
+			input->Gravity.doors_open = 1;
 		default:
 			break;
 	}
@@ -86,27 +87,34 @@ void updateVirtualInput_Module_3(InputValues_t* input)
 	switch(virtual_testenv_timer_variable)
 	{
 		case 16:
-			input->Pumping.weight_glass = 700;		// in the beginning, there is already some liquid
+			input->Pumping.weight_glass = 1;		// in the beginning, there is already some liquid
 		case 20:
 			input->Pumping.start = 1;				
 			break;
-		case 27:									
-			input->Pumping.weight_glass = 704;	
+		case 21:
+			input->Pumping.valve = 0.4215;			// valve is opening -> voltage rises
+		case 23:
+			input->Pumping.valve = 0.83;
+		case 25:									
+			input->Pumping.weight_glass = 1.2;	
+			break;
+		case 26:
+			input->Pumping.valve = 1.7;
 			break;
 		case 30:
-			input->Pumping.weight_glass = 710;		
+			input->Pumping.weight_glass = 1.4;		
 			break;
 		case 33:
-			input->Pumping.weight_glass = 750;
+			input->Pumping.weight_glass = 1.6;
 			break;
 		case 40:
-			input->Pumping.weight_glass = 830;
+			input->Pumping.weight_glass = 2.5;
 			break;
 		case 43:
-			input->Pumping.weight_glass = 880;
+			input->Pumping.weight_glass = 2.8;
 			break;
 		case 45:
-			input->Pumping.weight_glass = 900;
+			input->Pumping.weight_glass = 2.9;
 			break;
 	}
 }
@@ -119,32 +127,34 @@ void updateVirtualInput_Module_4(InputValues_t* input)
 			input->Pouring.position_down = 1;
 			input->Pouring.position_up = 0;
 			input->Pouring.start = 1;
-			input->Pouring.weight = 100;
+			input->Pouring.weight = 0.5;
 			break;
 		case 17:
 			input->Pouring.position_down = 0;
+			break;
 		case 30:
 			input->Pouring.position_up = 1;
+			break;
 		case 27:									
-			input->Pouring.weight = 104;			// inclination angle of bottle increases  
+			input->Pouring.weight = 0.55;			// inclination angle of bottle increases  
 			break;
 		case 30:
-			input->Pouring.weight = 110;			// weigth of glass increases [g] -> consider the amount of flowing liquid due to the inclination angle 
+			input->Pouring.weight = 0.6;			// weigth of glass increases [g] -> consider the amount of flowing liquid due to the inclination angle 
 			break;
 		case 33:
-			input->Pouring.weight_ = 150;
+			input->Pouring.weight = 0.63;
 			break;
 		case 40:
-			input->Pouring.weight = 230;
+			input->Pouring.weight = 0.8;
 			break;
 		case 43:
-			input->Pouring.weight = 280;
+			input->Pouring.weight = 0.83;
 			break;
 		case 44:
-			input->Pouring.weight = 294;
+			input->Pouring.weight = 0.84;
 			break;
 		case 45:
-			input->Pouring.weight = 300;
+			input->Pouring.weight = 0.845;
 			break;
 
 	}
@@ -152,8 +162,27 @@ void updateVirtualInput_Module_4(InputValues_t* input)
 
 void updateVirtualInput_Module_5(InputValues_t* input)
 {
-//TODO
-
+		bool start_doors_open;
+		bool start_light_barrier;
+		bool end_doors_open;
+		bool end_light_barrier;
+		bool glass_finished;
+	switch(virtual_testenv_timer_variable)
+	{
+		case 10:
+			input->Sensors.start_light_barrier = 1;		// human's hand stops light interaction of light barrier
+			break;
+		case 50:
+			input->Sensors.cocktail_finished = 1;		// cocktail_finished
+			break;
+		case 60:
+			input->Sensors.end_ligth_barrier = 1;		// someone picks the cocktail	
+			break;
+		case 70:
+			input->Sensors.end_doors_open = 1;	
+			break;
+			
+	}
 }
 
 void updateVirtualInput_Module_6(InputValues_t* input)

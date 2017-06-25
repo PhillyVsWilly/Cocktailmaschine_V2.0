@@ -13,7 +13,7 @@ typedef struct {
 	bool inModule2; //Glas in Modul 2
 	bool inModule3; //Glas in Modul 3
 	bool inModule4; //Glas in Modul 4
-	bool inModule5; //Glas in Modul 5
+	bool inModule7; //Glas in Modul 7
 } Module_1_Transportation_Input_t;
 
 //Gravity_Input stores the Input values for the Gravity Station
@@ -30,7 +30,7 @@ typedef struct {
 	bool doors_open;
 	bool start;
 	float weight_glass;
-	float ventil;
+	float valve;
 } Module_3_Pumping_Input_t;
 
 typedef struct {
@@ -49,7 +49,7 @@ typedef struct {
 	bool start_light_barrier;
 	bool end_doors_open;
 	bool end_light_barrier;
-	bool glass_finished;
+	bool cocktail_finished;
 } Module_5_Sensors_Input_t;
 
 
