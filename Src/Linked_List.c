@@ -2,9 +2,9 @@
 #include <string.h>
 #include <assert.h>
 
-#include "list.h"
+#include "Linked_List.h"
 
-void list_new(list *list, int elementSize)
+void list_new(linked_list *list, int elementSize)
 {
   assert(elementSize > 0);
   list->logicalLength = 0;
@@ -13,7 +13,7 @@ void list_new(list *list, int elementSize)
   list->freeFn = free_int;
 }
 
-void list_destroy(list *list)
+void list_destroy(linked_list *list)
 {
   listNode *current;
   while(list->head != NULL) {
@@ -29,11 +29,15 @@ void list_destroy(list *list)
   }
 }
 
-void list_prepend(list *list, int data[1][3])
+void list_prepend(linked_list *list, int data[3])
 {
   listNode *node = malloc(sizeof(listNode));
-  node->data = data;
-  memcpy(node->data, element, list->elementSize);
+  for (int i=0; i<3; i++){
+	  node->data[i] = data[i];
+  }
+
+  //node->data = data;
+  memcpy(node->data, *data, list->elementSize);
 
   node->next = list->head;
   list->head = node;
@@ -46,13 +50,15 @@ void list_prepend(list *list, int data[1][3])
   list->logicalLength++;
 }
 
-void list_append(list *list, int data[1][3])
+void list_append(linked_list *list, int data[3])
 {
   listNode *node = malloc(sizeof(listNode));
-  node->data = data;
+  for (int i=0; i<3; i++){
+	  node->data[i] = data[i];
+  }
   node->next = NULL;
 
-  memcpy(node->data, element, list->elementSize);
+  memcpy(node->data, *data, list->elementSize);
 
   if(list->logicalLength == 0) {
     list->head = list->tail = node;
@@ -64,21 +70,21 @@ void list_append(list *list, int data[1][3])
   list->logicalLength++;
 }
 
-void list_for_each(list *list, listIterator iterator)
+void list_for_each(linked_list *list, listIterator iterator)
 {
   assert(iterator != NULL);
 
   listNode *node = list->head;
-  bool result = TRUE;
+  listbool result = TRUE;
   while(node != NULL && result) {
     result = iterator(node->data);
     node = node->next;
   }
 }
 
-void list_head(list *list, void *element, listbool removeFromList)
+void list_head(linked_list *list, void *element, listbool removeFromList)
 {
-  if (list->head == null) {
+  if (list->head == NULL) {
 	  return;
   }
 
@@ -94,19 +100,19 @@ void list_head(list *list, void *element, listbool removeFromList)
   }
 }
 
-void list_tail(list *list, void *element)
+void list_tail(linked_list *list, void *element)
 {
   assert(list->tail != NULL);
   listNode *node = list->tail;
   memcpy(element, node->data, list->elementSize);
 }
 
-int list_size(list *list)
+int list_size(linked_list *list)
 {
   return list->logicalLength;
 }
 
-void free_int(int data [][])
+void free_int(int data[])
 {
   free(data);
 }
