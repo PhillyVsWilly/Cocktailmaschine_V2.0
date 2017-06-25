@@ -20,13 +20,15 @@ typedef struct{
 	} State_General_t;
 
 typedef struct{
-	int placeholder;
+	State_General_t* ptrGeneralState;
+	int state;
 	bool stopForNewGlass; //True wenn das Band für x Sekunden warten soll damit ein neues Glas auf das Band gestellt werden kann
 	bool transportCanStart; //bool set if all safety and service sensors are ok to signal Transport belt that it can start
 	TickType_t startTicket;
 	} Module_State_1_Transportation_t;
 
 typedef struct{
+	State_General_t* ptrGeneralState;
 	int state;
 	bool glassInStation; //Bool um festzustellen ob sich noch ein Glas in der Station befindet
 	bool treeInPosition;
@@ -37,9 +39,10 @@ typedef struct{
 	} Module_State_2_Gravity_t;
 
 typedef struct{
-	int placeholder;
 	State_General_t* ptrGeneralState;
+	int placeholder;
 	int state;
+	bool glassInStation;
 	bool valveInTransit; //Bool that tracks if the valve is in transit
 	bool valveInPosition;
 	bool finished; //Getraenk fertig
@@ -48,6 +51,7 @@ typedef struct{
 	} Module_State_3_Pumping_t;
 
 typedef struct{
+	State_General_t* ptrGeneralState;
 	int state;
 	//list drinkList;
 	float drinkWeight;
@@ -55,16 +59,19 @@ typedef struct{
 	} Module_State_4_Pouring_t;
 
 typedef struct{
-	int placeholder;
+	State_General_t* ptrGeneralState;
+	int state;
 	int modules_finished[7]; //Contains modules signals
 	} Module_State_5_Sensors_t;
 
 typedef struct{
-	int placeholder;
+	State_General_t* ptrGeneralState;
+	int state;
 	} Module_State_6_Handling_t;
 
 typedef struct{
-	int placeholder;
+	State_General_t* ptrGeneralState;
+	int state;
 	}Module_State_7_Ice_t;
 
 typedef struct{

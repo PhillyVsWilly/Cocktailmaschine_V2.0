@@ -15,9 +15,9 @@
 void vInit_Module_1_Transport(Module_State_2_Gravity_t* state, State_General_t* ptrGeneralState)
 {
 	//Nicht ändern, muss so sein!
-	state->state = REFERENCE;
+	state->state = REFERENCE_GRAV;
 	state->ptrGeneralState = ptrGeneralState;
-	list_new(&(state->Gravity.drinkList),sizeof(int), NULL);
+	//list_new(&(state->Gravity.drinkList),sizeof(int), NULL);
 
 	// Hier können jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
 }
@@ -37,100 +37,100 @@ int vCheckForGeneralErrors(InputValues_t input)
 	return -1;
 }
 
-void vEvaluate_Module_2_Gravity(InputValues_t input, SystemState_t* state, OutputValues_t* output)
+void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* state, OutputValues_t* output)
 {
 			//Ändern des Status auf Basis des Gesamtmaschinenzustand
 			if (state->ptrGeneralState->operation_mode == stop)
 			{
-				vSwitchState(state, INACTIVE);
+				vSwitchStateGrav(state, INACTIVE_GRAV);
 			}
 
 			//Ausführen von Funktionen basierend auf dem Zustand
-			switch (state->Gravity.state){
-				case INACTIVE:
+			switch (state->state){
+				case INACTIVE_GRAV:
 					output->Gravity.move_baum = 0;
 					output->Gravity.move_platform = 0;
-					if (state->General.operation_mode != stop) {
-						vSwitchState(state->Gravity, REFERENCE);
+					if (state->ptrGeneralState != stop) {
+						vSwitchStateGrav(state, REFERENCE_GRAV);
 					}
 					break;
-				case REFERENCE:
+				case REFERENCE_GRAV:
 					//Drives everything to its reference point
-					DPRINT_MESSAGE("I'm in State %d\n", state.Gravity->state);
-					if (output->Gravity.platform_Position_Down == TRUE) {
+					DPRINT_MESSAGE("I'm in State %d\n", state->state);
+					if (input.Gravity.sensor_down == TRUE) {
 						output->Gravity.move_platform = 0;
-						vSwitchState(state->Gravity, ACTIVE);
+						vSwitchStateGrav(state, IDLE_GRAV);
 					} else {
 						output->Gravity.move_platform = -1; //Plattform soll herunterfahren
 					}
 					break;
-				case ACTIVE:
+				case IDLE_GRAV:
 					//Do something
-					DPRINT_MESSAGE("I'm in State %d\n", state.Gravity->state);
-					if (list_get(state->Gravity.drinkList, 0) != 0 && state->Gravity.treeInPosition == false) {
-						DPRINT_MESSAGE("Gravity: Getränk ist in Liste, fahre Baum auf passende Position");
-						fillDrinkList(list_get(state.Gravity.drinkList, 0));
-						//TODO Datenstruktur für Getränke festlegen
-						vSwitchState(state.Gravity, MOVING_TREE);
-					}
-					if (input.Gravity.information_sensor > EMPTY_WEIGHT) {
-						state->Sensors.modules_finished[MODULE_NUMBER - 2] = 0;
-						vSwitchState(state.Gravity, GLASS_IN_STATION);
+					DPRINT_MESSAGE("I'm in State %d\n", state->state);
+//					if (list_get(state->drinkList, 0) != 0 && state->treeInPosition == FALSE) {
+//						DPRINT_MESSAGE("Gravity: Getränk ist in Liste, fahre Baum auf passende Position");
+//						fillDrinkList(list_get(state->drinkList, 0));
+//						//TODO Datenstruktur für Getränke festlegen
+//						vSwitchStateGrav(state, MOVING_TREE);
+//					}
+					if (input.Gravity.weight_sensor > EMPTY_WEIGHT) {
+						input.Sensors.modules_finished[MODULE_NUMBER - 2] = 0;
+						vSwitchStateGrav(state, GLASS_IN_STATION);
 					}
 					break;
 				case MOVING_TREE: //Moving the Tree to the next position
-					DPRINT_MESSAGE("I'm in State %d\n", state.Gravity->state);
-					if (input.Gravity.position_baum != state->Gravity.currentDrinkList[0]) {
+					DPRINT_MESSAGE("I'm in State %d\n", state->state);
+					if (input.Gravity.position_tree != state->currentDrinkList[0]) {
 					output->Gravity.move_baum = 1; //TODO Wert bestimmen zum bewegen
 					} else {
-						state->Gravity.treeInPosition = TRUE;
-						vSwitchState(state.Gravity, ACTIVE);
+						state->treeInPosition = TRUE;
+						vSwitchStateGrav(state, IDLE_GRAV);
 					}
 
 					break;
 				case GLASS_IN_STATION:
-					DPRINT_MESSAGE("I'm in State %d\n", state.Gravity->state);
+					DPRINT_MESSAGE("I'm in State %d\n", state->state);
 					bool finished = TRUE;
 					for (int i = 0; i < 8; i++) {
-						if (state->Gravity.currentDrinkList[i][1] != 0) {
+						if (state->currentDrinkList[i][1] != 0) {
 							finished = FALSE;
 							break;
 						}
 					}
 					if (finished == TRUE) {
-						vSwitchState(state.Gravity, FILLED_GLASS);
+						vSwitchStateGrav(state, FILLED_GLASS);
 						break;
 					}
-					if (state.Gravity.currentDrinkList[0][1] == 0) {
-						vShuffleDrinks(state.Gravity.currentDrinkList);
+					if (state->currentDrinkList[0][1] == 0) {
+						vShuffleDrinks(state->currentDrinkList);
 					} else {
-						vSwitchState(state.Gravity, MOVE_PLATTFORM);
+						vSwitchStateGrav(state, MOVE_PLATTFORM);
 					}
 
 					break;
 				case MOVE_PLATTFORM:
-					DPRINT_MESSAGE("I'm in State %d\n", state.Gravity->state);
-					if (input.Gravity.platform == FALSE) {
+					DPRINT_MESSAGE("I'm in State %d\n", state->state);
+					if (input.Gravity.sensor_down == TRUE) {
 						output->Gravity.move_platform = 1; //TODO Wert
 					}
-					if (input.Gravity.platform == TRUE && state->Gravity.startTicket == 0) {
-						state->Gravity.startTicket = xTaskGetTickCount();
+					if (input.Gravity.sensor_up == TRUE && state->startTicket == 0) {
+						state->startTicket = xTaskGetTickCount();
 					}
-					if (input.Gravity.platform == TRUE && state->Gravity.startTicket >= xTaskGetTickCount() + 1000) {
+					if (input.Gravity.sensor_up == TRUE && state->startTicket >= xTaskGetTickCount() + 1000) {
 						output->Gravity.move_platform = -1; //TODO Wert
 					}
-					if (input.Gravity.platform == FALSE && state->Gravity.startTicket != 0) {
+					if (input.Gravity.sensor_down == FALSE && state->startTicket != 0) {
 						output->Gravity.move_platform = 0;
-						state.Gravity.currentDrinkList[0][1]--;
-						vSwitchState(state.Gravity, GLASS_IN_STATION);
+						state->currentDrinkList[0][1]--;
+						vSwitchStateGrav(state, GLASS_IN_STATION);
 					}
 					break;
 				case FILLED_GLASS:
-					state->Gravity.finished = TRUE;
-					state->Sensors.modules_finished [MODULE_NUMBER - 2] = 1;
-					if (input.Gravity.information_sensor = EMPTY_WEIGHT) {
-						list_head(state->Gravity.drinkList, NULL, TRUE);
-						vSwitchState(state.Gravity, ACTIVE);
+					state->finished = TRUE;
+					//state->Sensors.modules_finished [MODULE_NUMBER - 2] = 1;
+					if (input.Gravity.weight_sensor = EMPTY_WEIGHT) {
+						//list_head(state->drinkList, NULL, TRUE);
+						vSwitchStateGrav(state, IDLE_GRAV);
 					}
 					break;
 				default:
@@ -139,7 +139,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, SystemState_t* state, Outpu
 				return;
 }
 
-void vSwitchState(Module_State_2_Gravity_t* state, int state_new)
+void vSwitchStateGrav(Module_State_2_Gravity_t* state, int state_new)
 {
 	//Hier kommt alles rein, was bei jedem(!) Zustandswechsel passieren soll
 	DPRINT_MESSAGE("Switching states from State %d to State %d\r\n", state->state, state_new);
@@ -157,12 +157,12 @@ void vSwitchState(Module_State_2_Gravity_t* state, int state_new)
 /*****************************************************************/
 
 //Function for filling the array  with the beverages for the current drink
-void vFillDrinkList(listNode *node) {
-
-}
+//void vFillDrinkList(listNode *node) {
+//
+//}
 
 //Wenn ein Drink fertig ist wird der nächste an die Spitze des Arrays gebracht
-void vShuffleDrinks(uint_8 list[][]) {
+void vShuffleDrinks(uint_8 list[8][2]) {
 	for (int i = 0; i < 7; i++) {
 		list[i][0] = list[i + 1][0];
 		list[i][1] = list[i + 1][1];

@@ -20,6 +20,7 @@ typedef struct {
 typedef struct {
 	bool start;
 	int position_tree; // English word for this? Well, tree :D
+	float weight_sensor;
 	bool sensor_up;
 	bool sensor_down;
 } Module_2_Gravity_Input_t;

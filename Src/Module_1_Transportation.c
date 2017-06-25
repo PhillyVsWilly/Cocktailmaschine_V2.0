@@ -18,10 +18,10 @@
  * Hier werden die Anfangswerte der Zust舅de und der Variablen eingestellt. Die Funktion wird nur ein einziges
  * Mal beim Systemstart ausgefuehrt
 **/
-void vInit_Module_1_Transport(Module_State_x_Name_t* state, State_General_t* ptrGeneralState)
+void vInit_Module_1_Transport(Module_State_1_Transportation_t* state, State_General_t* ptrGeneralState)
 {
 	//Nicht ändern, muss so sein!
-	state->state = REFERENCE;
+	state->state = REFERENCE_TRANS;
 	state->ptrGeneralState = ptrGeneralState;
 
 	// Hier können jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
@@ -59,46 +59,46 @@ int vCheckForGeneralErrors(InputValues_t input)
  * Soll der Modulzustand gewechselt werden, wird die vSwitchState() Funktion benutzt. Diese pr�ft die generelle Zulässigkeit
  * (falls nötig) des Zustandswechsels und schreibt einen Debug-Print.
  **/
-void vEvaluate_Module_1_Transportation(InputValues_t input, SystemState_t state, OutputValues_t* output)
+void vEvaluate_Module_1_Transportation(InputValues_t input, Module_State_1_Transportation_t* state, OutputValues_t* output)
 {
 	//Ändern des Status auf Basis des Gesamtmaschinenzustand
 		if (state->ptrGeneralState->operation_mode == stop)
 		{
-			vSwitchState(state, INACTIVE);
+			vSwitchState(state, INACTIVE_TRANS);
 		}
 
 		//Ausführen von Funktionen basierend auf dem Zustand
 		switch (state->state){
-			case INACTIVE:
-				output->Transport.fullStopp = true;
-				if (state.General.operation_mode == startup) {
-					vSwitchState(state.Transportation, REFERENCE)
+			case INACTIVE_TRANS:
+				output->Transport.fullStop = TRUE;
+				if (state->ptrGeneralState == startup) {
+					vSwitchState(state, REFERENCE_TRANS);
 				}
 				break;
-			case REFERENCE:
+			case REFERENCE_TRANS:
 				//Checks if the belt should be stopped for a new Glass or if the belt can start and switches states
-				DPRINT_MESSAGE("I'm in State %d\n", state.Transportation->state);
+				DPRINT_MESSAGE("I'm in State %d\n", state->state);
 				output->Transport.LED_Status = TRUE;
 				if(state->stopForNewGlass == TRUE)
 				{
-					vSwitchState(state.Transportation, WAITING);
+					vSwitchState(state, WAITING_TRANS);
 				}
 				if (state->transportCanStart == TRUE) {
-					vSwitchState(state, ACTIVE);
+					vSwitchState(state, ACTIVE_TRANS);
 				}
 				break;
-			case ACTIVE:
+			case ACTIVE_TRANS:
 				//Do something
 				if(state->stopForNewGlass == TRUE)
 								{
 									output->Transport.windDown = TRUE;
-									vSwitchState(state.Transportation, WAITING);
+									vSwitchState(state, WAITING_TRANS);
 								}
 
-				DPRINT_MESSAGE("I'm in State %d\n", state.Transportation->state);
+				DPRINT_MESSAGE("I'm in State %d\n", state->state);
 				break;
-			case WAITING: //State for waiting for a new Glass.
-				DPRINT_MESSAGE("I'm in State %d\n", state.Transportation->state);
+			case WAITING_TRANS: //State for waiting for a new Glass.
+				DPRINT_MESSAGE("I'm in State %d\n", state->state);
 				if (state->startTicket == 0) {
 					state->startTicket = xTaskGetTickCount();
 					output->Transport.LED_Status = TRUE;
@@ -107,8 +107,8 @@ void vEvaluate_Module_1_Transportation(InputValues_t input, SystemState_t state,
 				if (state->startTicket + 5000 <= currentTickets && state->transportCanStart == TRUE) {
 					state->startTicket == 0;
 					output->Transport.startUp == TRUE;
-					output.Transport.LED_Status = FALSE;
-					vSwitchState(state, ACTIVE);
+					output->Transport.LED_Status = FALSE;
+					vSwitchState(state, ACTIVE_TRANS);
 				}
 				break;
 			default:
@@ -118,7 +118,7 @@ void vEvaluate_Module_1_Transportation(InputValues_t input, SystemState_t state,
 			return;
 }
 
-void vSwitchState(Module_State_1_Transport_t* state, int state_new)
+void vSwitchState(Module_State_1_Transportation_t* state, int state_new)
 {
 	//Hier kommt alles rein, was bei jedem(!) Zustandswechsel passieren soll
 	DPRINT_MESSAGE("Switching states from State %d to State %d\r\n", state->state, state_new);

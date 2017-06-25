@@ -16,31 +16,31 @@
 
 /** @brief Initialisierung des Teilmoduls
  *
- * Hier werden die Anfangswerte der Zustände und der Variablen eingestellt. Die Funktion wird nur ein einziges
- * Mal beim Systemstart ausgeführt
+ * Hier werden die Anfangswerte der Zustèˆ…de und der Variablen eingestellt. Die Funktion wird nur ein einziges
+ * Mal beim Systemstart ausgefï¿½hrt
 **/
 void vInit_Module_3_Pumping(Module_State_3_Pumping_t* state, State_General_t* ptrGeneralState)
 {
-	//Nicht ändern, muss so sein!
-	state->state = REFERENCE;
+	//Nicht èˆ…dern, muss so sein!
+	state->state = REFERENCE_PUMP;
 	state->ptrGeneralState = ptrGeneralState;
 
-	// Hier können jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
+	// Hier kî’–nen jetzt noch - falls nî’œig - Startwerte fï¿½r die anderen Zustandsvariablen gegeben werden
 }
 
-/** @brief Prüfe nach allgmeinen Fehlern
- *Diese Funktion muss bei jedem Zyklus ausgeführt werden. In ihr werden Systemzustände überprüft, die unabhängig vom
+/** @brief Prï¿½fe nach allgmeinen Fehlern
+ *Diese Funktion muss bei jedem Zyklus ausgefï¿½hrt werden. In ihr werden Systemzustèˆ…de ï¿½berprï¿½ft, die unabhèˆ…gig vom
  *Ablauf des Systems sind.
  *Bsp: Beim Transportmodul: Keine Hand in der Maschine
- *Beim Eis: Überlaufbecken nicht voll
- *Deshalb wird ihr auch nicht der Systemzustand übergeben
+ *Beim Eis: ï¾œberlaufbecken nicht voll
+ *Deshalb wird ihr auch nicht der Systemzustand ï¿½bergeben
  **/
 int vCheckForGeneralErrors(InputValues_t input)
 {
 	//TODO: implementiere Fehlererkennung
 	if(input.Module_x_Name.placeholder > 10.0)
 	{
-		//ThrowError ist die zentrale "Fehlerverwaltung". An sie werden alle Fehler übergeben, die geworfen werden sollen
+		//ThrowError ist die zentrale "Fehlerverwaltung". An sie werden alle Fehler ï¿½bergeben, die geworfen werden sollen
 		ThrowError(MODULE_NUMBER, MOTOR1_NOT_MOVING);
 
 		//Gibt den aktuell geworfenen Fehler aus
@@ -54,23 +54,23 @@ int vCheckForGeneralErrors(InputValues_t input)
  *
  * Dieses Modul wird in jedem Zyklus aufgerufen und steuert das Modul
  * In ihr wird zuerst vCheckForErrors aufgerufen um zuerst nach allgemeinen Fehlern zu suchen
- * Danach wird in Abhängigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
- * oder mehrere bestimmte Aktionen ausgeführt und deren Verlauf überwacht
- * Hier können über ThrowError() auch weitere Fehler geworfen werden.
- * Soll der Modulzustand gewechselt werden, wird die vSwitchState() Funktion benutzt. Diese prüft die generelle Zulässigkeit
- * (falls nötig) des Zustandswechsels und schreibt einen Debug-Print.
+ * Danach wird in Abhèˆ…gigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
+ * oder mehrere bestimmte Aktionen ausgefï¿½hrt und deren Verlauf ï¿½berwacht
+ * Hier kî’–nen ï¿½ber ThrowError() auch weitere Fehler geworfen werden.
+ * Soll der Modulzustand gewechselt werden, wird die vSwitchStatePump() Funktion benutzt. Diese prï¿½ft die generelle Zulèˆ–sigkeit
+ * (falls nî’œig) des Zustandswechsels und schreibt einen Debug-Print.
  **/
 void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* state, OutputValues_t* output)
 {
-	//Ändern des Status auf Basis des Gesamtmaschinenzustand
+	//ï¾„ndern des Status auf Basis des Gesamtmaschinenzustand
 	if (&state->ptrGeneralState == stop)
 	{
-		vSwitchState(state, INACTIVE_PUMP);
+		vSwitchStatePump(state, INACTIVE_PUMP);
 	}
 	
-	//Ausführen von Funktionen basierend auf dem Zustand
+	//Ausfï¿½hren von Funktionen basierend auf dem Zustand
 	switch (state->state){
-		case INACTIVE:
+		case INACTIVE_PUMP:
 			//stops the Motors and
 			output -> Pumping.pump = 0;
 			output -> Pumping.choose_motor = 0;
@@ -78,7 +78,7 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			if(&state->ptrGeneralState != stop)
 			{
-				vSwitchState(state, REFERENCE_PUMP);
+				vSwitchStatePump(state, REFERENCE_PUMP);
 			}
 			break;
 		case REFERENCE_PUMP:
@@ -90,7 +90,7 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 			else{
 				output -> Pumping.choose_motor = 0;
 				state -> valveInTransit = FALSE;
-				vSwitchState(state, ACTIVE);
+				vSwitchStatePump(state, ACTIVE);
 
 			}
 			DPRINT_MESSAGE("The pump output is %d\nThe choose valve output is %d\n",output ->Pumping.pump,output ->Pumping.choose_motor);
@@ -102,25 +102,25 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 
 
 			if(state->glassInStation && state->drinkQueue.front != NULL){
-				vSwitchState(state, VALVE_ADJUSTING);
+				vSwitchStatePump(state, VALVE_ADJUSTING);
 				input.Sensors.modules_finished[3] = 0;
 			}
 
 			break;
 
 		case VALVE_ADJUSTING:
-			if(input.Pumping.valve_position < state.drinkQueue.front[1] && !state.valveInTransit ){
+			if(input.Pumping.valve_position < state->drinkQueue.front[1] && !state->valveInTransit ){
 				output -> Pumping.choose_motor = 1;
 				state->valveInTransit = TRUE;
 			}
-			if(input.Pumping.valve_position > state.drinkQueue.front[1] && !state.valveInTransit ){
+			if(input.Pumping.valve_position > state->drinkQueue.front[1] && !state->valveInTransit ){
 							output -> Pumping.choose_motor = -1;
 							state->valveInTransit = TRUE;
 						}
-			if(input.Pumping.valve_position = state.drinkQueue.front[1] ){
+			if(input.Pumping.valve_position = state->drinkQueue.front[1] ){
 				output -> Pumping.choose_motor = 0;
 				state->valveInTransit = FALSE;
-				vSwitchState(state, PUMP_ACTIVE);
+				vSwitchStatePump(state, PUMP_ACTIVE);
 			}
 		case PUMP_ACTIVE:
 			if(input.Pumping.weight_glass < state->drinkQueue.front[2]){
@@ -131,15 +131,15 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 				bool cont = (1 == state->drinkQueue.front[3]);
 				Dequeue(state->drinkQueue);
 				if (cont){
-					vSwitchState(state,FILLED_GLASS);
+					vSwitchStatePump(state,FILLED_GLASS_PUMP);
 				}
 				else{
-					vSwitchState(state,ACTIVE);
+					vSwitchStatePump(state,ACTIVE);
 				}
 			}
-		case FILLED_GLASS:
+		case FILLED_GLASS_PUMP:
 			if(input.Pouring.weight == 0){
-				vSwitchState(state,ACTIVE);
+				vSwitchStatePump(state,ACTIVE);
 			}
 			input.Sensors.modules_finished[3] = 1;
 
@@ -151,7 +151,7 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 
 }
 
-void vSwitchState(Module_State_3_Pumping_t* state, int state_new)
+void vSwitchStatePump(Module_State_3_Pumping_t* state, int state_new)
 {
 	//Hier kommt alles rein, was bei jedem(!) Zustandswechsel passieren soll
 	DPRINT_MESSAGE("Switching states from State %d to State %d\r\n", state->state, state_new);

@@ -1,7 +1,7 @@
 #include "Module_4_Pouring.h"
 #include "Evaluation.h"
 #include "Debug.h"
-#include "LinkedList.h"
+//#include "FIFI_Queue.h"
 
 
 #undef DEBUG_ENABLED
@@ -18,35 +18,35 @@
 
 /** @brief Initialisierung des Teilmoduls
  *
- * Hier werden die Anfangswerte der Zustände und der Variablen eingestellt. Die Funktion wird nur ein einziges
- * Mal beim Systemstart ausgeführt
+ * Hier werden die Anfangswerte der Zustèˆ…de und der Variablen eingestellt. Die Funktion wird nur ein einziges
+ * Mal beim Systemstart ausgefï¿½hrt
 **/
-void vInit_Module_4_Pouring(Module_State_x_Name_t* state, State_General_t* ptrGeneralState)
+void vInit_Module_4_Pouring(Module_State_4_Pouring_t* state, State_General_t* ptrGeneralState)
 {
-	//Nicht ändern, muss so sein!
-	state->state = REFERENCE;
+	//Nicht èˆ…dern, muss so sein!
+	state->state = REFERENCE_POUR;
 	state->ptrGeneralState = ptrGeneralState;
 
-	// Hier können jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
+	// Hier kî’–nen jetzt noch - falls nî’œig - Startwerte fï¿½r die anderen Zustandsvariablen gegeben werden
 }
 
-/** @brief Prüfe nach allgmeinen Fehlern
- *Diese Funktion muss bei jedem Zyklus ausgeführt werden. In ihr werden Systemzustände überprüft, die unabhängig vom
+/** @brief Prï¿½fe nach allgmeinen Fehlern
+ *Diese Funktion muss bei jedem Zyklus ausgefï¿½hrt werden. In ihr werden Systemzustèˆ…de ï¿½berprï¿½ft, die unabhèˆ…gig vom
  *Ablauf des Systems sind.
  *Bsp: Beim Transportmodul: Keine Hand in der Maschine
- *Beim Eis: Überlaufbecken nicht voll
- *Deshalb wird ihr auch nicht der Systemzustand übergeben
+ *Beim Eis: ï¾œberlaufbecken nicht voll
+ *Deshalb wird ihr auch nicht der Systemzustand ï¿½bergeben
  **/
 int vCheckForGeneralErrors(InputValues_t input)
 {
 
 	if(input.Module_x_Name.placeholder > 10.0)
 	{
-		//ThrowError ist die zentrale "Fehlerverwaltung". An sie werden alle Fehler übergeben, die geworfen werden sollen
-		ThrowError(MODULE_NUMBER, MOTOR1_NOT_MOVING);
+		//ThrowError ist die zentrale "Fehlerverwaltung". An sie werden alle Fehler ï¿½bergeben, die geworfen werden sollen
+		//ThrowError(MODULE_NUMBER, MOTOR1_NOT_MOVING);
 
 		//Gibt den aktuell geworfenen Fehler aus
-		return MOTOR1_NOT_MOVING;
+		//return MOTOR1_NOT_MOVING;
 	}
 
 	return -1;
@@ -56,77 +56,77 @@ int vCheckForGeneralErrors(InputValues_t input)
  *
  * Dieses Modul wird in jedem Zyklus aufgerufen und steuert das Modul
  * In ihr wird zuerst vCheckForErrors aufgerufen um zuerst nach allgemeinen Fehlern zu suchen
- * Danach wird in Abhängigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
- * oder mehrere bestimmte Aktionen ausgeführt und deren Verlauf überwacht
- * Hier können über ThrowError() auch weitere Fehler geworfen werden.
- * Soll der Modulzustand gewechselt werden, wird die vSwitchState() Funktion benutzt. Diese prüft die generelle Zulässigkeit
- * (falls nötig) des Zustandswechsels und schreibt einen Debug-Print.
+ * Danach wird in Abhèˆ…gigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
+ * oder mehrere bestimmte Aktionen ausgefï¿½hrt und deren Verlauf ï¿½berwacht
+ * Hier kî’–nen ï¿½ber ThrowError() auch weitere Fehler geworfen werden.
+ * Soll der Modulzustand gewechselt werden, wird die vSwitchStatePour() Funktion benutzt. Diese prï¿½ft die generelle Zulèˆ–sigkeit
+ * (falls nî’œig) des Zustandswechsels und schreibt einen Debug-Print.
  **/
-void vEvaluate_Module_4_Pouring(InputValues_t input, SystemState_t* state, OutputValues_t* output)
+void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* state, OutputValues_t* output)
 {
-	//Ändern des Status auf Basis des Gesamtmaschinenzustand
-	if (state->General->operation_mode == stop)
+	//ï¾„ndern des Status auf Basis des Gesamtmaschinenzustand
+	if (&(state->ptrGeneralState) == stop)
 	{
-		vSwitchState(state, INACTIVE);
+		vSwitchStatePour(state, INACTIVE_POUR);
 	}
 
-	//Ausführen von Funktionen basierend auf dem Zustand
-	switch (state->Pouring.state){
-		case REFERENCE:
+	//Ausfï¿½hren von Funktionen basierend auf dem Zustand
+	switch (state->state){
+		case REFERENCE_POUR:
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			if (!input.Pouring.position_up) {
 				output->Pouring.motor = 1;
 			} else if (input.Pouring.position_up) {
 				output->Pouring.motor = 0;
-				vSwitchState(state->Pouring, ACTIVE);
+				vSwitchStatePour(state, ACTIVE_POUR);
 			}
 			break;
-		case ACTIVE:
+		case ACTIVE_POUR:
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			if (input.Pouring.weight > EMPTY_WEIGHT) {
-				vSwitchState(state->Pouring, GLASS_IN_STATION);
+				vSwitchStatePour(state, GLASS_IN_STATION_POUR);
 			}
 			break;
-		case INACTIVE:
+		case INACTIVE_POUR:
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			output->Pouring.motor = 0;
-			if (state->General.operation_mode != stopp) {
-				vSwitchState(state->Pouring, REFERENCE);
+			if (state->ptrGeneralState != stop) {
+				vSwitchStatePour(state, REFERENCE_POUR);
 			}
 			break;
-		case GLASS_IN_STATION:
-			               list_head(state->Pouring.drinkList,state->Pouring.currentNode, FALSE);
-			if (state->Pouring->currentNode->data == 0 && input.Pouring.weight == EMPTY_WEIGHT) {
-				list_head(state->Pouring.drinkList,state->Pouring.currentNode, TRUE);
-				vSwitchState(state->Pouring, ACTIVE);
-				break;
-			}
-			if (state->Pouring->currentNode->data != 0 && state->Pouring.drinkWeight == 0) {
-				state->Pouring.drinkWeight = EMPTY_WEIGHT + GLASS_WEIGHT + state->Pouring->currentNode->data; //TODO Datenstruktur hier anpassen
-			} else if (state->Pouring->currentNode->data != 0) {
-				vSwitchState(state->Pouring, POURING);
-			}
+		case GLASS_IN_STATION_POUR:
+//			               list_head(state->Pouring.drinkList,state->Pouring.currentNode, FALSE);
+//			if (state->Pouring->currentNode->data == 0 && input.Pouring.weight == EMPTY_WEIGHT) {
+//				list_head(state->Pouring.drinkList,state->Pouring.currentNode, TRUE);
+//				vSwitchStatePour(state->Pouring, ACTIVE_POUR);
+//				break;
+//			}
+//			if (state->Pouring->currentNode->data != 0 && state->Pouring.drinkWeight == 0) {
+//				state->Pouring.drinkWeight = EMPTY_WEIGHT + GLASS_WEIGHT + state->Pouring->currentNode->data; //TODO Datenstruktur hier anpassen
+//			} else if (state->Pouring->currentNode->data != 0) {
+//				vSwitchStatePour(state->Pouring, POURING);
+//			}
 
 			break;
 
 		case POURING:
-			state->Sensors.modules_finished [MODULE_NUMBER - 2] = 0;
-			if (input.Pouring.position_up == 1 && input.Pouring.weight < state->Pouring.drinkWeight) {
+			input.Sensors.modules_finished [MODULE_NUMBER - 2] = 0;
+			if (input.Pouring.position_up == 1 && input.Pouring.weight < state->drinkWeight) {
 				output->Pouring.motor = 1; //TODO Motorwert
 			}
 			if (input.Pouring.position_down == 1) {
 				output->Pouring.motor = 0;
 			}
-			if (input.Pouring.weight >= state->Pouring.drinkWeight - FILL_ERROR && input.Pouring.position_up != 1) {
+			if (input.Pouring.weight >= state->drinkWeight - FILL_ERROR && input.Pouring.position_up != 1) {
 				output->Pouring.motor = 1; //TODO Wert, Motor soll hochfahren
 			}
-			if (input.Pouring.weight >= state->Pouring.drinkWeight - FILL_ERROR && input.Pouring.position_up == 1) {
-				state->Sensors.modules_finished [MODULE_NUMBER - 2] = 1;
+			if (input.Pouring.weight >= state->drinkWeight - FILL_ERROR && input.Pouring.position_up == 1) {
+				input.Sensors.modules_finished [MODULE_NUMBER - 2] = 1;
 				output->Pouring.motor = 0;
-				vSwitchState(state->Pouring, ACTIVE);
+				vSwitchStatePour(state, ACTIVE_POUR);
 				break;
 			}
 			break;
@@ -138,7 +138,7 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, SystemState_t* state, Outpu
 
 }
 
-void vSwitchState(Module_State_4_Pouring_t* state, int state_new)
+void vSwitchStatePour(Module_State_4_Pouring_t* state, int state_new)
 {
 	//Hier kommt alles rein, was bei jedem(!) Zustandswechsel passieren soll
 	DPRINT_MESSAGE("Switching states from State %d to State %d\r\n", state->state, state_new);

@@ -16,7 +16,11 @@ FIFO_Queue * createFIFO_Queue(int maxElements)
         FIFO_Queue *Q;
         Q = (FIFO_Queue *)malloc(sizeof(FIFO_Queue));
         /* Initialise its properties */
-        Q->elements = (int *)malloc(sizeof(int)*maxElements);
+//        for (int i = 0; i < maxElements; i++) {
+//        	Q->elements[i] = (int *)malloc(sizeof(int));
+//        }
+        //Q->elements = (int *)malloc(sizeof(int)*maxElements);
+        //memset(Q->elements ,(int *)malloc(sizeof(int)*maxElements) );
         Q->size = 0;
         Q->capacity = maxElements;
         Q->front = 0;

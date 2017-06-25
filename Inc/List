@@ -1,0 +1,46 @@
+/*
+ * List
+ *
+ *  Created on: 25.06.2017
+ *      Author: Stephan
+ */
+
+#ifndef LIST_
+#define LIST_
+
+
+
+// a common function used to free malloc'd objects
+typedef void (*freeFunction)(void *);
+
+typedef enum { FALSE, TRUE } listbool;
+
+typedef listbool (*listIterator)(void *);
+
+typedef struct _listNode {
+  int data[1][3];
+  struct _listNode *next;
+} listNode;
+
+typedef struct {
+  int logicalLength;
+  int elementSize;
+  listNode *head;
+  listNode *tail;
+  freeFunction freeFn;
+} list;
+
+void list_new(list *list, int elementSize);
+void list_destroy(list *list);
+
+void list_prepend(list *list, int[1][3]);
+void list_append(list *list, int[1][3]);
+int list_size(list *list);
+void free_int(int data [][]);
+
+void list_for_each(list *list, listIterator iterator);
+void list_head(list *list, void *element, listbool removeFromList);
+void list_tail(list *list, void *element);
+
+
+#endif
