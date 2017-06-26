@@ -17,6 +17,9 @@ void vInit_Module_1_Transport(Module_State_2_Gravity_t* state, State_General_t* 
 	//Nicht ändern, muss so sein!
 	state->state = REFERENCE_GRAV;
 	state->ptrGeneralState = ptrGeneralState;
+	//list_new(input.Gravity.drinkList, sizeof(int[3]));
+	state->currentNode = NULL;
+	state->glassInStation = FALSE;
 	//list_new(&(state->Gravity.drinkList),sizeof(int), NULL);
 
 	// Hier können jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
@@ -67,46 +70,72 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 				case IDLE_GRAV:
 					//Do something
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
-//					if (list_get(state->drinkList, 0) != 0 && state->treeInPosition == FALSE) {
-//						DPRINT_MESSAGE("Gravity: Getränk ist in Liste, fahre Baum auf passende Position");
-//						fillDrinkList(list_get(state->drinkList, 0));
-//						//TODO Datenstruktur für Getränke festlegen
-//						vSwitchStateGrav(state, MOVING_TREE);
-//					}
 					if (input.Gravity.weight_sensor > EMPTY_WEIGHT) {
-						input.Sensors.modules_finished[MODULE_NUMBER - 2] = 0;
+						state->drinkWeight = input.Gravity.weight_sensor;
+						state->glassInStation = TRUE;
 						vSwitchStateGrav(state, GLASS_IN_STATION);
+						break;
 					}
-					break;
-				case MOVING_TREE: //Moving the Tree to the next position
-					DPRINT_MESSAGE("I'm in State %d\n", state->state);
-					if (input.Gravity.position_tree != state->currentDrinkList[0]) {
-					output->Gravity.move_baum = 1; //TODO Wert bestimmen zum bewegen
-					} else {
-						state->treeInPosition = TRUE;
-						vSwitchStateGrav(state, IDLE_GRAV);
-					}
-
-					break;
-				case GLASS_IN_STATION:
-					DPRINT_MESSAGE("I'm in State %d\n", state->state);
-					bool finished = TRUE;
-					for (int i = 0; i < 8; i++) {
-						if (state->currentDrinkList[i][1] != 0) {
-							finished = FALSE;
+					list_head(input.Gravity.drinkList, state->currentNode, FALSE);
+					if (state-> currentNode != NULL) {
+						if (state->currentNode->data[0] != 0) {
+							vSwitchStateGrav(state, MOVING_TREE);
 							break;
 						}
 					}
-					if (finished == TRUE) {
+
+					break;
+				case MOVING_TREE: //Moving the Tree to the next position
+					DPRINT_MESSAGE("I'm in State %d\n", state->state);
+					if (input.Gravity.position_tree != state->currentNode->data[1]) {
+					output->Gravity.move_baum = 1; //TODO Wert bestimmen zum bewegen
+					}
+					if (input.Gravity.position_tree == state->currentNode->data[1]) {
+						output->Gravity.move_baum = 0;
+						state->treeInPosition = TRUE;
+						vSwitchStateGrav(state, IDLE_GRAV);
+						break;
+					}
+					if (input.Gravity.weight_sensor > EMPTY_WEIGHT) {
+						output->Gravity.move_baum = 0;
+						if (state->glassInStation == FALSE) {
+						vSwitchStateGrav(state, IDLE_GRAV);
+						} else if (state->glassInStation == TRUE) {
+							vSwitchStateGrav(state, GLASS_IN_STATION);
+						}
+					}
+					break;
+				case GLASS_IN_STATION:
+					DPRINT_MESSAGE("I'm in State %d\n", state->state);
+					list_head(input.Gravity.drinkList, state->currentNode, FALSE);
+					if (input.Gravity.position_tree != state->currentNode->data[1]) {
+						vSwitchStateGrav(state, MOVING_TREE);
+						break;
+					}
+					if (state->currentNode == NULL && input.Gravity.weight_sensor == 0) {
+						vSwitchStateGrav(state, IDLE_GRAV);
+						break;
+					}
+					if (state->currentNode != NULL) {
+						if (state->currentNode->data[2] == 0 && input.Gravity.weight_sensor == 0) {
+							vSwitchStateGrav(state, IDLE_GRAV);
+							break;
+						}
+					}
+					if (state->currentNode->data[2] != 0) {
+						vSwitchStateGrav(state, MOVE_PLATTFORM);
+						break;
+					}
+					if (state->currentNode->data[2] == 0 && state->currentNode->data[3] == 1) {
 						vSwitchStateGrav(state, FILLED_GLASS);
 						break;
 					}
-					if (state->currentDrinkList[0][1] == 0) {
-						vShuffleDrinks(state->currentDrinkList);
-					} else {
-						vSwitchStateGrav(state, MOVE_PLATTFORM);
+					if (state->currentNode->data[2] == 0 && state->currentNode->data[3] == 0) {
+						list_head(input.Gravity.drinkList, state->currentNode, TRUE);
+						list_head(input.Gravity.drinkList, state->currentNode, FALSE);
+						vSwitchStateGrav(state, MOVING_TREE);
+						break;
 					}
-
 					break;
 				case MOVE_PLATTFORM:
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
@@ -121,17 +150,17 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					}
 					if (input.Gravity.sensor_down == FALSE && state->startTicket != 0) {
 						output->Gravity.move_platform = 0;
-						state->currentDrinkList[0][1]--;
+						state->currentNode->data[2]--;
 						vSwitchStateGrav(state, GLASS_IN_STATION);
 					}
 					break;
 				case FILLED_GLASS:
-					state->finished = TRUE;
-					//state->Sensors.modules_finished [MODULE_NUMBER - 2] = 1;
-					if (input.Gravity.weight_sensor = EMPTY_WEIGHT) {
-						//list_head(state->drinkList, NULL, TRUE);
-						vSwitchStateGrav(state, IDLE_GRAV);
-					}
+					input.Sensors.modules_finished[MODULE_NUMBER - 2] = 0;
+										if (input.Gravity.weight_sensor == 0) {
+											list_head(input.Gravity.drinkList, state->currentNode, TRUE);
+											state->glassInStation = FALSE;
+											vSwitchStateGrav(state, IDLE_GRAV);
+										}
 					break;
 				default:
 					break;

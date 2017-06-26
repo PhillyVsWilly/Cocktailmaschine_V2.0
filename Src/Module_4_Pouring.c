@@ -1,6 +1,7 @@
 #include "Module_4_Pouring.h"
 #include "Evaluation.h"
 #include "Debug.h"
+#include "Module_common.h"
 //#include "FIFI_Queue.h"
 
 
@@ -26,6 +27,8 @@ void vInit_Module_4_Pouring(Module_State_4_Pouring_t* state, State_General_t* pt
 	//Nicht 舅dern, muss so sein!
 	state->state = REFERENCE_POUR;
 	state->ptrGeneralState = ptrGeneralState;
+	//list_new(input.Pouring.drinkList, sizeof(int[4]));
+	state->currentNode = NULL;
 
 	// Hier knen jetzt noch - falls nig - Startwerte f�r die anderen Zustandsvariablen gegeben werden
 }
@@ -37,16 +40,16 @@ void vInit_Module_4_Pouring(Module_State_4_Pouring_t* state, State_General_t* pt
  *Beim Eis: ﾜberlaufbecken nicht voll
  *Deshalb wird ihr auch nicht der Systemzustand �bergeben
  **/
-int vCheckForGeneralErrors(InputValues_t input)
+int vCheckForGeneralErrorsPour(InputValues_t input)
 {
 
 	if(input.Module_x_Name.placeholder > 10.0)
 	{
 		//ThrowError ist die zentrale "Fehlerverwaltung". An sie werden alle Fehler �bergeben, die geworfen werden sollen
-		//ThrowError(MODULE_NUMBER, MOTOR1_NOT_MOVING);
+		ThrowError(MODULE_NUMBER, MOTOR1_NOT_MOVING);
 
 		//Gibt den aktuell geworfenen Fehler aus
-		//return MOTOR1_NOT_MOVING;
+		return MOTOR1_NOT_MOVING;
 	}
 
 	return -1;
@@ -86,6 +89,7 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			if (input.Pouring.weight > EMPTY_WEIGHT) {
+				state->drinkWeight = input.Pouring.weight;
 				vSwitchStatePour(state, GLASS_IN_STATION_POUR);
 			}
 			break;
@@ -98,34 +102,38 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 			}
 			break;
 		case GLASS_IN_STATION_POUR:
-//			               list_head(state->Pouring.drinkList,state->Pouring.currentNode, FALSE);
-//			if (state->Pouring->currentNode->data == 0 && input.Pouring.weight == EMPTY_WEIGHT) {
-//				list_head(state->Pouring.drinkList,state->Pouring.currentNode, TRUE);
-//				vSwitchStatePour(state->Pouring, ACTIVE_POUR);
-//				break;
-//			}
-//			if (state->Pouring->currentNode->data != 0 && state->Pouring.drinkWeight == 0) {
-//				state->Pouring.drinkWeight = EMPTY_WEIGHT + GLASS_WEIGHT + state->Pouring->currentNode->data; //TODO Datenstruktur hier anpassen
-//			} else if (state->Pouring->currentNode->data != 0) {
-//				vSwitchStatePour(state->Pouring, POURING);
-//			}
-
+			list_head(input.Pouring.drinkList, state->currentNode, FALSE);
+			if (state->currentNode == NULL && input.Pouring.weight == 0) {
+				vSwitchStatePour(state, ACTIVE_POUR);
+				break;
+			}
+			//Preventing NullPointer Exception
+			if (state->currentNode != NULL) {
+				if (state->currentNode->data[2] == 0 && input.Pouring.weight == 0) {
+					vSwitchStatePour(state, ACTIVE_POUR);
+					break;
+				}
+			}
+			if (state->currentNode != NULL) {
+				input.Sensors.modules_finished[2] = 0;
+				vSwitchStatePour(state, POURING);
+			}
 			break;
-
 		case POURING:
 			input.Sensors.modules_finished [MODULE_NUMBER - 2] = 0;
-			if (input.Pouring.position_up == 1 && input.Pouring.weight < state->drinkWeight) {
-				output->Pouring.motor = 1; //TODO Motorwert
+			if (input.Pouring.position_up == 1 && input.Pouring.weight < state->drinkWeight + state->currentNode->data[1] + FILL_ERROR) {
+				output->Pouring.motor = -1; //TODO Motorwert
 			}
 			if (input.Pouring.position_down == 1) {
 				output->Pouring.motor = 0;
 			}
-			if (input.Pouring.weight >= state->drinkWeight - FILL_ERROR && input.Pouring.position_up != 1) {
+			if (input.Pouring.weight >= state->drinkWeight + state->currentNode->data[1] + FILL_ERROR && input.Pouring.position_up != 1) {
 				output->Pouring.motor = 1; //TODO Wert, Motor soll hochfahren
 			}
-			if (input.Pouring.weight >= state->drinkWeight - FILL_ERROR && input.Pouring.position_up == 1) {
+			if (input.Pouring.weight >= state->drinkWeight + state->currentNode->data[1] + FILL_ERROR && input.Pouring.position_up == 1) {
 				input.Sensors.modules_finished [MODULE_NUMBER - 2] = 1;
 				output->Pouring.motor = 0;
+				list_head(input.Pouring.drinkList, state->currentNode, TRUE);
 				vSwitchStatePour(state, ACTIVE_POUR);
 				break;
 			}

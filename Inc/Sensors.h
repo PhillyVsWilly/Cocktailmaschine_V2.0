@@ -4,12 +4,15 @@
 #include <stdint.h>
 #include "stm32f7xx_hal.h"
 
+#include "Linked_List.h"
+
 typedef unsigned char uint_8; 
 typedef char bool;
 
 
 typedef struct {
 	bool start;		//Band start
+	bool newGlas; //TRUE if a new glas should be entered
 	bool inModule2; //Glas in Modul 2
 	bool inModule3; //Glas in Modul 3
 	bool inModule4; //Glas in Modul 4
@@ -21,6 +24,7 @@ typedef struct {
 	bool start;
 	int position_tree; // English word for this? Well, tree :D
 	float weight_sensor;
+    linked_list *drinkList;
 	bool sensor_up;
 	bool sensor_down;
 } Module_2_Gravity_Input_t;
@@ -35,6 +39,7 @@ typedef struct {
 	uint8_t start;
 	uint_8 position_up;
 	uint_8 position_down;
+	linked_list *drinkList;
 	float weight;
 } Module_4_Pouring_Input_t;
 

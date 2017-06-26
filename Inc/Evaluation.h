@@ -31,11 +31,10 @@ typedef struct{
 typedef struct{
 	State_General_t* ptrGeneralState;
 	int state;
+	float drinkWeight;
 	bool glassInStation; //Bool um festzustellen ob sich noch ein Glas in der Station befindet
 	bool treeInPosition;
-	bool finished; //Getraenk fertig
-    //list drinkList;
-    uint_8 currentDrinkList [8][2];
+    listNode *currentNode;
     TickType_t startTicket;
 	} Module_State_2_Gravity_t;
 
@@ -54,7 +53,7 @@ typedef struct{
 typedef struct{
 	State_General_t* ptrGeneralState;
 	int state;
-	//list drinkList;
+	listNode *currentNode;
 	float drinkWeight;
 	//listNode *currentNode;
 	} Module_State_4_Pouring_t;
