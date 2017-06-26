@@ -5,6 +5,7 @@
 #include "Sensors.h"
 #include "Actuators.h"
 #include "FreeRTOS.h"
+#include "Linked_List.h"
 
 
 #define TRUE 1
@@ -46,7 +47,7 @@ typedef struct{
 	bool valveInTransit; //Bool that tracks if the valve is in transit
 	bool valveInPosition;
 	bool finished; //Getraenk fertig
-	FIFO_Queue drinkQueue;
+	linked_list *drinkList;
 
 	} Module_State_3_Pumping_t;
 

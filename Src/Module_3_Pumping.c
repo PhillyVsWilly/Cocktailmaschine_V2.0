@@ -1,10 +1,6 @@
 #include "Module_common.h"
 #include "Module_3_Pumping.h"
 
-#include "Sensors.h"
-#include "Evaluation.h"
-#include "Actuators.h"
-
 #undef DEBUG_ENABLED
 #define DEBUG_ENABLED 1
 #include "Debug.h"
@@ -63,11 +59,10 @@ int vCheckForGeneralErrors(InputValues_t input)
 void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* state, OutputValues_t* output)
 {
 	//ﾄndern des Status auf Basis des Gesamtmaschinenzustand
-	if (&state->ptrGeneralState == stop)
+	if (state->ptrGeneralState->operation_mode == stop)
 	{
 		vSwitchStatePump(state, INACTIVE_PUMP);
 	}
-	
 	//Ausf�hren von Funktionen basierend auf dem Zustand
 	switch (state->state){
 		case INACTIVE_PUMP:
@@ -76,7 +71,7 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 			output -> Pumping.choose_motor = 0;
 
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			if(&state->ptrGeneralState != stop)
+			if(state->ptrGeneralState->operation_mode!= stop)
 			{
 				vSwitchStatePump(state, REFERENCE_PUMP);
 			}
@@ -84,7 +79,7 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 		case REFERENCE_PUMP:
 			output -> Pumping.pump = 0;
 			DPRINT_MESSAGE("I'm in State %d\n", state-> state);
-			if(input ->Pumping.valve_position == -1){
+			if(input.Pumping.valve_position == -1){
 				output -> Pumping.choose_motor = -1;
 			}
 			else{
@@ -100,8 +95,10 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 
 			DPRINT_MESSAGE("I'm in State %d\n",state ->state);
 
+			listNode *ls_head;
+			list_head(state->drinkList, ls_head, FALSE);
 
-			if(state->glassInStation && state->drinkQueue.front != NULL){
+			if(state->glassInStation && ls_head != NULL){
 				vSwitchStatePump(state, VALVE_ADJUSTING);
 				input.Sensors.modules_finished[3] = 0;
 			}
@@ -109,27 +106,31 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 			break;
 
 		case VALVE_ADJUSTING:
-			if(input.Pumping.valve_position < state->drinkQueue.front[1] && !state->valveInTransit ){
+
+			list_head(state->drinkList, ls_head, FALSE);
+			if(input.Pumping.valve_position < ls_head->data[0] && !state->valveInTransit ){
 				output -> Pumping.choose_motor = 1;
 				state->valveInTransit = TRUE;
 			}
-			if(input.Pumping.valve_position > state->drinkQueue.front[1] && !state->valveInTransit ){
+			if(input.Pumping.valve_position > ls_head->data[0] && !state->valveInTransit ){
 							output -> Pumping.choose_motor = -1;
 							state->valveInTransit = TRUE;
 						}
-			if(input.Pumping.valve_position = state->drinkQueue.front[1] ){
+			if(input.Pumping.valve_position == ls_head->data[0] ){
 				output -> Pumping.choose_motor = 0;
 				state->valveInTransit = FALSE;
 				vSwitchStatePump(state, PUMP_ACTIVE);
 			}
 		case PUMP_ACTIVE:
-			if(input.Pumping.weight_glass < state->drinkQueue.front[2]){
+
+			list_head(state->drinkList, ls_head, FALSE);
+			if(input.Pumping.weight_glass < ls_head->data[1]){
 				output -> Pumping.pump = 1;
 			}
 			else{
 				output -> Pumping.pump = 0;
-				bool cont = (1 == state->drinkQueue.front[3]);
-				Dequeue(state->drinkQueue);
+				bool cont = (1 == ls_head->data[2]);
+				list_head(state->drinkList, ls_head, TRUE);
 				if (cont){
 					vSwitchStatePump(state,FILLED_GLASS_PUMP);
 				}
