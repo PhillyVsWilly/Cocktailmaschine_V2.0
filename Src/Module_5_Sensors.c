@@ -22,7 +22,7 @@
 void vInit_Module_5_Sensors(Module_State_5_Sensors_t* state, State_General_t* ptrGeneralState)
 {
 	//Nicht 舅dern, muss so sein!
-	state->state = REFERENCE;
+	state->state = REFERENCE_SENS;
 	state->ptrGeneralState = &ptrGeneralState;
 
 	// Hier knen jetzt noch - falls nig - Startwerte f�r die anderen Zustandsvariablen gegeben werden
@@ -38,7 +38,7 @@ void vInit_Module_5_Sensors(Module_State_5_Sensors_t* state, State_General_t* pt
 int vCheckForGeneralErrorsSens(InputValues_t input)
 {
 	
-	if(input.Module_5_Sensors.placeholder > 10.0)
+	if(input.Module_x_Name.placeholder > 10.0)
 	{
 		//ThrowError ist die zentrale "Fehlerverwaltung". An sie werden alle Fehler �bergeben, die geworfen werden sollen
 		ThrowError(MODULE_NUMBER, MOTOR1_NOT_MOVING);
@@ -82,7 +82,7 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 		case REFERENCE_SENS:
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			&(state->ptrGeneralState) = startup;
+			state->ptrGeneralState = startup;
 			vSwitchStateSens(state, ACTIVE_SENS);
 			break;
 		case ACTIVE_SENS:
@@ -90,7 +90,7 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			for (int i = 0; i < 10; i++) { //TODO same as at STOPP_SENS for-loop
 				if (input.Sensors.safety_push_buttons[i] == 0) {
-					&(state->ptrGeneralState) = stop;
+					state->ptrGeneralState = stop;
 					vSwitchStateSens(state, STOP_SENS);
 				}
 			}

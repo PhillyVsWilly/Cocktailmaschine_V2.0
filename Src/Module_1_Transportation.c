@@ -118,7 +118,7 @@ void vEvaluate_Module_1_Transportation(InputValues_t input, Module_State_1_Trans
 				if (state->startTicket + 5000 <= currentTickets && state->transportCanStart == TRUE) {
 					state->startTicket = 0;
 					output->Transport.startUp = TRUE;
-					output.Transport.windDown = FALSE;
+					output->Transport.windDown = FALSE;
 					output->Transport.LED_Status = FALSE;
 					input.Transportation.newGlas = FALSE;
 					vSwitchStateTrans(state, ACTIVE_TRANS);
