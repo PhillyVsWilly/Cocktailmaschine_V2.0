@@ -7,7 +7,7 @@
 
 /**ÄNDERN: Zustande aus Ablaufdiagramm**/
 //REFERENCE ist der Zustand der Referenzfahrt und darf nicht herausgenommen werden !!
-enum statesTrans {REFERENCE_TRANS, ACTIVE_TRANS, WAITING_TRANS, INACTIVE_TRANS};
+enum statesTrans {REFERENCE_TRANS, ACTIVE_TRANS, WAITING_TRANS, INACTIVE_TRANS, STOPP_TRANS};
 
 void vInit_Module_1_Transport(Module_State_1_Transportation_t*, State_General_t*);
 void vEvaluate_Module_1_Transportation(InputValues_t, Module_State_1_Transportation_t*, OutputValues_t*);

@@ -51,7 +51,7 @@ typedef struct{
 	} Module_State_3_Pumping_t;
 
 typedef struct{
-	State_General_t* ptrGeneralState;
+	State_General_t *ptrGeneralState;
 	int state;
 	listNode *currentNode;
 	float drinkWeight;
