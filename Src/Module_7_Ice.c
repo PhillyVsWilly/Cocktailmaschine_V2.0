@@ -1,7 +1,7 @@
 #include "Module_7_Ice.h"
 #include "Evaluation.h"
 #include "Module_common.h"
-#include "TEMPLATE_Module_x_Name.h"
+
 
 #include "Sensors.h"
 #include "Evaluation.h"
@@ -24,7 +24,7 @@
 void vInit_Module_x_Name(Module_State_x_Name_t* state, State_General_t* ptrGeneralState)
 {
 	//Nicht ändern, muss so sein!
-	state->state = REFERENCE;
+	state->state = REFERENCE_ICE;
 	state->ptrGeneralState = ptrGeneralState;
 
 	// Hier können jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
@@ -59,15 +59,17 @@ int vCheckForGeneralErrors(InputValues_t input)
  * Danach wird in Abhängigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
  * oder mehrere bestimmte Aktionen ausgeführt und deren Verlauf überwacht
  * Hier können über ThrowError() auch weitere Fehler geworfen werden.
- * Soll der Modulzustand gewechselt werden, wird die vSwitchState() Funktion benutzt. Diese prüft die generelle Zulässigkeit
+ * Soll der Modulzustand gewechselt werden, wird die vSwitchStateIce() Funktion benutzt. Diese prüft die generelle Zulässigkeit
  * (falls nötig) des Zustandswechsels und schreibt einen Debug-Print.
  **/
 void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, OutputValues_t* output)
 {
+	listNode *ls_head = 0;//[0] = Gewicht Eiswürfel, [1] = Gewicht crushed eis
+
 	//Ändern des Status auf Basis des Gesamtmaschinenzustand
 	if (state->ptrGeneralState->operation_mode == stop)
 	{
-		vSwitchState(state, INACTIVE_ICE);
+		vSwitchStateIce(state, INACTIVE_ICE);
 	}
 
 	//Ausführen von Funktionen basierend auf dem Zustand
@@ -75,25 +77,70 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 		case INACTIVE_ICE:
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			output->
+			output->Ice.motor = 0;
+
+			if (state->ptrGeneralState->operation_mode == stop)
+				{
+					vSwitchStateIce(state,REFERENCE_ICE);
+				}
 			break;
-		case STATE2:
+		case REFERENCE_ICE:
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
+			output->Ice.motor = 0;
+
+			if(input.Ice.weight > 0){
+				vSwitchStateIce(state,ACTIVE_ICE);
+			}
+
 			break;
-		case STATE3:
-			//Do something
+		case ACTIVE_ICE:
+
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
+			list_head(input.Ice.drinkList,ls_head,FALSE);
+			if(input.Ice.weight && ls_head->data[0] != 0){
+				vSwitchStateIce(state, FILL_ICE);
+				state->glassInStation = TRUE;
+				input.Sensors.modules_finished[7] = 0;
+			}
 			break;
-		default:
+
+		case FILL_ICE:
+			input.Sensors.modules_finished[7] = 0;
+			DPRINT_MESSAGE("I'm in State %d\n", state->state);
+			list_head(input.Ice.drinkList,ls_head,FALSE);
+			if(input.Ice.weight < ls_head->data[0] && state->glassInStation){
+				output->Ice.motor = 1;
+				break;
+			}
+			if(input.Ice.weight < ls_head->data[1] && state->glassInStation){
+				output->Ice.motor = -1;
+				break;
+			}
+			else{
+				vSwitchStateIce(state,FINISHED_ICE);
+			}
 			break;
+
+		case FINISHED_ICE:
+
+			DPRINT_MESSAGE("I'm in State %d\n", state->state);
+			input.Sensors.modules_finished[7] = 1;
+			if(input.Ice.weight == 0){
+				vSwitchStateIce(state, ACTIVE_ICE);
+			}
+
+			break;
+
+
+
 		}
 	
 		return;
 
 }
 
-void vSwitchState(Module_State_x_Name_t* state, int state_new)
+void vSwitchStateIce(Module_State_x_Name_t* state, int state_new)
 {
 	//Hier kommt alles rein, was bei jedem(!) Zustandswechsel passieren soll
 	DPRINT_MESSAGE("Switching states from State %d to State %d\r\n", state->state, state_new);
@@ -114,5 +161,5 @@ void vSwitchState(Module_State_x_Name_t* state, int state_new)
 //vHilfsfuntion2() {  }
 
 
-void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, OutputValues_t* output)
+
 
