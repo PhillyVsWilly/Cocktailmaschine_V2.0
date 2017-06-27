@@ -5,7 +5,10 @@
 #include "Evaluation.h"
 #include "Actuators.h"
 
-void vEvaluate_Module_5_Sensors(InputValues_t, Module_State_5_Sensors_t*, OutputValues_t*);
+enum statesSens {REFERENCE_SENS, STOP_SENS, ACTIVE_SENS};
 
+void vInit_Module_5_Sensors(Module_State_5_Sensors_t*, State_General_t*);
+void vEvaluate_Module_5_Sensors(InputValues_t, Module_State_5_Sensors_t*, OutputValues_t*);
+void vSwitchStateSens(Module_State_5_Sensors_t*, int);
 
 #endif

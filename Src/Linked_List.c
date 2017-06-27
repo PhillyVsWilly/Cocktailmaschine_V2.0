@@ -1,22 +1,19 @@
-/*
- * Implementation of a List type from: http://pseudomuto.com/development/2013/05/02/implementing-a-generic-linked-list-in-c/
- */
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
-#include "LinkedList.h"
+#include "Linked_List.h"
 
-void list_new(list *list, int elementSize, freeFunction freeFn)
+void list_new(linked_list *list, int elementSize)
 {
   assert(elementSize > 0);
   list->logicalLength = 0;
   list->elementSize = elementSize;
   list->head = list->tail = NULL;
-  list->freeFn = freeString();
+  list->freeFn = free_int;
 }
 
-void list_destroy(list *list)
+void list_destroy(linked_list *list)
 {
   listNode *current;
   while(list->head != NULL) {
@@ -32,11 +29,15 @@ void list_destroy(list *list)
   }
 }
 
-void list_prepend(list *list, void *element)
+void list_prepend(linked_list *list, int data[3])
 {
   listNode *node = malloc(sizeof(listNode));
-  node->data = malloc(list->elementSize);
-  memcpy(node->data, element, list->elementSize);
+  for (int i=0; i<3; i++){
+	  node->data[i] = data[i];
+  }
+
+  //node->data = data;
+  memcpy(node->data, *data, list->elementSize);
 
   node->next = list->head;
   list->head = node;
@@ -49,13 +50,15 @@ void list_prepend(list *list, void *element)
   list->logicalLength++;
 }
 
-void list_append(list *list, void *element)
+void list_append(linked_list *list, int data[3])
 {
   listNode *node = malloc(sizeof(listNode));
-  node->data = malloc(list->elementSize);
+  for (int i=0; i<3; i++){
+	  node->data[i] = data[i];
+  }
   node->next = NULL;
 
-  memcpy(node->data, element, list->elementSize);
+  memcpy(node->data, *data, list->elementSize);
 
   if(list->logicalLength == 0) {
     list->head = list->tail = node;
@@ -67,34 +70,23 @@ void list_append(list *list, void *element)
   list->logicalLength++;
 }
 
-void list_for_each(list *list, listIterator iterator)
+void list_for_each(linked_list *list, listIterator iterator)
 {
   assert(iterator != NULL);
 
   listNode *node = list->head;
-  bool result = TRUE;
+  listbool result = TRUE;
   while(node != NULL && result) {
     result = iterator(node->data);
     node = node->next;
   }
 }
 
-//Own addition for getting a specific element in a list, I hope it works
-int list_get(list *list, int number) {
-	if (number > list->logicalLength) {
-		return 0;
-	}
-	listNode *node = list->head;
-	assert(list->head != NULL);
-	for (int i = 0; i < number; i++) {
-		node = node->next;
-	}
-	return node;
-}
-
-void list_head(list *list, void *element, bool removeFromList)
+void list_head(linked_list *list, void *element, listbool removeFromList)
 {
-  assert(list->head != NULL);
+  if (list->head == NULL) {
+	  return;
+  }
 
   listNode *node = list->head;
   memcpy(element, node->data, list->elementSize);
@@ -108,19 +100,19 @@ void list_head(list *list, void *element, bool removeFromList)
   }
 }
 
-void list_tail(list *list, void *element)
+void list_tail(linked_list *list, void *element)
 {
   assert(list->tail != NULL);
   listNode *node = list->tail;
   memcpy(element, node->data, list->elementSize);
 }
 
-int list_size(list *list)
+int list_size(linked_list *list)
 {
   return list->logicalLength;
 }
 
-void free_string(void *data)
+void free_int(int data[])
 {
-  free(*(char **)data);
+  free(data);
 }
