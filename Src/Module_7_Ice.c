@@ -18,31 +18,31 @@
 
 /** @brief Initialisierung des Teilmoduls
  *
- * Hier werden die Anfangswerte der Zustände und der Variablen eingestellt. Die Funktion wird nur ein einziges
- * Mal beim Systemstart ausgeführt
+ * Hier werden die Anfangswerte der Zustèˆ…de und der Variablen eingestellt. Die Funktion wird nur ein einziges
+ * Mal beim Systemstart ausgefï¿½hrt
 **/
 void vInit_Module_x_Name(Module_State_x_Name_t* state, State_General_t* ptrGeneralState)
 {
-	//Nicht ändern, muss so sein!
+	//Nicht èˆ…dern, muss so sein!
 	state->state = REFERENCE_ICE;
 	state->ptrGeneralState = ptrGeneralState;
 
-	// Hier können jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
+	// Hier kî’–nen jetzt noch - falls nî’œig - Startwerte fï¿½r die anderen Zustandsvariablen gegeben werden
 }
 
-/** @brief Prüfe nach allgmeinen Fehlern
- *Diese Funktion muss bei jedem Zyklus ausgeführt werden. In ihr werden Systemzustände überprüft, die unabhängig vom
+/** @brief Prï¿½fe nach allgmeinen Fehlern
+ *Diese Funktion muss bei jedem Zyklus ausgefï¿½hrt werden. In ihr werden Systemzustèˆ…de ï¿½berprï¿½ft, die unabhèˆ…gig vom
  *Ablauf des Systems sind.
  *Bsp: Beim Transportmodul: Keine Hand in der Maschine
- *Beim Eis: Überlaufbecken nicht voll
- *Deshalb wird ihr auch nicht der Systemzustand übergeben
+ *Beim Eis: ï¾œberlaufbecken nicht voll
+ *Deshalb wird ihr auch nicht der Systemzustand ï¿½bergeben
  **/
 int vCheckForGeneralErrors(InputValues_t input)
 {
 
 	if(input.Module_x_Name.placeholder > 10.0)
 	{
-		//ThrowError ist die zentrale "Fehlerverwaltung". An sie werden alle Fehler übergeben, die geworfen werden sollen
+		//ThrowError ist die zentrale "Fehlerverwaltung". An sie werden alle Fehler ï¿½bergeben, die geworfen werden sollen
 		ThrowError(MODULE_NUMBER, MOTOR1_NOT_MOVING);
 
 		//Gibt den aktuell geworfenen Fehler aus
@@ -56,23 +56,23 @@ int vCheckForGeneralErrors(InputValues_t input)
  *
  * Dieses Modul wird in jedem Zyklus aufgerufen und steuert das Modul
  * In ihr wird zuerst vCheckForErrors aufgerufen um zuerst nach allgemeinen Fehlern zu suchen
- * Danach wird in Abhängigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
- * oder mehrere bestimmte Aktionen ausgeführt und deren Verlauf überwacht
- * Hier können über ThrowError() auch weitere Fehler geworfen werden.
- * Soll der Modulzustand gewechselt werden, wird die vSwitchStateIce() Funktion benutzt. Diese prüft die generelle Zulässigkeit
- * (falls nötig) des Zustandswechsels und schreibt einen Debug-Print.
+ * Danach wird in Abhèˆ…gigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
+ * oder mehrere bestimmte Aktionen ausgefï¿½hrt und deren Verlauf ï¿½berwacht
+ * Hier kî’–nen ï¿½ber ThrowError() auch weitere Fehler geworfen werden.
+ * Soll der Modulzustand gewechselt werden, wird die vSwitchStateIce() Funktion benutzt. Diese prï¿½ft die generelle Zulèˆ–sigkeit
+ * (falls nî’œig) des Zustandswechsels und schreibt einen Debug-Print.
  **/
 void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, OutputValues_t* output)
 {
-	listNode *ls_head = 0;//[0] = Gewicht Eiswürfel, [1] = Gewicht crushed eis
+	listNode *ls_head = 0;//[0] = Gewicht Eiswï¿½rfel, [1] = Gewicht crushed eis
 
-	//Ändern des Status auf Basis des Gesamtmaschinenzustand
+	//ï¾„ndern des Status auf Basis des Gesamtmaschinenzustand
 	if (state->ptrGeneralState->operation_mode == stop)
 	{
 		vSwitchStateIce(state, INACTIVE_ICE);
 	}
 
-	//Ausführen von Funktionen basierend auf dem Zustand
+	//Ausfï¿½hren von Funktionen basierend auf dem Zustand
 	switch (state->state){
 		case INACTIVE_ICE:
 			//Do something
@@ -140,7 +140,7 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 
 }
 
-void vSwitchStateIce(Module_State_x_Name_t* state, int state_new)
+void vSwitchStateIce(Module_State_7_Ice_t* state, int state_new)
 {
 	//Hier kommt alles rein, was bei jedem(!) Zustandswechsel passieren soll
 	DPRINT_MESSAGE("Switching states from State %d to State %d\r\n", state->state, state_new);
