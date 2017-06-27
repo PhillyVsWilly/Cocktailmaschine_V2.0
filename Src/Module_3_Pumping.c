@@ -96,7 +96,7 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 			DPRINT_MESSAGE("I'm in State %d\n",state ->state);
 
 			listNode *ls_head;
-			list_head(state->drinkList, ls_head, FALSE);
+			list_head(input.Pumping.drinkList, ls_head, FALSE);
 
 			if(state->glassInStation && ls_head != NULL){
 				vSwitchStatePump(state, VALVE_ADJUSTING);
@@ -107,7 +107,7 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 
 		case VALVE_ADJUSTING:
 
-			list_head(state->drinkList, ls_head, FALSE);
+			list_head(input.Pumping.drinkList, ls_head, FALSE);
 			if(input.Pumping.valve_position < ls_head->data[0] && !state->valveInTransit ){
 				output -> Pumping.choose_motor = 1;
 				state->valveInTransit = TRUE;
@@ -123,14 +123,14 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 			}
 		case PUMP_ACTIVE:
 
-			list_head(state->drinkList, ls_head, FALSE);
+			list_head(input.Pumping.drinkList, ls_head, FALSE);
 			if(input.Pumping.weight_glass < ls_head->data[1]){
 				output -> Pumping.pump = 1;
 			}
 			else{
 				output -> Pumping.pump = 0;
 				bool cont = (1 == ls_head->data[2]);
-				list_head(state->drinkList, ls_head, TRUE);
+				list_head(input.Pumping.drinkList, ls_head, TRUE);
 				if (cont){
 					vSwitchStatePump(state,FILLED_GLASS_PUMP);
 				}

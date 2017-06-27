@@ -46,7 +46,7 @@ typedef struct{
 	bool valveInTransit; //Bool that tracks if the valve is in transit
 	bool valveInPosition;
 	bool finished; //Getraenk fertig
-	linked_list *drinkList;
+
 
 	} Module_State_3_Pumping_t;
 
