@@ -39,7 +39,7 @@ typedef struct {
 typedef struct {
 	int safety_push_buttons[10]; //Contains the Sensor Inputs of the safety and service sensors
 	bool right_glass;
-	int modules_finished[7]; // Contains Modul's signals
+	int modules_finished[7]; // Contains Modul's signals: Moved to State, because the modules can't fill this in here
 } Module_5_Sensors_Input_t;
 
 // Welche Infos kommen? -> Muss noch vervollständigt werden.

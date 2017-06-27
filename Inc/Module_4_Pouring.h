@@ -5,7 +5,12 @@
 #include "Evaluation.h"
 #include "Actuators.h"
 
-void vEvaluate_Module_4_Pouring(InputValues_t, Module_State_4_Pouring_t*, OutputValues_t*);
+/**ÄNDERN: Zustande aus Ablaufdiagramm**/
+//REFERENCE ist der Zustand der Referenzfahrt und darf nicht herausgenommen werden !!
+enum states {REFERENCE, ACTIVE, GLASS_IN_STATION, POURING, INACTIVE};
 
+void vInit_Module_4_Pouring(Module_State_4_Pouring_t*, State_General_t*);
+void vEvaluate_Module_4_Pouring(InputValues_t, SystemState_t*, OutputValues_t*);
+void vSwitchState(Module_State_4_Pouring_t*, int);
 
 #endif
