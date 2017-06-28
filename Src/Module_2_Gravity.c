@@ -76,7 +76,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 						vSwitchStateGrav(state, GLASS_IN_STATION);
 						break;
 					}
-					list_head(input.Gravity.drinkList, state->currentNode, FALSE);
+					//TODO list_head(input.Gravity.drinkList, state->currentNode, FALSE);
 					if (state-> currentNode != NULL) {
 						if (state->currentNode->data[0] != 0) {
 							vSwitchStateGrav(state, MOVING_TREE);
@@ -107,7 +107,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					break;
 				case GLASS_IN_STATION:
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
-					list_head(input.Gravity.drinkList, state->currentNode, FALSE);
+					//TODO list_head(input.Gravity.drinkList, state->currentNode, FALSE);
 					if (input.Gravity.position_tree != state->currentNode->data[1]) {
 						vSwitchStateGrav(state, MOVING_TREE);
 						break;
@@ -131,8 +131,8 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 						break;
 					}
 					if (state->currentNode->data[2] == 0 && state->currentNode->data[3] == 0) {
-						list_head(input.Gravity.drinkList, state->currentNode, TRUE);
-						list_head(input.Gravity.drinkList, state->currentNode, FALSE);
+						//TODO list_head(input.Gravity.drinkList, state->currentNode, TRUE);
+						//TODO list_head(input.Gravity.drinkList, state->currentNode, FALSE);
 						vSwitchStateGrav(state, MOVING_TREE);
 						break;
 					}
@@ -155,12 +155,12 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					}
 					break;
 				case FILLED_GLASS:
-					input.Sensors.modules_finished[MODULE_NUMBER - 2] = 0;
+					/*input.Sensors.modules_finished[MODULE_NUMBER - 2] = 0;
 										if (input.Gravity.weight_sensor == 0) {
-											list_head(input.Gravity.drinkList, state->currentNode, TRUE);
+											//TODO list_head(input.Gravity.drinkList, state->currentNode, TRUE);
 											state->glassInStation = FALSE;
 											vSwitchStateGrav(state, IDLE_GRAV);
-										}
+										}*/
 					break;
 				default:
 					break;

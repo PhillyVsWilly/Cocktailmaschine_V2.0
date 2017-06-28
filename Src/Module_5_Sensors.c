@@ -74,9 +74,9 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			for (int i = 0; i < 10; i++) { //TODO i always needs to be the size of the safety sensor array in input.Sensors
-				if (input.Sensors.safety_push_buttons[i] == 0) { //TODO 0/1 needs to be defined
-					break;
-				}
+				//TODO if (input.Sensors.safety_push_buttons[i] == 0) { //TODO 0/1 needs to be defined
+				//	break;
+				//}
 			}
 			vSwitchStateSens(state, REFERENCE_SENS);
 		case REFERENCE_SENS:
@@ -89,19 +89,19 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			for (int i = 0; i < 10; i++) { //TODO same as at STOPP_SENS for-loop
-				if (input.Sensors.safety_push_buttons[i] == 0) {
+				/* TODO if (input.Sensors.safety_push_buttons[i] == 0) {
 					state->ptrGeneralState = stop;
 					vSwitchStateSens(state, STOP_SENS);
-				}
+				}*/
 			}
 			//Stops transport as soon as a module sets their position to not finished in the array in input.Sensors
 			for (int i = 0; i < 7; i++) {
-				if (input.Sensors.modules_finished[i] == 0) {
+				/* TODO if (input.Sensors.modules_finished[i] == 0) {
 					input.Transportation.start = FALSE;
 					break;
-				}
+				}*/
 			}
-			input.Transportation.start = TRUE;
+			//TODO input.Transportation.start = TRUE;
 			break;
 		default:
 			break;

@@ -102,7 +102,7 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 			}
 			break;
 		case GLASS_IN_STATION_POUR:
-			list_head(input.Pouring.drinkList, state->currentNode, FALSE);
+			//TODO list_head(input.Pouring.drinkList, state->currentNode, FALSE);
 			if (state->currentNode == NULL && input.Pouring.weight == 0) {
 				vSwitchStatePour(state, ACTIVE_POUR);
 				break;
@@ -115,12 +115,12 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 				}
 			}
 			if (state->currentNode != NULL) {
-				input.Sensors.modules_finished[2] = 0;
+				//TODO input.Sensors.modules_finished[2] = 0;
 				vSwitchStatePour(state, POURING);
 			}
 			break;
 		case POURING:
-			input.Sensors.modules_finished [MODULE_NUMBER - 2] = 0;
+			//TODO input.Sensors.modules_finished [MODULE_NUMBER - 2] = 0;
 			if (input.Pouring.position_up == 1 && input.Pouring.weight < state->drinkWeight + state->currentNode->data[1] + FILL_ERROR) {
 				output->Pouring.motor = -1; //TODO Motorwert
 			}
@@ -131,9 +131,9 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 				output->Pouring.motor = 1; //TODO Wert, Motor soll hochfahren
 			}
 			if (input.Pouring.weight >= state->drinkWeight + state->currentNode->data[1] + FILL_ERROR && input.Pouring.position_up == 1) {
-				input.Sensors.modules_finished [MODULE_NUMBER - 2] = 1; //TODO determine what 1/0 should represent
+				//TODO input.Sensors.modules_finished [MODULE_NUMBER - 2] = 1; //TODO determine what 1/0 should represent
 				output->Pouring.motor = 0;
-				list_head(input.Pouring.drinkList, state->currentNode, TRUE);
+				//TODO list_head(input.Pouring.drinkList, state->currentNode, TRUE);
 				vSwitchStatePour(state, ACTIVE_POUR);
 				break;
 			}

@@ -97,18 +97,18 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 		case ACTIVE_ICE:
 
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			list_head(input.Ice.drinkList,ls_head,FALSE);
+			//TODO list_head(input.Ice.drinkList,ls_head,FALSE);
 			if(input.Ice.weight && ls_head->data[0] != 0){
 				vSwitchStateIce(state, FILL_ICE);
 				state->glassInStation = TRUE;
-				input.Sensors.modules_finished[7] = 0;
+				//TODO input.Sensors.modules_finished[7] = 0;
 			}
 			break;
 
 		case FILL_ICE:
-			input.Sensors.modules_finished[7] = 0;
+			//TODO input.Sensors.modules_finished[7] = 0;
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			list_head(input.Ice.drinkList,ls_head,FALSE);
+			//TODO list_head(input.Ice.drinkList,ls_head,FALSE);
 			if(input.Ice.weight < ls_head->data[0] && state->glassInStation){
 				output->Ice.motor = 1;
 				break;
@@ -125,7 +125,7 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 		case FINISHED_ICE:
 
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			input.Sensors.modules_finished[7] = 1;
+			//TODO input.Sensors.modules_finished[7] = 1;
 			if(input.Ice.weight == 0){
 				vSwitchStateIce(state, ACTIVE_ICE);
 			}

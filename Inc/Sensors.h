@@ -16,50 +16,50 @@ typedef struct {
 	bool inModule2; //Glas in Modul 2
 	bool inModule3; //Glas in Modul 3
 	bool inModule4; //Glas in Modul 4
-	bool inModule5; //Glas in Modul 5
+	bool inModule7; //Glas in Modul 7
 } Module_1_Transportation_Input_t;
 
 //Gravity_Input stores the Input values for the Gravity Station
 typedef struct {
-	bool start;
-	int position_tree; // English word for this? Well, tree :D
 	float weight_sensor;
-    linked_list *drinkList;
+	bool doors_open;
 	bool sensor_up;
 	bool sensor_down;
+	bool button_fill_in;
+	int position_tree;
 } Module_2_Gravity_Input_t;
 
 typedef struct {
-	bool start;
+	bool doors_open;
 	int valve_position;//1-8 oder -1 wenn sich das ventil zwischen 2 tastern befindet
 	float weight_glass;
-	linked_list *drinkList;
 } Module_3_Pumping_Input_t;
 
+
 typedef struct {
-	uint8_t start;
-	uint_8 position_up;
-	uint_8 position_down;
-	linked_list *drinkList;
+	bool doors_open;
+	bool position_up;
+	bool position_down;
 	float weight;
 } Module_4_Pouring_Input_t;
 
 typedef struct {
-	int safety_push_buttons[10]; //Contains the Sensor Inputs of the safety and service sensors
-	bool right_glass;
-	int modules_finished[7]; // Contains Modul's signals: Moved to State, because the modules can't fill this in here
+	bool start_doors_open;
+	bool start_light_barrier;
+	bool end_doors_open;
+	bool end_light_barrier;
+	bool end_button_glass_present;
 } Module_5_Sensors_Input_t;
 
-// Welche Infos kommen? -> Muss noch vervollständigt werden.
+
 typedef struct {
-	uint8_t flaschen_ID;
-	float desired_weight;
 } Module_6_Handling_Input_t;
 
 typedef struct {
-	int placeholder;
-	int weight;
-	linked_list *drinkList;
+	float weight;
+	bool doors_open;
+	bool light_barrier_enough_cube_ice;
+	bool light_barrier_enough_crushed_ice;
 }Module_7_Ice_Input_t;
 
 typedef struct {
