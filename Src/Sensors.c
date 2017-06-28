@@ -154,8 +154,24 @@ void vReadSensorValues (InputValues_t* input)
 void vPrintReadSensorValues(InputValues_t input)
 {
 	printf("====================\n%s\n==============\n", "Sensor Values");
-	printf("Gravity Weight: %g\nDoor Open: %d\nSensorUp: %d\nSensorDown: %d\nButton Fill: %d\n",
+	printf("Gravity Weight: %g\nDoor Open: %d\nSensorUp: %d\nSensorDown: %d\nButton Fill: %d\nPosition Tree: %d\n",
 			input->Gravity.weight_sensor, input->Gravity.doors_open, input->Gravity.sensor_up,
 			input->Gravity.sensor_down, input->Gravity.button_fill_in);
+	printf("Door Open: %d\nValve Position: %d\nWeightGlass: %d\n",
+			input->Pumping.doors_open, input->Pumping.valve_position, input->Pumping.weight_glass);
+	printf("Door Open: %d\nPosition Up: %d\nPosition Down: %d\nWeight: %g\n",
+			input->Pouring.doors_open, input->Pouring.position_up, input->Pouring.position_down,
+			input->Pouring.weight);
+	printf("Start Door Open: %d\nStart Light Barrier: %d\nEnd Door Open: %d\nEnd Light Barrier: %d\nButton glass present: %d\n",
+			input->Sensors.start_doors_open, input->Sensors.start_light_barrier, input->Sensors.end_doors_open,
+			input->Sensors.end_light_barrier, input->Sensor.send_button_glass_present);
+
+	printf("Weight: %g\nDoor open: %d\nLight Barrier enough cube ice: %d\nLight Barrier enough crushed ice: %d\n",
+			input->Ice.weight, input->Ice.doors_open,
+			input->Ice.light_barrier_enough_cube_ice, input->Ice.light_barrier_enough_crushed_ice);
+
+
+
+
 }
 #endif
