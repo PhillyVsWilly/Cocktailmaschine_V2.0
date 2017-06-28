@@ -7,6 +7,8 @@
 
 #ifndef LINKED_LIST_
 #define LINKED_LIST_
+#define NODE_SIZE = sizeof(list_node);
+#define INGREDIENT_SIZE = sizeof(ingredient_t);
 
 
 
@@ -17,8 +19,16 @@ typedef enum { FALSE, TRUE } listbool;
 
 typedef listbool (*listIterator)(void *);
 
+
+
+typedef struct {
+	int bottleID;
+	float amount;
+	listbool lastInstruction;
+}ingredient_t;
+
 typedef struct _listNode {
-  int data[3];
+  ingredient_t ingredient;
   struct _listNode *next;
 } listNode;
 
@@ -30,13 +40,15 @@ typedef struct {
   freeFunction freeFn;
 } linked_list;
 
+
+
 void list_new(linked_list *list, int elementSize);
 void list_destroy(linked_list *list);
 
-void list_prepend(linked_list *list, int[3]);
-void list_append(linked_list *list, int[3]);
+void list_prepend(linked_list *list, ingredient_t ingredient);
+void list_append(linked_list *list, ingredient_t ingredient);
 int list_size(linked_list *list);
-void free_int(int data []);
+void free_int(int data);
 
 void list_for_each(linked_list *list, listIterator iterator);
 void list_head(linked_list *list, void *element, listbool removeFromList);

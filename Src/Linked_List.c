@@ -4,11 +4,11 @@
 
 #include "Linked_List.h"
 
-void list_new(linked_list *list, int elementSize)
+void list_new(linked_list *list)
 {
-  assert(elementSize > 0);
+
   list->logicalLength = 0;
-  list->elementSize = elementSize;
+  list->elementSize = NODE_SIZE;
   list->head = list->tail = NULL;
   list->freeFn = free_int;
 }
@@ -21,23 +21,21 @@ void list_destroy(linked_list *list)
     list->head = current->next;
 
     if(list->freeFn) {
-      list->freeFn(current->data);
+      list->freeFn(current->ingredient);
     }
 
-    free(current->data);
+    free(current->ingredient);
     free(current);
   }
 }
 
-void list_prepend(linked_list *list, int data[3])
+void list_prepend(linked_list *list, ingredient_t ingredient)
 {
-  listNode *node = malloc(sizeof(listNode));
-  for (int i=0; i<3; i++){
-	  node->data[i] = data[i];
-  }
+  listNode *node = malloc(NODE_SIZE);
+
 
   //node->data = data;
-  memcpy(node->data, *data, list->elementSize);
+  memcpy(node->ls_data, *data, NODE_SIZE);
 
   node->next = list->head;
   list->head = node;
@@ -50,15 +48,15 @@ void list_prepend(linked_list *list, int data[3])
   list->logicalLength++;
 }
 
-void list_append(linked_list *list, int data[3])
+void list_append(linked_list *list, int ls_data)
 {
   listNode *node = malloc(sizeof(listNode));
-  for (int i=0; i<3; i++){
-	  node->data[i] = data[i];
-  }
+
+  node->ls_data = ls_data;
+
   node->next = NULL;
 
-  memcpy(node->data, *data, list->elementSize);
+  memcpy(node->ls_data, *ls_data, list->elementSize);
 
   if(list->logicalLength == 0) {
     list->head = list->tail = node;
@@ -77,7 +75,7 @@ void list_for_each(linked_list *list, listIterator iterator)
   listNode *node = list->head;
   listbool result = TRUE;
   while(node != NULL && result) {
-    result = iterator(node->data);
+    result = iterator(node->ls_data);
     node = node->next;
   }
 }
@@ -89,13 +87,13 @@ void list_head(linked_list *list, void *element, listbool removeFromList)
   }
 
   listNode *node = list->head;
-  memcpy(element, node->data, list->elementSize);
+  memcpy(element, node->ls_data, list->elementSize);
 
   if(removeFromList) {
     list->head = node->next;
     list->logicalLength--;
 
-    free(node->data);
+    free((node->ls_data));
     free(node);
   }
 }
@@ -104,7 +102,7 @@ void list_tail(linked_list *list, void *element)
 {
   assert(list->tail != NULL);
   listNode *node = list->tail;
-  memcpy(element, node->data, list->elementSize);
+  memcpy(element, &(node->ls_data), list->elementSize);
 }
 
 int list_size(linked_list *list)
@@ -112,7 +110,7 @@ int list_size(linked_list *list)
   return list->logicalLength;
 }
 
-void free_int(int data[])
+void free_int(int data)
 {
   free(data);
 }

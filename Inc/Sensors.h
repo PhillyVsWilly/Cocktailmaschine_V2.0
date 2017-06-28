@@ -12,11 +12,7 @@ typedef char bool;
 
 typedef struct {
 	bool start;		//Band start
-	bool newGlas; //TRUE if a new glas should be entered
-	bool inModule2; //Glas in Modul 2
-	bool inModule3; //Glas in Modul 3
-	bool inModule4; //Glas in Modul 4
-	bool inModule7; //Glas in Modul 7
+
 } Module_1_Transportation_Input_t;
 
 //Gravity_Input stores the Input values for the Gravity Station
@@ -48,7 +44,8 @@ typedef struct {
 	bool start_light_barrier;
 	bool end_doors_open;
 	bool end_light_barrier;
-	bool end_button_glass_present;
+	bool end_button_glass_present;	//am ende wird geprüft, ob ein glas vorhanden ist.
+								     	 //die überprüfung ob ein glas neu eingestellt wurde findet am eis modul statt
 } Module_5_Sensors_Input_t;
 
 
