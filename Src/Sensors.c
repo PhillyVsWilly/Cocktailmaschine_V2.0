@@ -157,7 +157,7 @@ void vPrintReadSensorValues(InputValues_t input)
 	printf("Gravity Weight: %g\nDoor Open: %d\nSensorUp: %d\nSensorDown: %d\nButton Fill: %d\nPosition Tree: %d\n",
 			input->Gravity.weight_sensor, input->Gravity.doors_open, input->Gravity.sensor_up,
 			input->Gravity.sensor_down, input->Gravity.button_fill_in);
-	printf("Door Open: %d\nValve Position: %d\nWeightGlass: %d\n",
+	printf("Door Open: %d\nValve Position: %d\nWeightGlass: %g\n",
 			input->Pumping.doors_open, input->Pumping.valve_position, input->Pumping.weight_glass);
 	printf("Door Open: %d\nPosition Up: %d\nPosition Down: %d\nWeight: %g\n",
 			input->Pouring.doors_open, input->Pouring.position_up, input->Pouring.position_down,
