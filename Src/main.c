@@ -563,7 +563,7 @@ void mainCycleStart(void const * argument)
 	  TickType_t startTicks = xTaskGetTickCount();
 
 	  //Read Sensors
-	  //vReadSensorValues(&Input_Storage);
+	  vReadSensorValues(&Input_Storage);
 
 	  //Calculate Output
 	  //vEvaluate(Input_Storage, &System_State, &Output_Storage);

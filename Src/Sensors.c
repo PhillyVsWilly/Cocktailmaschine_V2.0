@@ -6,6 +6,10 @@
 #define DEBUG_ENABLED TRUE
 #include "Debug.h"
 
+#if DEBUG_ENABLED
+void vPrintReadSensorValues(InputValues_t);
+#endif
+
 static InputValues_t* ptrInput;
 
 extern ADC_HandleTypeDef hadc1, hadc3;
@@ -69,6 +73,10 @@ void vReadSensorValues (InputValues_t* input)
 	updateVirtualInput_Module_7(ptrInput);
 #else
 	vReadSensorValues_Module_7();
+#endif
+
+#if DEBUG_ENABLED
+	vPrintReadSensorValues(*ptrInput);
 #endif
 
 }
@@ -140,3 +148,14 @@ void vReadSensorValues (InputValues_t* input)
  		DPRINT_MESSAGE("ADC Timeout");
  	}
  }
+
+
+#if DEBUG_ENABLED
+void vPrintReadSensorValues(InputValues_t input)
+{
+	printf("====================\n%s\n==============\n", "Sensor Values");
+	printf("Gravity Weight: %g\nDoor Open: %d\nSensorUp: %d\nSensorDown: %d\nButton Fill: %d\n",
+			input->Gravity.weight_sensor, input->Gravity.doors_open, input->Gravity.sensor_up,
+			input->Gravity.sensor_down, input->Gravity.button_fill_in);
+}
+#endif
