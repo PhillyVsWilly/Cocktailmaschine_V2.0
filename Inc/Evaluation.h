@@ -1,6 +1,7 @@
 #ifndef EVALUATION_H_ 
 #define EVALUATION_H_
 
+
 #include "FIFO_Queue.h"
 #include "Sensors.h"
 #include "Actuators.h"
@@ -72,6 +73,8 @@ typedef struct{
 typedef struct{
 	State_General_t* ptrGeneralState;
 	int state;
+	bool glassInStation;
+	bool finished;
 	}Module_State_7_Ice_t;
 
 typedef struct{

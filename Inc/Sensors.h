@@ -58,6 +58,8 @@ typedef struct {
 
 typedef struct {
 	int placeholder;
+	int weight;
+	linked_list *drinkList;
 }Module_7_Ice_Input_t;
 
 typedef struct {
