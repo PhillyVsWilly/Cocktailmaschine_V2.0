@@ -12,7 +12,7 @@
 #define MODULE_NUMBER 2
 #define EMPTY_WEIGHT 15 //TODO Gewicht eines leeren Schlittens (muss noch gewogen werden)
 
-void vInit_Module_1_Transport(Module_State_2_Gravity_t* state, State_General_t* ptrGeneralState)
+void vInit_Module_2_Gravity(Module_State_2_Gravity_t* state, State_General_t* ptrGeneralState)
 {
 	//Nicht ändern, muss so sein!
 	state->state = REFERENCE_GRAV;
@@ -25,7 +25,7 @@ void vInit_Module_1_Transport(Module_State_2_Gravity_t* state, State_General_t* 
 	// Hier können jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
 }
 
-int vCheckForGeneralErrors(InputValues_t input)
+static int vCheckForGeneralErrors(InputValues_t input)
 {
 
 	if(input.Module_x_Name.placeholder > 10.0)

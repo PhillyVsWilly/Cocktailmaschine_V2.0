@@ -222,7 +222,7 @@ int sprintf(char *buf, const char *fmt, ...)
 **  Returns:  Number of bytes written
 **===========================================================================
 */
-int fprintf(FILE * stream, const char *fmt, ...)
+int my_fprintf(FILE * stream, const char *fmt, ...)
 {
 	int length = 0;
 	va_list va;
@@ -247,7 +247,7 @@ int fprintf(FILE * stream, const char *fmt, ...)
 **
 **===========================================================================
 */
-int my_printf(const char *fmt, ...)
+int printf(const char *fmt, ...)
 {
 	int length = 0;
 	va_list va;

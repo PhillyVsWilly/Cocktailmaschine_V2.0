@@ -31,7 +31,7 @@ void vInit_Module_3_Pumping(Module_State_3_Pumping_t* state, State_General_t* pt
  *Beim Eis: ﾜberlaufbecken nicht voll
  *Deshalb wird ihr auch nicht der Systemzustand �bergeben
  **/
-int vCheckForGeneralErrors(InputValues_t input)
+static int vCheckForGeneralErrors(InputValues_t input)
 {
 	//TODO: implementiere Fehlererkennung
 	if(input.Module_x_Name.placeholder > 10.0)

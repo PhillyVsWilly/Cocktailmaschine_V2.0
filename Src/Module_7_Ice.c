@@ -21,7 +21,7 @@
  * Hier werden die Anfangswerte der Zust舅de und der Variablen eingestellt. Die Funktion wird nur ein einziges
  * Mal beim Systemstart ausgef�hrt
 **/
-void vInit_Module_x_Name(Module_State_x_Name_t* state, State_General_t* ptrGeneralState)
+void vInit_Module_7_Ice(Module_State_7_Ice_t* state, State_General_t* ptrGeneralState)
 {
 	//Nicht 舅dern, muss so sein!
 	state->state = REFERENCE_ICE;
@@ -37,7 +37,7 @@ void vInit_Module_x_Name(Module_State_x_Name_t* state, State_General_t* ptrGener
  *Beim Eis: ﾜberlaufbecken nicht voll
  *Deshalb wird ihr auch nicht der Systemzustand �bergeben
  **/
-int vCheckForGeneralErrors(InputValues_t input)
+static int vCheckForGeneralErrors(InputValues_t input)
 {
 
 	if(input.Module_x_Name.placeholder > 10.0)

@@ -34,7 +34,7 @@ void vInit_Module_1_Transport(Module_State_1_Transportation_t* state, State_Gene
  *Beim Eis: Überlaufbecken nicht voll
  *Deshalb wird ihr auch nicht der Systemzustand übergeben
  **/
-int vCheckForGeneralErrors(InputValues_t input)
+static int vCheckForGeneralErrors(InputValues_t input)
 {
 
 	if(input.Module_x_Name.placeholder > 10.0)

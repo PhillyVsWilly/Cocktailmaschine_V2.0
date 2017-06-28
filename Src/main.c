@@ -559,7 +559,7 @@ void mainCycleStart(void const * argument)
 	  BSP_LED_Off(LED2);
 	  osDelay(500);
 
-	  DPRINT_MESSAGE("Main Cycle Start\r\n");
+	  printf("Main Cycle Start %d\n", 1);
 	  TickType_t startTicks = xTaskGetTickCount();
 
 	  //Read Sensors
