@@ -23,7 +23,7 @@ void vInit_Module_5_Sensors(Module_State_5_Sensors_t* state, State_General_t* pt
 {
 	//Nicht 舅dern, muss so sein!
 	state->state = REFERENCE_SENS;
-	state->ptrGeneralState = &ptrGeneralState;
+	state->ptrGeneralState = ptrGeneralState;
 
 	// Hier knen jetzt noch - falls nig - Startwerte f�r die anderen Zustandsvariablen gegeben werden
 }
@@ -65,7 +65,7 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 	//ﾄndern des Status auf Basis des Gesamtmaschinenzustand
 	if (state->ptrGeneralState->operation_mode == stop)
 	{
-		vSwitchState(state, STOP_SENS);
+		vSwitchStateSens(state, STOP_SENS);
 	}
 	
 	//Ausf�hren von Funktionen basierend auf dem Zustand
@@ -82,7 +82,7 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 		case REFERENCE_SENS:
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			state->ptrGeneralState = startup;
+			state->ptrGeneralState->operation_mode = startup;
 			vSwitchStateSens(state, ACTIVE_SENS);
 			break;
 		case ACTIVE_SENS:

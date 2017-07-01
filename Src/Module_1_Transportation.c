@@ -1,5 +1,6 @@
 #include "Module_common.h"
 #include "Module_1_Transportation.h"
+#include "FreeRTOS.h"
 
 #include "Sensors.h"
 #include "Evaluation.h"
@@ -23,6 +24,7 @@ void vInit_Module_1_Transport(Module_State_1_Transportation_t* state, State_Gene
 	//Nicht ändern, muss so sein!
 	state->state = REFERENCE_TRANS;
 	state->ptrGeneralState = ptrGeneralState;
+	state->startTicket = NULL;
 
 	// Hier können jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
 }
@@ -71,7 +73,7 @@ void vEvaluate_Module_1_Transportation(InputValues_t input, Module_State_1_Trans
 		switch (state->state){
 			case INACTIVE_TRANS:
 				output->Transport.fullStop = TRUE;
-				if (state->ptrGeneralState == startup) {
+				if (state->ptrGeneralState->operation_mode == startup) {
 					vSwitchStateTrans(state, REFERENCE_TRANS);
 				}
 				break;

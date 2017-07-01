@@ -1,8 +1,6 @@
 /*
- * List
+ * http://pseudomuto.com/development/2013/05/02/implementing-a-generic-linked-list-in-c/
  *
- *  Created on: 25.06.2017
- *      Author: Stephan
  */
 
 #ifndef LINKED_LIST_
@@ -17,7 +15,7 @@ typedef void (*freeFunction)(void *);
 
 typedef enum { FALSE, TRUE } listbool;
 
-typedef listbool (*listIterator)(void *);
+typedef listbool (*listIterator)(ingredient_t);
 
 
 
@@ -42,17 +40,17 @@ typedef struct {
 
 
 
-void list_new(linked_list *list, int elementSize);
+void list_new(linked_list *list);
 void list_destroy(linked_list *list);
 
 void list_prepend(linked_list *list, ingredient_t ingredient);
 void list_append(linked_list *list, ingredient_t ingredient);
 int list_size(linked_list *list);
-void free_int(int data);
+void free_int(ingredient_t ingredient);
 
 void list_for_each(linked_list *list, listIterator iterator);
-void list_head(linked_list *list, void *element, listbool removeFromList);
-void list_tail(linked_list *list, void *element);
+void list_head(linked_list *list, listNode *currentNode, listbool removeFromList);
+void list_tail(linked_list *list, listNode *node);
 
 
 #endif
