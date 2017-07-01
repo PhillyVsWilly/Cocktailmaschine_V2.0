@@ -41,7 +41,7 @@ void vInit_Module_4_Pouring(Module_State_4_Pouring_t* state, State_General_t* pt
  *Beim Eis: ﾜberlaufbecken nicht voll
  *Deshalb wird ihr auch nicht der Systemzustand �bergeben
  **/
-int vCheckForGeneralErrorsPour(InputValues_t input)
+static int vCheckForGeneralErrors(InputValues_t input)
 {
 
 	if(input.Module_x_Name.placeholder > 10.0)
@@ -104,24 +104,26 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 			break;
 		case GLASS_IN_STATION_POUR:
 			list_head(state->drinkList, state->currentNode, FALSE);
-			if (state->currentNode == NULL && input.Pouring.weight == 0) {
+			if (state->currentNode == NULL && input.Pouring.weight < EMPTY_WEIGHT) {
 				vSwitchStatePour(state, ACTIVE_POUR);
 				break;
 			}
 			//Preventing NullPointer Exception
 			if (state->currentNode != NULL) {
-				if (state->currentNode->ingredient.amount == 0 && input.Pouring.weight == 0) {
+				if (state->currentNode->ingredient.bottleID == 0 && input.Pouring.weight == 0) {
 					vSwitchStatePour(state, ACTIVE_POUR);
 					break;
 				}
-			}
-			if (state->currentNode != NULL) {
-				//TODO input.Sensors.modules_finished[2] = 0;
-				vSwitchStatePour(state, POURING);
+				if (state->currentNode->ingredient.bottleID == 0 && input.Pouring.weight >= EMPTY_WEIGHT) {
+					break;
+				}
+				if (state->currentNode->ingredient.bottleID != 0) {
+					state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 0;
+					vSwitchStatePour(state, POURING);
+				}
 			}
 			break;
 		case POURING:
-			//TODO input.Sensors.modules_finished [MODULE_NUMBER - 2] = 0;
 			if (input.Pouring.position_up == 1 && input.Pouring.weight < state->drinkWeight + state->currentNode->ingredient.amount + FILL_ERROR) {
 				output->Pouring.motor = -1; //TODO Motorwert
 			}
@@ -132,7 +134,7 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 				output->Pouring.motor = 1; //TODO Wert, Motor soll hochfahren
 			}
 			if (input.Pouring.weight >= state->drinkWeight + state->currentNode->ingredient.amount + FILL_ERROR && input.Pouring.position_up == 1) {
-				//TODO input.Sensors.modules_finished [MODULE_NUMBER - 2] = 1; //TODO determine what 1/0 should represent
+				state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
 				output->Pouring.motor = 0;
 				list_head(state->drinkList, state->currentNode, TRUE);
 				vSwitchStatePour(state, ACTIVE_POUR);

@@ -5,8 +5,8 @@
 
 #ifndef LINKED_LIST_
 #define LINKED_LIST_
-#define NODE_SIZE = sizeof(list_node);
-#define INGREDIENT_SIZE = sizeof(ingredient_t);
+#define NODE_SIZE sizeof(list_node);
+#define INGREDIENT_SIZE sizeof(ingredient_t);
 
 
 
