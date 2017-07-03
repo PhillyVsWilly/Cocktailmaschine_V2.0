@@ -11,6 +11,7 @@
 #include "timers.h"
 #include "queue.h"
 #include "semphr.h"
+
 #include "stm32f7xx_hal.h"
 
 /* FreeRTOS+TCP includes. */
@@ -84,7 +85,7 @@ uint32_t ulIPAddress, ulNetMask, ulGatewayAddress, ulDNSServerAddress;
 char cBuffer[ 16 ];
 static BaseType_t xTasksAlreadyCreated = pdFALSE;
 
-	FreeRTOS_printf( ( "vApplicationIPNetworkEventHook: event %ld\n", eNetworkEvent ) );
+	FreeRTOS_printf( ( "vApplicationIPNetworkEventHook: event %d\n", eNetworkEvent ) );
 
 	/* If the network has just come up...*/
 	if( eNetworkEvent == eNetworkUp )

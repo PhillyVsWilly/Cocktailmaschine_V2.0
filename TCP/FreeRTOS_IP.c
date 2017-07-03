@@ -993,6 +993,8 @@ BaseType_t xReturn = pdFALSE;
 	xNetworkEventQueue = xQueueCreate( ( UBaseType_t ) ipconfigEVENT_QUEUE_LENGTH, ( UBaseType_t ) sizeof( IPStackEvent_t ) );
 	configASSERT( xNetworkEventQueue );
 
+	printf("Here1\n");
+
 	if( xNetworkEventQueue != NULL )
 	{
 		#if ( configQUEUE_REGISTRY_SIZE > 0 )
@@ -1003,6 +1005,8 @@ BaseType_t xReturn = pdFALSE;
 			vQueueAddToRegistry( xNetworkEventQueue, "NetEvnt" );
 		}
 		#endif /* configQUEUE_REGISTRY_SIZE */
+
+		printf("Here2\n");
 
 		if( xNetworkBuffersInitialise() == pdPASS )
 		{
@@ -1037,6 +1041,8 @@ BaseType_t xReturn = pdFALSE;
 
 			/* Prepare the sockets interface. */
 			vNetworkSocketsInit();
+
+			printf("Here3\n");
 
 			/* Create the task that processes Ethernet and stack events. */
 			xReturn = xTaskCreate( prvIPTask, "IP-task", ( uint16_t ) ipconfigIP_TASK_STACK_SIZE_WORDS, NULL, ( UBaseType_t ) ipconfigIP_TASK_PRIORITY, &xIPTaskHandle );
