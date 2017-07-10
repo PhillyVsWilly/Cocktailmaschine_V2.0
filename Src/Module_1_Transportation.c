@@ -25,6 +25,7 @@ void vInit_Module_1_Transport(Module_State_1_Transportation_t* state, State_Gene
 	state->state = REFERENCE_TRANS;
 	state->ptrGeneralState = ptrGeneralState;
 	state->startTicket = NULL;
+	state->glassCount = 0;
 
 	// Hier können jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
 }
@@ -73,7 +74,7 @@ void vEvaluate_Module_1_Transportation(InputValues_t input, Module_State_1_Trans
 		switch (state->state){
 			case INACTIVE_TRANS:
 				output->Transport.fullStop = TRUE;
-				if (state->ptrGeneralState->operation_mode == startup) {
+				if (state->ptrGeneralState->operation_mode != stop) {
 					vSwitchStateTrans(state, REFERENCE_TRANS);
 				}
 				break;
@@ -81,24 +82,32 @@ void vEvaluate_Module_1_Transportation(InputValues_t input, Module_State_1_Trans
 				//Checks if the belt should be stopped for a new Glass or if the belt can start and switches states
 				DPRINT_MESSAGE("I'm in State %d\n", state->state);
 				output->Transport.LED_Status = TRUE;
-				if(input.Transportation.newGlas == TRUE)
-				{
-					vSwitchStateTrans(state, WAITING_TRANS);
+				for(int i = 0; i < 7; i++) {
+					if(state->ptrGeneralState->modules_finished[i] == 0 || state->ptrGeneralState->safety_sensors[i] == 0) {
+						break;
+					}
 				}
-				if (input.Transportation.start == TRUE) {
-					vSwitchStateTrans(state, ACTIVE_TRANS);
-				}
+				output->Transport.startUp = TRUE;
+				output.Transport.windDown = FALSE;
+				vSwitchStateTrans(state, ACTIVE_TRANS);
 				break;
 			case ACTIVE_TRANS:
 				//Do something
-				if(input.Transportation.newGlas == TRUE)
-								{
-									output->Transport.windDown = TRUE;
-									vSwitchStateTrans(state, WAITING_TRANS);
-								}
-				if (input.Transportation.start == FALSE) {
-					output->Transport.windDown = TRUE;
-					vSwitchStateTrans(state, STOPP_TRANS);
+				for (int i = 0; i < 7; i++) {
+					if(state->ptrGeneralState->safety_sensors[i] == 0) {
+						output->Transport.startUp = FALSE;
+						output->Transport.fullStop = TRUE;
+						vSwitchStateTrans(state, STOPP_TRANS);
+						break;
+					}
+				}
+				for (int i = 0; i < 7; i++) {
+					if(state->ptrGeneralState->modules_finished[i] == 0) {
+						output->Transport.windDown = TRUE;
+						output->Transport.startUp = FALSE;
+						vSwitchStateTrans(state, STOPP_TRANS);
+						break;
+					}
 				}
 
 				DPRINT_MESSAGE("I'm in State %d\n", state->state);

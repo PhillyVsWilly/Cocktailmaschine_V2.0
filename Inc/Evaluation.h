@@ -21,6 +21,7 @@ typedef struct{
 	int operation_mode;
 	int modules_finished[7];
 	int safety_sensors[7];
+	int glassCount;
 	} State_General_t;
 
 typedef struct{
@@ -66,7 +67,11 @@ typedef struct{
 typedef struct{
 	State_General_t* ptrGeneralState;
 	int state;
+	int glassCount;
 	int modules_finished[7]; //Contains modules signals
+	TickType_t startTicket;
+	TickType_t lightBarrierStart;
+	TickType_t lightBarrierEnd;
 	} Module_State_5_Sensors_t;
 
 typedef struct{
