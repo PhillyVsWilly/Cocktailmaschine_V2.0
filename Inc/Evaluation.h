@@ -49,9 +49,10 @@ typedef struct{
 	bool glassInStation;
 	bool valveInTransit; //Bool that tracks if the valve is in transit
 	bool valveInPosition;
-	bool finished; //Getraenk fertig
-
-
+	bool finished;//Getraenk fertig
+	linked_list *drinkList;
+	listNode *currentNode;
+	float drinkWeight;
 	} Module_State_3_Pumping_t;
 
 typedef struct{
@@ -78,7 +79,9 @@ typedef struct{
 	State_General_t* ptrGeneralState;
 	int state;
 	bool glassInStation;
-	bool finished;
+	linked_list *drinkList;
+	listNode *currentNode;
+	float drinkWeight;
 	}Module_State_7_Ice_t;
 
 typedef struct{

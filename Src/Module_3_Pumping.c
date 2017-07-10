@@ -20,6 +20,8 @@ void vInit_Module_3_Pumping(Module_State_3_Pumping_t* state, State_General_t* pt
 	//Nicht 舅dern, muss so sein!
 	state->state = REFERENCE_PUMP;
 	state->ptrGeneralState = ptrGeneralState;
+	list_new(state->drinkList);
+	state->currentNode = NULL;
 
 	// Hier knen jetzt noch - falls nig - Startwerte f�r die anderen Zustandsvariablen gegeben werden
 }
@@ -95,12 +97,13 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 
 			DPRINT_MESSAGE("I'm in State %d\n",state ->state);
 
-			listNode *ls_head;
-			//TODO list_head(input.Pumping.drinkList, ls_head, FALSE);
 
-			if(state->glassInStation && ls_head != NULL){
+			list_head(state->drinkList, state->currentNode, FALSE);
+
+			if(state->glassInStation && state->currentNode!= NULL){
 				vSwitchStatePump(state, VALVE_ADJUSTING);
-				//TODO input.Sensors.modules_finished[3] = 0;
+
+				state->ptrGeneralState->modules_finished[3]=0;
 			}
 
 			break;
@@ -108,15 +111,15 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 		case VALVE_ADJUSTING:
 
 			//TODO list_head(input.Pumping.drinkList, ls_head, FALSE);
-			if(input.Pumping.valve_position < ls_head->data[0] && !state->valveInTransit ){
+			if(input.Pumping.valve_position < state->currentNode->ingredient.bottleID && !state->valveInTransit ){
 				output -> Pumping.choose_motor = 1;
 				state->valveInTransit = TRUE;
 			}
-			if(input.Pumping.valve_position > ls_head->data[0] && !state->valveInTransit ){
+			if(input.Pumping.valve_position > state->currentNode->ingredient.bottleID && !state->valveInTransit ){
 							output -> Pumping.choose_motor = -1;
 							state->valveInTransit = TRUE;
 						}
-			if(input.Pumping.valve_position == ls_head->data[0] ){
+			if(input.Pumping.valve_position == state->currentNode->ingredient.bottleID ){
 				output -> Pumping.choose_motor = 0;
 				state->valveInTransit = FALSE;
 				vSwitchStatePump(state, PUMP_ACTIVE);
@@ -124,25 +127,26 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 		case PUMP_ACTIVE:
 
 			//TODO list_head(input.Pumping.drinkList, ls_head, FALSE);
-			if(input.Pumping.weight_glass < ls_head->data[1]){
+			if(input.Pumping.weight_glass < state->currentNode->ingredient.amount){
 				output -> Pumping.pump = 1;
 			}
 			else{
 				output -> Pumping.pump = 0;
-				bool cont = (1 == ls_head->data[2]);
-				//TODO list_head(input.Pumping.drinkList, ls_head, TRUE);
+				bool cont = (TRUE == state->currentNode->ingredient.lastInstruction);
+				list_head(state->drinkList, state->currentNode, TRUE);
 				if (cont){
-					vSwitchStatePump(state,FILLED_GLASS_PUMP);
+					vSwitchStatePump(state,ACTIVE);
 				}
 				else{
-					vSwitchStatePump(state,ACTIVE);
+					vSwitchStatePump(state,FILLED_GLASS_PUMP);
 				}
 			}
 		case FILLED_GLASS_PUMP:
+			state->ptrGeneralState->modules_finished[3]=1;
 			if(input.Pouring.weight == 0){
 				vSwitchStatePump(state,ACTIVE);
 			}
-			//TODO input.Sensors.modules_finished[3] = 1;
+
 
 		default:
 			break;
