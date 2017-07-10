@@ -25,7 +25,7 @@ typedef struct {
 	listbool lastInstruction;
 }ingredient_t;
 
-typedef struct _listNode {
+typedef struct listNode {
   ingredient_t ingredient;
   struct _listNode *next;
 } listNode;
