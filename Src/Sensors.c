@@ -2,6 +2,7 @@
 #include "Sensors.h"
 #include "stm32f7xx_hal.h"
 #include "VirtualInput.h"
+#include "project_conf.h"
 
 #define DEBUG_ENABLED TRUE
 #include "Debug.h"
@@ -13,6 +14,17 @@ void vPrintReadSensorValues(InputValues_t);
 static InputValues_t* ptrInput;
 
 extern ADC_HandleTypeDef hadc1, hadc3;
+
+int ValueAnalogPin0;
+int ValueAnalogPin1;
+int ValueAnalogPin2;
+int ValueAnalogPin3;
+int ValueAnalogPin4;
+int ValueAnalogPin5;
+int ValueAnalogPin6;
+int ValueAnalogPin7;
+int ValueAnalogPin8;
+
 
 
 void vReadSensorValues (InputValues_t* input)
@@ -84,11 +96,11 @@ void vReadSensorValues (InputValues_t* input)
 
  void vReadSensorValues_Module_1()
 {
-	//Read the Button State (Pin 13 at GPIO C)
+	 //Read the Button State (Pin 13 at GPIO C)
     ptrInput->Button = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
 	//read, and save the inputs here
-    ptrInput->Transportation.start = 
-    ptrInput->Transportation.newGlas = 
+    ptrInput->Transportation.start
+    ptrInput->Transportation.newGlas
     ptrInput->Transportation.inModule2
 	ptrInput->Transportation.inModule3
 	ptrInput->Transportation.inModule4
@@ -99,49 +111,50 @@ void vReadSensorValues (InputValues_t* input)
 
  void vReadSensorValues_Module_2()
 {
-	ptrInput->Gravity.weight_sensor
-	ptrInput->Gravity.doors_open
-	ptrInput->Gravity.sensor_up
-	ptrInput->Gravity.sensor_down
-	ptrInput->Gravity.button_fill_in
-	ptrInput->Gravity.position_tree
+	ptrInput->Gravity.weight_sensor = ValueAnalogPin4 / FACTOR_BITS_TO_WEIGHT; //A4
+	ptrInput->Gravity.doors_open = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_3); // PE3 digital
+	ptrInput->Gravity.sensor_up = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_8); // PF8
+	ptrInput->Gravity.sensor_down = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_7); // PF7
+	ptrInput->Gravity.button_fill_in = HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_15); // PB15
+	ptrInput->Gravity.position_tree = ValueAnalogPin6 / FACTOR_BITS_TO_ANGLE; //A6
 	
 	return;
 }
 
  void vReadSensorValues_Module_3()
 {
-	 ptrInput->Pumping.doors_open
-	 ptrInput->Pumping.valve_position
-	 ptrInput->Pumping.weight_glass
+	 ptrInput->Pumping.doors_open = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_2); // PE2
+	 ptrInput->Pumping.valve_position = ValueAnalogPin2 / FACTOR_BITS_TO_POSITION; // A2
+	 ptrInput->Pumping.weight_glass = ValueAnalogPin1 / FACTOR_BITS_TO_WEIGHT; // A1
 	return;
 }
 
  void vReadSensorValues_Module_4()
 {
-	 ptrInput->Pouring.doors_open
-	 ptrInput->Pouring.position_up
-	 ptrInput->Pouring.position_down
-	 ptrInput->Pouring.weight
+	 ptrInput->Pouring.doors_openn = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_4); // PE4
+	 ptrInput->Pouring.position_up = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_6); // PE6
+	 ptrInput->Pouring.position_down = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_5); // PE5
+	 ptrInput->Pouring.weight = ValueAnalogPin3 / FACTOR_BITS_TO_WEIGHT; // A3
 	return;
 }
 
  void vReadSensorValues_Module_5()
 {
-	 ptrInput->Sensors.start_doors_open
-	 ptrInput->Sensors.start_light_barrier
-	 ptrInput->Sensors.end_doors_open
-	 ptrInput->Sensors.end_light_barrier
-	 ptrInput->Sensors.end_button_glass_present
+	 ptrInput->Sensors.start_doors_open = HAL_GPIO_ReadPin(GPIOD,GPIO_PIN_0); // PD0
+	 ptrInput->Sensors.start_light_barrier = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_2); // PF2
+	 ptrInput->Sensors.end_doors_open = HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_9); // PB9
+	 ptrInput->Sensors.end_light_barrier = HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15); // PA15
+	 ptrInput->Sensors.end_button_glass_present = HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_12); // PB12
 	return;
 }
 
  void vReadSensorValues_Module_6()
 {
-	 ptrInput->Ice.weight
-	 ptrInput->Ice.doors_open
-	 ptrInput->Ice.light_barrier_enough_cube_ice
-	 ptrInput->Ice.light_barrier_enough_crushed_ice
+	 ptrInput->Ice.weight = ValueAnalogPin0 / FACTOR_BITS_TO_WEIGHT; // A0
+	 ptrInput->Ice.doors_open = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_1); // PF1
+	 ptrInput->Ice.light_barrier_enough_cube_ice = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_0); // PF0
+	 // TODO Hier fehlt die Pinbelegung der zweiten Lichtschranke -> nicht vermerkt in Sensors.txt
+	 ptrInput->Ice.light_barrier_enough_crushed_ice = HAL_GPIO_ReadPin(GPIOX,GPIO_PIN_XX); // PXX
 	 
 	return;
 }
@@ -160,10 +173,15 @@ void vReadSensorValues (InputValues_t* input)
  	if(port == GPIOA)
  	{
  		adc = hadc1;
+ 		
+ 		//A0: Channel 0
  	}
- 	else
+ 	else if(port == GPIOF && pin == 5)
  	{
  		adc = hadc3;
+ 		
+ 		//F5: Channel 15
+ 		// Wie wird parallel ausgelesen? 
  	}
  	//Delete later
  	HAL_ADC_Start(&adc);

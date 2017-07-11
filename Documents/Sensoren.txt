@@ -112,7 +112,8 @@ Rondell:
 		analog
 		0-3,3V
 		Eine Drehung um 360° entsprechen einem Spannungsverlauf von 0 bis 3,3V; zyklisch; Nullpunkt noch nicht festgelegt
-		->A6	
+		->A6
+		->Winkel = 360°/4096	
 
 Endmodul:
 
