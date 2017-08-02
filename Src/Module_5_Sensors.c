@@ -108,7 +108,6 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 				state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 0;
 				break;
 			}
-			//TODO input.Transportation.start = TRUE;
 			break;
 		case NEW_GLAS:
 			if (input.Sensors.start_light_barrier == TRUE && state->lightBarrierStart == 0) {
