@@ -27,6 +27,9 @@ void vInit_Module_1_Transport(Module_State_1_Transportation_t* state, State_Gene
 	state->startTicket = NULL;
 	state->glassCount = 0;
 
+	//Statisch eingefügt für das Handlingmodul da es atm nichts macht um Fehler aufgrund fehlendem Eintrag zu verhindern.
+	state->ptrGeneralState->modules_finished[6] = 1;
+
 	// Hier können jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
 }
 

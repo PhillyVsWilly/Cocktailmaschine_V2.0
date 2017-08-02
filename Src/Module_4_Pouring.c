@@ -73,6 +73,9 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 	{
 		vSwitchStatePour(state, INACTIVE_POUR);
 	}
+	if (input.Pouring.doors_open) {
+		vSwitchStatePour(state, INACTIVE_POUR);
+	}
 
 	//Ausf�hren von Funktionen basierend auf dem Zustand
 	switch (state->state){
@@ -83,11 +86,13 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 				output->Pouring.motor = 1;
 			} else if (input.Pouring.position_up) {
 				output->Pouring.motor = 0;
+				state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
 				vSwitchStatePour(state, ACTIVE_POUR);
 			}
 			break;
 		case ACTIVE_POUR:
 			//Do something
+			state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			if (input.Pouring.weight > EMPTY_WEIGHT) {
 				state->drinkWeight = input.Pouring.weight;
@@ -97,6 +102,7 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 		case INACTIVE_POUR:
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
+			state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 0;
 			output->Pouring.motor = 0;
 			if (state->ptrGeneralState->operation_mode != stop) {
 				vSwitchStatePour(state, REFERENCE_POUR);

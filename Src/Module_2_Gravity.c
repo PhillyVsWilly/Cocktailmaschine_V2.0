@@ -48,7 +48,8 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 				vSwitchStateGrav(state, INACTIVE_GRAV);
 			}
 			if (input.Gravity.doors_open) {
-
+				vSwitchStateGrav(state, INACTIVE_GRAV);
+				state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 0;
 			}
 
 			//Ausführen von Funktionen basierend auf dem Zustand
@@ -66,6 +67,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					if (input.Gravity.sensor_down == TRUE) {
 						output->Gravity.move_platform = 0;
 						vSwitchStateGrav(state, IDLE_GRAV);
+						state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
 					} else {
 						output->Gravity.move_platform = -1; //Plattform soll herunterfahren
 					}
