@@ -47,6 +47,9 @@ static int vCheckForGeneralErrors(InputValues_t input)
 			return DOOR_OPEN;
 		}
 
+
+
+
 	return -1;
 }
 
@@ -69,21 +72,27 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 	{
 		vSwitchStateIce(state, INACTIVE_ICE);
 	}
-
+	if(input.Ice.light_barrier_enough_crushed_ice == FALSE){
+		vSwitchStateIce(state, INACTIVE_ICE);
+	}
+	if(input.Ice.light_barrier_enough_cube_ice == FALSE){
+			vSwitchStateIce(state, INACTIVE_ICE);
+		}
 	//Ausf�hren von Funktionen basierend auf dem Zustand
 	switch (state->state){
-		case INACTIVE_ICE:
-			if(vCheckForGeneralErrors(input)!= -1){
-							vSwitchStateIce(state, INACTIVE_ICE);
-						}
-			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			output->Ice.motor = 0;
+	case INACTIVE_ICE:
+		if (state->ptrGeneralState->operation_mode
+				== stop|| vCheckForGeneralErrors(input)!= -1 || input.Ice.light_barrier_enough_crushed_ice == FALSE || input.Ice.light_barrier_enough_cube_ice == FALSE) {
+			vSwitchStateIce(state, INACTIVE_ICE);
+		}
+		DPRINT_MESSAGE("I'm in State %d\n", state->state);
+		output->Ice.motor = 0;
 
-			if (state->ptrGeneralState->operation_mode != stop)
-				{
-					vSwitchStateIce(state,REFERENCE_ICE);
-				}
-			break;
+		if (!(state->ptrGeneralState->operation_mode
+				== stop|| vCheckForGeneralErrors(input)!= -1 || input.Ice.light_barrier_enough_crushed_ice == FALSE || input.Ice.light_barrier_enough_cube_ice == FALSE)) {
+			vSwitchStateIce(state, REFERENCE_ICE);
+		}
+		break;
 
 
 
