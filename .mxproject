@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/Users/Philipp/Documents/Cocktailmaschine_V2.0/Inc
+HeaderPath=C:/Users/Philipp/Documents/Code/Cocktailmaschine_V2.0/Inc
 HeaderFiles=FreeRTOSConfig.h;stm32f7xx_it.h;stm32f7xx_hal_conf.h;main.h;
-SourcePath=C:/Users/Philipp/Documents/Cocktailmaschine_V2.0/Src
+SourcePath=C:/Users/Philipp/Documents/Code/Cocktailmaschine_V2.0/Src
 SourceFiles=FreeRTOSConfig.h;stm32f7xx_it.h;stm32f7xx_hal_conf.h;main.h;freertos.c;stm32f7xx_it.c;stm32f7xx_hal_msp.c;main.c;stm32f7xx_hal_timebase_TIM.c;
 
 [PreviousLibFiles]

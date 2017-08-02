@@ -53,7 +53,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 				case INACTIVE_GRAV:
 					output->Gravity.move_baum = 0;
 					output->Gravity.move_platform = 0;
-					if (state->ptrGeneralState != stop) {
+					if (state->ptrGeneralState->operation_mode != stop) {
 						vSwitchStateGrav(state, REFERENCE_GRAV);
 					}
 					break;

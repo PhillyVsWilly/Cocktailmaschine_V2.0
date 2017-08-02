@@ -11,56 +11,58 @@
 void vPrintReadSensorValues(InputValues_t);
 #endif
 
-static InputValues_t* ptrInput;
 
 extern ADC_HandleTypeDef hadc1, hadc3;
+extern uint32_t ADC1ConvertedValues[1024];
 
-int ValueAnalogPin0;
-int ValueAnalogPin1;
-int ValueAnalogPin2;
-int ValueAnalogPin3;
-int ValueAnalogPin4;
-int ValueAnalogPin5;
-int ValueAnalogPin6;
-int ValueAnalogPin7;
-int ValueAnalogPin8;
+int ValueAnalogPin0 = 1.0;
+int ValueAnalogPin1 = 1.0;
+int ValueAnalogPin2 = 1.0;
+int ValueAnalogPin3 = 1.0;
+int ValueAnalogPin4 = 1.0;
+int ValueAnalogPin5 = 1.0;
+int ValueAnalogPin6 = 1.0;
+int ValueAnalogPin7 = 1.0;
+int ValueAnalogPin8 = 1.0;
 
 
 
-void vReadSensorValues (InputValues_t* input)
+void vReadSensorValues (InputValues_t* ptrInput)
 {
-	ptrInput = input;
 
 //Read Module 1:
 #if MODULE_1_USE_VIRTUAL_INPUT
 	DPRINT_WARNING("Module 1: Using virtual Input");
 	updateVirtualInput_Module_1(ptrInput);
 #else
-	vReadSensorValues_Module_1();
+	vReadSensorValues_Module_1(ptrInput);
 #endif
+
 
 //Read Module 2:
 #if MODULE_2_USE_VIRTUAL_INPUT
 	DPRINT_WARNING("Module 2: Using virtual Input");
 	updateVirtualInput_Module_2(ptrInput);
 #else
-	vReadSensorValues_Module_2();
+	vReadSensorValues_Module_2(ptrInput);
 #endif
+
 
 //Read Module 3
 #if MODULE_3_USE_VIRTUAL_INPUT
 	DPRINT_WARNING("Module 3: Using virtual Input");
 	updateVirtualInput_Module_3(ptrInput);
 #else
-	vReadSensorValues_Module_3();
+	vReadSensorValues_Module_3(ptrInput);
 #endif
+
 
 //Read Module 4
 #if MODULE_4_USE_VIRTUAL_INPUT
 	DPRINT_WARNING("Module 4: Using virtual Input");
 	updateVirtualInput_Module_4(ptrInput);
 #else
-	vReadSensorValues_Module_4();
+	vReadSensorValues_Module_4(ptrInput);
 #endif
 
 //Read Module 5
@@ -68,7 +70,7 @@ void vReadSensorValues (InputValues_t* input)
 	DPRINT_WARNING("Module 5: Using virtual Input");
 	updateVirtualInput_Module_5(ptrInput);
 #else
-	vReadSensorValues_Module_5();
+	vReadSensorValues_Module_5(ptrInput);
 #endif
 
 //Read Module 6
@@ -76,7 +78,7 @@ void vReadSensorValues (InputValues_t* input)
 	DPRINT_WARNING("Module 6: Using virtual Input");
 	updateVirtualInput_Module_6(ptrInput);
 #else
-	vReadSensorValues_Module_6();
+	vReadSensorValues_Module_6(ptrInput);
 #endif
 
 //Read Module 7
@@ -84,61 +86,54 @@ void vReadSensorValues (InputValues_t* input)
 	DPRINT_WARNING("Module 7: Using virtual Input");
 	updateVirtualInput_Module_7(ptrInput);
 #else
-	vReadSensorValues_Module_7();
+	vReadSensorValues_Module_7(ptrInput);
 #endif
 
 #if DEBUG_ENABLED
-	vPrintReadSensorValues(*ptrInput);
+	//vPrintReadSensorValues(*ptrInput);
+	printf("Values: 0: %d\n 1: %d\n2: %d\n3: %d\n4:%d\n5: %d\n",
+			ADC1ConvertedValues[0],ADC1ConvertedValues[1],ADC1ConvertedValues[2],ADC1ConvertedValues[3],
+			ADC1ConvertedValues[4],ADC1ConvertedValues[5]);
 #endif
 
 }
 
 
- void vReadSensorValues_Module_1()
+ void vReadSensorValues_Module_1(InputValues_t* ptrInput)
 {
-	 //Read the Button State (Pin 13 at GPIO C)
-    ptrInput->Button = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
-	//read, and save the inputs here
-    ptrInput->Transportation.start
-    ptrInput->Transportation.newGlas
-    ptrInput->Transportation.inModule2
-	ptrInput->Transportation.inModule3
-	ptrInput->Transportation.inModule4
-	ptrInput->Transportation.inModule7
-	
 	return;
 }
 
- void vReadSensorValues_Module_2()
+ void vReadSensorValues_Module_2(InputValues_t* ptrInput)
 {
-	ptrInput->Gravity.weight_sensor = ValueAnalogPin4 / FACTOR_BITS_TO_WEIGHT; //A4
+	//ptrInput->Gravity.weight_sensor = ValueAnalogPin4 / FACTOR_BITS_TO_WEIGHT; //A4
 	ptrInput->Gravity.doors_open = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_3); // PE3 digital
 	ptrInput->Gravity.sensor_up = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_8); // PF8
 	ptrInput->Gravity.sensor_down = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_7); // PF7
 	ptrInput->Gravity.button_fill_in = HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_15); // PB15
-	ptrInput->Gravity.position_tree = ValueAnalogPin6 / FACTOR_BITS_TO_ANGLE; //A6
+	//ptrInput->Gravity.position_tree = ValueAnalogPin6 / FACTOR_BITS_TO_ANGLE; //A6
 	
 	return;
 }
 
- void vReadSensorValues_Module_3()
+ void vReadSensorValues_Module_3(InputValues_t* ptrInput)
 {
 	 ptrInput->Pumping.doors_open = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_2); // PE2
-	 ptrInput->Pumping.valve_position = ValueAnalogPin2 / FACTOR_BITS_TO_POSITION; // A2
-	 ptrInput->Pumping.weight_glass = ValueAnalogPin1 / FACTOR_BITS_TO_WEIGHT; // A1
+	 //ptrInput->Pumping.valve_position = ValueAnalogPin2 / FACTOR_BITS_TO_POSITION; // A2
+	 //ptrInput->Pumping.weight_glass = ValueAnalogPin1 / FACTOR_BITS_TO_WEIGHT; // A1
 	return;
 }
 
- void vReadSensorValues_Module_4()
+ void vReadSensorValues_Module_4(InputValues_t* ptrInput)
 {
-	 ptrInput->Pouring.doors_openn = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_4); // PE4
+	 ptrInput->Pouring.doors_open = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_4); // PE4
 	 ptrInput->Pouring.position_up = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_6); // PE6
 	 ptrInput->Pouring.position_down = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_5); // PE5
-	 ptrInput->Pouring.weight = ValueAnalogPin3 / FACTOR_BITS_TO_WEIGHT; // A3
+	 //ptrInput->Pouring.weight = ValueAnalogPin3 / FACTOR_BITS_TO_WEIGHT; // A3
 	return;
 }
 
- void vReadSensorValues_Module_5()
+ void vReadSensorValues_Module_5(InputValues_t* ptrInput)
 {
 	 ptrInput->Sensors.start_doors_open = HAL_GPIO_ReadPin(GPIOD,GPIO_PIN_0); // PD0
 	 ptrInput->Sensors.start_light_barrier = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_2); // PF2
@@ -148,18 +143,18 @@ void vReadSensorValues (InputValues_t* input)
 	return;
 }
 
- void vReadSensorValues_Module_6()
+ void vReadSensorValues_Module_6(InputValues_t* ptrInput)
 {
-	 ptrInput->Ice.weight = ValueAnalogPin0 / FACTOR_BITS_TO_WEIGHT; // A0
+	 //ptrInput->Ice.weight = ValueAnalogPin0 / FACTOR_BITS_TO_WEIGHT; // A0
 	 ptrInput->Ice.doors_open = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_1); // PF1
 	 ptrInput->Ice.light_barrier_enough_cube_ice = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_0); // PF0
 	 // TODO Hier fehlt die Pinbelegung der zweiten Lichtschranke -> nicht vermerkt in Sensors.txt
-	 ptrInput->Ice.light_barrier_enough_crushed_ice = HAL_GPIO_ReadPin(GPIOX,GPIO_PIN_XX); // PXX
+	 //ptrInput->Ice.light_barrier_enough_crushed_ice = HAL_GPIO_ReadPin(GPIOX,GPIO_PIN_XX); // PXX
 	 
 	return;
 }
 
- void vReadSensorValues_Module_7()
+ void vReadSensorValues_Module_7(InputValues_t* ptrInput)
 {
 	return;
 }
@@ -204,21 +199,23 @@ void vReadSensorValues (InputValues_t* input)
 void vPrintReadSensorValues(InputValues_t input)
 {
 	printf("====================\n%s\n==============\n", "Sensor Values");
-	printf("Gravity Weight: %g\nDoor Open: %d\nSensorUp: %d\nSensorDown: %d\nButton Fill: %d\nPosition Tree: %d\n",
-			input->Gravity.weight_sensor, input->Gravity.doors_open, input->Gravity.sensor_up,
-			input->Gravity.sensor_down, input->Gravity.button_fill_in);
-	printf("Door Open: %d\nValve Position: %d\nWeightGlass: %g\n",
-			input->Pumping.doors_open, input->Pumping.valve_position, input->Pumping.weight_glass);
-	printf("Door Open: %d\nPosition Up: %d\nPosition Down: %d\nWeight: %g\n",
-			input->Pouring.doors_open, input->Pouring.position_up, input->Pouring.position_down,
-			input->Pouring.weight);
-	printf("Start Door Open: %d\nStart Light Barrier: %d\nEnd Door Open: %d\nEnd Light Barrier: %d\nButton glass present: %d\n",
-			input->Sensors.start_doors_open, input->Sensors.start_light_barrier, input->Sensors.end_doors_open,
-			input->Sensors.end_light_barrier, input->Sensor.send_button_glass_present);
-
-	printf("Weight: %g\nDoor open: %d\nLight Barrier enough cube ice: %d\nLight Barrier enough crushed ice: %d\n",
-			input->Ice.weight, input->Ice.doors_open,
-			input->Ice.light_barrier_enough_cube_ice, input->Ice.light_barrier_enough_crushed_ice);
+	printf("Transport Modul: \nBand gestartet: %d\nNeues Glas hineinstellen: %d\nGlas in Modul 2: %d\nGlas in Modul 3: %d\nGlas in Modul 4: %d\nGlas in Modul 7: %d\n",
+			input.Transportation.start, input.Transportation.newGlas, input.Transportation.inModule2, input.Transportation.inModule3, input.Transportation.inModule4, input.Transportation.inModule7);
+	printf("Gravity Modul: \nGravity Weight: %g\nDoor Open: %d\nSensorUp: %d\nSensorDown: %d\nButton Fill: %d\nPosition Tree: %d\n",
+			input.Gravity.weight_sensor, input.Gravity.doors_open, input.Gravity.sensor_up,
+			input.Gravity.sensor_down, input.Gravity.button_fill_in);
+	printf("Pump Modul: \nDoor Open: %d\nValve Position: %d\nWeightGlass: %g\n",
+			input.Pumping.doors_open, input.Pumping.valve_position, input.Pumping.weight_glass);
+	printf("Pouring Modul: \nDoor Open: %d\nPosition Up: %d\nPosition Down: %d\nWeight: %g\n",
+			input.Pouring.doors_open, input.Pouring.position_up, input.Pouring.position_down,
+			input.Pouring.weight);
+	printf("Sensor Modul: \nStart Door Open: %d\nStart Light Barrier: %d\nEnd Door Open: %d\nEnd Light Barrier: %d\nButton glass present: %d\n",
+			input.Sensors.start_doors_open, input.Sensors.start_light_barrier, input.Sensors.end_doors_open,
+			input.Sensors.end_light_barrier, input.Sensors.end_button_glass_present);
+	printf("Handling: \nkeine Variablen");
+	printf("Gewicht Modul: \nWeight: %g\nDoor open: %d\nLight Barrier enough cube ice: %d\nLight Barrier enough crushed ice: %d\n",
+			input.Ice.weight, input.Ice.doors_open,
+			input.Ice.light_barrier_enough_cube_ice, input.Ice.light_barrier_enough_crushed_ice);
 
 
 

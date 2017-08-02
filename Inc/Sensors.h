@@ -88,13 +88,13 @@ typedef struct {
 
 
 void vReadSensorValues(InputValues_t*);
-void vReadSensorValues_Module_1(void);
-void vReadSensorValues_Module_2(void);
-void vReadSensorValues_Module_3(void);
-void vReadSensorValues_Module_4(void);
-void vReadSensorValues_Module_5(void);
-void vReadSensorValues_Module_6(void);
-void vReadSensorValues_Module_7(void);
+void vReadSensorValues_Module_1(InputValues_t*);
+void vReadSensorValues_Module_2(InputValues_t*);
+void vReadSensorValues_Module_3(InputValues_t*);
+void vReadSensorValues_Module_4(InputValues_t*);
+void vReadSensorValues_Module_5(InputValues_t*);
+void vReadSensorValues_Module_6(InputValues_t*);
+void vReadSensorValues_Module_7(InputValues_t*);
 
 void vReadAnalogPin(GPIO_TypeDef*, int);
 
