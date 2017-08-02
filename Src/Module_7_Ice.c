@@ -42,14 +42,10 @@ void vInit_Module_7_Ice(Module_State_7_Ice_t* state, State_General_t* ptrGeneral
 static int vCheckForGeneralErrors(InputValues_t input)
 {
 
-	if(input.Module_x_Name.placeholder > 10.0)
-	{
-		//ThrowError ist die zentrale "Fehlerverwaltung". An sie werden alle Fehler �bergeben, die geworfen werden sollen
-		ThrowError(MODULE_NUMBER, MOTOR1_NOT_MOVING);
-
-		//Gibt den aktuell geworfenen Fehler aus
-		return MOTOR1_NOT_MOVING;
-	}
+	if(input.Ice.doors_open == TRUE){
+			ThrowError(3, DOOR_OPEN);
+			return DOOR_OPEN;
+		}
 
 	return -1;
 }
@@ -77,7 +73,9 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 	//Ausf�hren von Funktionen basierend auf dem Zustand
 	switch (state->state){
 		case INACTIVE_ICE:
-			//Do something
+			if(vCheckForGeneralErrors(input)!= -1){
+							vSwitchStateIce(state, INACTIVE_ICE);
+						}
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			output->Ice.motor = 0;
 
@@ -91,6 +89,9 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 
 		case REFERENCE_ICE:
 			//Do something
+			if(vCheckForGeneralErrors(input)!= -1){
+							vSwitchStateIce(state, INACTIVE_ICE);
+						}
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			output->Ice.motor = 0;
 
@@ -100,20 +101,25 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 
 			break;
 		case ACTIVE_ICE:
-
+			if(vCheckForGeneralErrors(input)!= -1){
+							vSwitchStateIce(state, INACTIVE_ICE);
+						}
 
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			list_head(state->drinkList,state->currentNode,FALSE);
 			if(input.Ice.weight && state->currentNode->ingredient.amount != 0){
 				vSwitchStateIce(state, FILL_ICE);
 				state->glassInStation = TRUE;
-				state->ptrGeneralState->modules_finished[7]=1;
+				state->ptrGeneralState->modules_finished[6]=1;
 
 			}
 			break;
 
 		case FILL_ICE:
-			state->ptrGeneralState->modules_finished[7]=0;
+			if(vCheckForGeneralErrors(input)!= -1){
+							vSwitchStateIce(state, INACTIVE_ICE);
+						}
+			state->ptrGeneralState->modules_finished[6]=0;
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			list_head(state->drinkList,state->currentNode,FALSE);
 			if((input.Ice.weight < state->currentNode->ingredient.amount) && state->glassInStation && (state->currentNode->ingredient.bottleID == 1)){
@@ -133,9 +139,12 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 			break;
 
 		case FINISHED_ICE:
+			if(vCheckForGeneralErrors(input)!= -1){
+							vSwitchStatePump(state, INACTIVE_ICE);
+						}
 
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			state->ptrGeneralState->modules_finished[7]=1;
+			state->ptrGeneralState->modules_finished[6]=1;
 			if(input.Ice.weight == 0){
 				vSwitchStateIce(state, ACTIVE_ICE);
 			}
