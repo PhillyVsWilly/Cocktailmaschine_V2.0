@@ -84,7 +84,9 @@ SystemState_t System_State;
 
 osThreadId mainCycleHandle;
 
-uint32_t ADC1ConvertedValues[1024];
+uint32_t ADC1ConvertedValues[12]; //PA3-A0 // PB1--
+uint32_t ADC2ConvertedValues[4]; //PC0-A1
+uint32_t ADC3ConvertedValues[16]; //PF10-A5 //PF3-A3 //PC3-A2 //PF5-A4
 
 extern int virtual_testenv_timer_variable;
 /* USER CODE END PV */
@@ -140,14 +142,33 @@ int main(void)
   MX_ADC3_Init();
   MX_ETH_Init();
 
-
   /* USER CODE BEGIN 2 */
   if(HAL_ADC_Start(&hadc1) != HAL_OK)
   {
 	  printf("ADC not ok! \r\n");
 	  return 0;
   }
-  if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC1ConvertedValues,1024)!= HAL_OK)
+  if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC1ConvertedValues,12)!= HAL_OK)
+  {
+	  printf("DMA not ok! \r\n");
+	  return 0;
+  }
+  if(HAL_ADC_Start(&hadc2) != HAL_OK)
+  {
+	  printf("ADC not ok! \r\n");
+	  return 0;
+  }
+  if(HAL_ADC_Start_DMA(&hadc2, (uint32_t*)ADC2ConvertedValues,4)!= HAL_OK)
+  {
+	  printf("DMA not ok! \r\n");
+	  return 0;
+  }
+  if(HAL_ADC_Start(&hadc3) != HAL_OK)
+  {
+	  printf("ADC not ok! \r\n");
+	  return 0;
+  }
+  if(HAL_ADC_Start_DMA(&hadc3, (uint32_t*)ADC3ConvertedValues,16)!= HAL_OK)
   {
 	  printf("DMA not ok! \r\n");
 	  return 0;
@@ -512,10 +533,8 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PE2 PE3 PE4 PE5 
-                           PE6 */
-  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5 
-                          |GPIO_PIN_6;
+  /*Configure GPIO pins : PE3 PE4 PE5 PE6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
@@ -527,9 +546,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(USER_Btn_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PF0 PF1 PF2 PF7 
-                           PF8 */
+                           PF8 PF9 */
   GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_7 
-                          |GPIO_PIN_8;
+                          |GPIO_PIN_8|GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);

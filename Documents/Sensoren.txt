@@ -29,6 +29,7 @@ Eis:
 		5V
 		LOW: Eis fast leer; HIGH: Es gibt noch Eis
 		->PF0
+		->PF9
 	
 Pumpe:
 	Wartungstüren offen
