@@ -83,7 +83,7 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 	switch (state->state){
 		case STOP_SENS:
 		if (safetyCheck(input)) {
-			state->ptrGeneralState->operation_mode = start;
+			state->ptrGeneralState->operation_mode = startup;
 		}
 		break;
 		case GLAS_AT_END:
@@ -91,7 +91,7 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			if (safetyCheck(input) && input.Sensors.end_button_glass_present == FALSE) {
 				vSwitchStateSens(state, ACTIVE_SENS);
-				state.ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
+				state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
 				break;
 		case REFERENCE_SENS:
 			//Do something
@@ -116,8 +116,8 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 			if (input.Sensors.start_light_barrier == FALSE && state->lightBarrierStart != 0) {
 				state->lightBarrierEnd = xTaskGetTickCount();
 			}
-			if (state->startTicket + 5000 >= xTaskGetTickCount() && state->lightBarrierEnd >= state.lightBarrierStart + WAIT_TIME) {
-				state.ptrGeneralState->modules_finished[MODULE_NUMBER -1] = 1;
+			if (state->startTicket + 5000 >= xTaskGetTickCount() && state->lightBarrierEnd >= state->lightBarrierStart + WAIT_TIME) {
+				state->ptrGeneralState->modules_finished[MODULE_NUMBER -1] = 1;
 				vSwitchStateSens(state, ACTIVE_SENS);
 			}
 			break;
@@ -151,6 +151,7 @@ bool safetyCheck(InputValues_t input) {
 		return FALSE;
 	}
 	return TRUE;
+}
 }
 //vHilfsfuntion2() {  }
 

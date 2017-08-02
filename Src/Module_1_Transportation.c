@@ -25,7 +25,7 @@ void vInit_Module_1_Transport(Module_State_1_Transportation_t* state, State_Gene
 	state->state = REFERENCE_TRANS;
 	state->ptrGeneralState = ptrGeneralState;
 	state->startTicket = NULL;
-	state->glassCount = 0;
+	state->ptrGeneralState->glassCount = 0;
 
 	//Statisch eingefügt für das Handlingmodul da es atm nichts macht um Fehler aufgrund fehlendem Eintrag zu verhindern.
 	state->ptrGeneralState->modules_finished[6] = 1;
@@ -91,7 +91,7 @@ void vEvaluate_Module_1_Transportation(InputValues_t input, Module_State_1_Trans
 					}
 				}
 				output->Transport.startUp = TRUE;
-				output.Transport.windDown = FALSE;
+				output->Transport.windDown = FALSE;
 				vSwitchStateTrans(state, ACTIVE_TRANS);
 				break;
 			case ACTIVE_TRANS:
@@ -134,7 +134,6 @@ void vEvaluate_Module_1_Transportation(InputValues_t input, Module_State_1_Trans
 					output->Transport.startUp = TRUE;
 					output->Transport.windDown = FALSE;
 					output->Transport.LED_Status = FALSE;
-					input.Transportation.newGlas = FALSE;
 					vSwitchStateTrans(state, ACTIVE_TRANS);
 				}
 				break;
