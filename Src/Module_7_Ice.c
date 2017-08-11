@@ -26,7 +26,9 @@ void vInit_Module_7_Ice(Module_State_7_Ice_t* state, State_General_t* ptrGeneral
 	//Nicht 舅dern, muss so sein!
 	state->state = REFERENCE_ICE;
 	state->ptrGeneralState = ptrGeneralState;
-
+	list_new(state->drinkList);
+	state->currentNode = NULL;
+	state->glassInStation = FALSE;
 	// Hier knen jetzt noch - falls nig - Startwerte f�r die anderen Zustandsvariablen gegeben werden
 }
 
@@ -40,14 +42,13 @@ void vInit_Module_7_Ice(Module_State_7_Ice_t* state, State_General_t* ptrGeneral
 static int vCheckForGeneralErrors(InputValues_t input)
 {
 
-	if(input.Module_x_Name.placeholder > 10.0)
-	{
-		//ThrowError ist die zentrale "Fehlerverwaltung". An sie werden alle Fehler �bergeben, die geworfen werden sollen
-		ThrowError(MODULE_NUMBER, MOTOR1_NOT_MOVING);
+	if(input.Ice.doors_open == TRUE){
+			ThrowError(3, DOOR_OPEN);
+			return DOOR_OPEN;
+		}
 
-		//Gibt den aktuell geworfenen Fehler aus
-		return MOTOR1_NOT_MOVING;
-	}
+
+
 
 	return -1;
 }
@@ -64,28 +65,42 @@ static int vCheckForGeneralErrors(InputValues_t input)
  **/
 void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, OutputValues_t* output)
 {
-	listNode *ls_head = 0;//[0] = Gewicht Eisw�rfel, [1] = Gewicht crushed eis
+	//listNode *ls_head = 0;[0] = Gewicht Eisw�rfel, [1] = Gewicht crushed eis
 
 	//ﾄndern des Status auf Basis des Gesamtmaschinenzustand
 	if (state->ptrGeneralState->operation_mode == stop)
 	{
 		vSwitchStateIce(state, INACTIVE_ICE);
 	}
-
+	if(input.Ice.light_barrier_enough_crushed_ice == FALSE){
+		vSwitchStateIce(state, INACTIVE_ICE);
+	}
+	if(input.Ice.light_barrier_enough_cube_ice == FALSE){
+			vSwitchStateIce(state, INACTIVE_ICE);
+		}
 	//Ausf�hren von Funktionen basierend auf dem Zustand
 	switch (state->state){
-		case INACTIVE_ICE:
-			//Do something
-			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			output->Ice.motor = 0;
+	case INACTIVE_ICE:
+		if (state->ptrGeneralState->operation_mode
+				== stop|| vCheckForGeneralErrors(input)!= -1 || input.Ice.light_barrier_enough_crushed_ice == FALSE || input.Ice.light_barrier_enough_cube_ice == FALSE) {
+			vSwitchStateIce(state, INACTIVE_ICE);
+		}
+		DPRINT_MESSAGE("I'm in State %d\n", state->state);
+		output->Ice.motor = 0;
 
-			if (state->ptrGeneralState->operation_mode == stop)
-				{
-					vSwitchStateIce(state,REFERENCE_ICE);
-				}
-			break;
+		if (!(state->ptrGeneralState->operation_mode
+				== stop|| vCheckForGeneralErrors(input)!= -1 || input.Ice.light_barrier_enough_crushed_ice == FALSE || input.Ice.light_barrier_enough_cube_ice == FALSE)) {
+			vSwitchStateIce(state, REFERENCE_ICE);
+		}
+		break;
+
+
+
 		case REFERENCE_ICE:
 			//Do something
+			if(vCheckForGeneralErrors(input)!= -1){
+							vSwitchStateIce(state, INACTIVE_ICE);
+						}
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			output->Ice.motor = 0;
 
@@ -95,37 +110,50 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 
 			break;
 		case ACTIVE_ICE:
+			if(vCheckForGeneralErrors(input)!= -1){
+							vSwitchStateIce(state, INACTIVE_ICE);
+						}
 
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			//TODO list_head(input.Ice.drinkList,ls_head,FALSE);
-			if(input.Ice.weight && ls_head->data[0] != 0){
+			list_head(state->drinkList,state->currentNode,FALSE);
+			if(input.Ice.weight && state->currentNode->ingredient.amount != 0){
 				vSwitchStateIce(state, FILL_ICE);
 				state->glassInStation = TRUE;
-				//TODO input.Sensors.modules_finished[7] = 0;
+				state->ptrGeneralState->modules_finished[6]=1;
+
 			}
 			break;
 
 		case FILL_ICE:
-			//TODO input.Sensors.modules_finished[7] = 0;
+			if(vCheckForGeneralErrors(input)!= -1){
+							vSwitchStateIce(state, INACTIVE_ICE);
+						}
+			state->ptrGeneralState->modules_finished[6]=0;
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			//TODO list_head(input.Ice.drinkList,ls_head,FALSE);
-			if(input.Ice.weight < ls_head->data[0] && state->glassInStation){
+			list_head(state->drinkList,state->currentNode,FALSE);
+			if((input.Ice.weight < state->currentNode->ingredient.amount) && state->glassInStation && (state->currentNode->ingredient.bottleID == 1)){
 				output->Ice.motor = 1;
 				break;
 			}
-			if(input.Ice.weight < ls_head->data[1] && state->glassInStation){
+			if((input.Ice.weight < state->currentNode->ingredient.amount) && state->glassInStation && (state->currentNode->ingredient.bottleID == -1)){
 				output->Ice.motor = -1;
 				break;
 			}
 			else{
+				list_head(state->drinkList,state->currentNode,TRUE);
+				if(state->currentNode->ingredient.lastInstruction == TRUE){
 				vSwitchStateIce(state,FINISHED_ICE);
+				}
 			}
 			break;
 
 		case FINISHED_ICE:
+			if(vCheckForGeneralErrors(input)!= -1){
+							vSwitchStatePump(state, INACTIVE_ICE);
+						}
 
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			//TODO input.Sensors.modules_finished[7] = 1;
+			state->ptrGeneralState->modules_finished[6]=1;
 			if(input.Ice.weight == 0){
 				vSwitchStateIce(state, ACTIVE_ICE);
 			}

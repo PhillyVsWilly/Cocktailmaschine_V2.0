@@ -12,7 +12,6 @@ enum statesGRAV {REFERENCE_GRAV, MOVING_TREE, FILLED_GLASS, GLASS_IN_STATION, MO
 void vInit_Module_2_Gravity(Module_State_2_Gravity_t*, State_General_t*);
 void vEvaluate_Module_2_Gravity(InputValues_t, Module_State_2_Gravity_t*, OutputValues_t*);
 void vSwitchStateGrav(Module_State_2_Gravity_t*, int);
-//void vFillDrinkList(listNode *node);
-//void vShuffleDrinks(uint_8 list[][]);
+
 
 #endif

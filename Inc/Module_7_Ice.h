@@ -7,7 +7,7 @@
 
 /**ÄNDERN: Zustande aus Ablaufdiagramm**/
 //REFERENCE ist der Zustand der Referenzfahrt und darf nicht herausgenommen werden !!
-enum statesIce {REFERENCE_ICE,ACTIVE_ICE,INACTIVE_ICE, FILL_ICE, FINISHED_ICE};
+enum statesIce {MAINTENANCE_ICE, REFERENCE_ICE, ACTIVE_ICE,INACTIVE_ICE, FILL_ICE, FINISHED_ICE};
 
 
 void vInit_Module_7_Ice(Module_State_7_Ice_t*, State_General_t*);

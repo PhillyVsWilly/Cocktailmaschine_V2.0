@@ -4,13 +4,12 @@
 
 #include "Linked_List.h"
 
-void list_new(linked_list *list, int elementSize)
+void list_new(linked_list *list)
 {
-  assert(elementSize > 0);
+
   list->logicalLength = 0;
-  list->elementSize = elementSize;
+  //list->elementSize = NODE_SIZE;
   list->head = list->tail = NULL;
-  list->freeFn = free_int;
 }
 
 void list_destroy(linked_list *list)
@@ -19,25 +18,16 @@ void list_destroy(linked_list *list)
   while(list->head != NULL) {
     current = list->head;
     list->head = current->next;
-
-    if(list->freeFn) {
-      list->freeFn(current->data);
-    }
-
-    free(current->data);
+    free(current->next);
     free(current);
   }
 }
 
-void list_prepend(linked_list *list, int data[3])
+void list_prepend(linked_list *list, ingredient_t ingredient)
 {
-  listNode *node = malloc(sizeof(listNode));
-  for (int i=0; i<3; i++){
-	  node->data[i] = data[i];
-  }
-
-  //node->data = data;
-  memcpy(node->data, *data, list->elementSize);
+  listNode *node = malloc(sizeof(listNode) + sizeof(void*));
+  node->next = malloc(sizeof(void*));
+  node->ingredient = ingredient;
 
   node->next = list->head;
   list->head = node;
@@ -50,15 +40,14 @@ void list_prepend(linked_list *list, int data[3])
   list->logicalLength++;
 }
 
-void list_append(linked_list *list, int data[3])
+void list_append(linked_list *list, ingredient_t ingredient)
 {
-  listNode *node = malloc(sizeof(listNode));
-  for (int i=0; i<3; i++){
-	  node->data[i] = data[i];
-  }
+  listNode *node = malloc(sizeof(listNode) + sizeof(void*));
+  node->next = malloc(sizeof(void*));
+  node->ingredient = ingredient;
+
   node->next = NULL;
 
-  memcpy(node->data, *data, list->elementSize);
 
   if(list->logicalLength == 0) {
     list->head = list->tail = node;
@@ -77,42 +66,34 @@ void list_for_each(linked_list *list, listIterator iterator)
   listNode *node = list->head;
   listbool result = TRUE;
   while(node != NULL && result) {
-    result = iterator(node->data);
+    result = iterator(node->ingredient);
     node = node->next;
   }
 }
 
-void list_head(linked_list *list, void *element, listbool removeFromList)
+void list_head(linked_list *list, listNode *currentNode, listbool removeFromList)
 {
   if (list->head == NULL) {
 	  return;
   }
 
-  listNode *node = list->head;
-  memcpy(element, node->data, list->elementSize);
+  currentNode = list->head;
 
   if(removeFromList) {
-    list->head = node->next;
+    list->head = currentNode->next;
     list->logicalLength--;
-
-    free(node->data);
-    free(node);
+    free(currentNode->next);
+    free(currentNode);
   }
 }
 
-void list_tail(linked_list *list, void *element)
+void list_tail(linked_list *list, listNode *node)
 {
   assert(list->tail != NULL);
-  listNode *node = list->tail;
-  memcpy(element, node->data, list->elementSize);
+  node = list->tail;
 }
 
 int list_size(linked_list *list)
 {
   return list->logicalLength;
-}
-
-void free_int(int data[])
-{
-  free(data);
 }

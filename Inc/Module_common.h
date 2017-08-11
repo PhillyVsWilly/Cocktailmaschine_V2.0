@@ -4,10 +4,11 @@
 #define DEBUG_ENABLED 1
 #include "Debug.h"
 
-//Erweiterbare Enumeration für verschiedene Fehlertypen
-enum ErrorTypes {MOTOR1_NOT_MOVING, MOTOR2_NOT_MOVING, FAULTY_SENSOR_VALUE, BAD_POSITION};
+//Erweiterbare Enumeration fï¿½r verschiedene Fehlertypen
+enum ErrorTypes {MOTOR1_NOT_MOVING, MOTOR2_NOT_MOVING, FAULTY_SENSOR_VALUE, BAD_POSITION, DOOR_OPEN};
+enum Service {Service};
 
-//Diese Funktion übernimmt das globale Fehlerhandling 
+//Diese Funktion ï¿½bernimmt das globale Fehlerhandling
 //Sie setzt aber nur gewisse Flags und macht Prints, die lokale Behandlung erfolgt in den Modulen selbst
 inline void ThrowError(int module, int error)
 {

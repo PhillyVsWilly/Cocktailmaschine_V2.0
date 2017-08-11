@@ -5,10 +5,12 @@
 #include "Evaluation.h"
 #include "Actuators.h"
 
-enum statesSens {REFERENCE_SENS, STOP_SENS, ACTIVE_SENS};
+enum statesSens {REFERENCE_SENS, STOP_SENS, ACTIVE_SENS, NEW_GLAS, GLAS_AT_END};
 
 void vInit_Module_5_Sensors(Module_State_5_Sensors_t*, State_General_t*);
 void vEvaluate_Module_5_Sensors(InputValues_t, Module_State_5_Sensors_t*, OutputValues_t*);
 void vSwitchStateSens(Module_State_5_Sensors_t*, int);
+
+bool safetyCheck(InputValues_t input);
 
 #endif

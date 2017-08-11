@@ -1,5 +1,6 @@
 #include "Module_5_Sensors.h"
 #include "Module_common.h"
+#include "FreeRTOS.h"
 
 #include "Sensors.h"
 #include "Evaluation.h"
@@ -12,6 +13,7 @@
 //Hier steht die Modulnummer. Sie wird im Code nicht hart gecodet, sondern nur hier eingetragen
 //Im Code wird sie dann mit dem Namen MODULE_NUMBER verwendet
 #define MODULE_NUMBER 5
+#define WAIT_TIME 250
 
 
 /** @brief Initialisierung des Teilmoduls
@@ -23,7 +25,11 @@ void vInit_Module_5_Sensors(Module_State_5_Sensors_t* state, State_General_t* pt
 {
 	//Nicht 舅dern, muss so sein!
 	state->state = REFERENCE_SENS;
-	state->ptrGeneralState = &ptrGeneralState;
+	state->ptrGeneralState = ptrGeneralState;
+	state->glassCount = 0;
+	state->lightBarrierStart = 0;
+	state->lightBarrierEnd = 0;
+	state->startTicket = 0;
 
 	// Hier knen jetzt noch - falls nig - Startwerte f�r die anderen Zustandsvariablen gegeben werden
 }
@@ -65,43 +71,55 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 	//ﾄndern des Status auf Basis des Gesamtmaschinenzustand
 	if (state->ptrGeneralState->operation_mode == stop)
 	{
-		vSwitchState(state, STOP_SENS);
+		vSwitchStateSens(state, STOP_SENS);
+	}
+	if (state->glassCount < state->ptrGeneralState->glassCount) {
+		vSwitchStateSens(state,NEW_GLAS);
+		state->startTicket = xTaskGetTickCount();
+		state->ptrGeneralState->modules_finished[MODULE_NUMBER -1] = 0;
 	}
 	
 	//Ausf�hren von Funktionen basierend auf dem Zustand
 	switch (state->state){
 		case STOP_SENS:
+		if (safetyCheck(input)) {
+			state->ptrGeneralState->operation_mode = startup;
+		}
+		break;
+		case GLAS_AT_END:
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			for (int i = 0; i < 10; i++) { //TODO i always needs to be the size of the safety sensor array in input.Sensors
-				//TODO if (input.Sensors.safety_push_buttons[i] == 0) { //TODO 0/1 needs to be defined
-				//	break;
-				//}
-			}
-			vSwitchStateSens(state, REFERENCE_SENS);
+			if (safetyCheck(input) && input.Sensors.end_button_glass_present == FALSE) {
+				vSwitchStateSens(state, ACTIVE_SENS);
+				state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
+				break;
 		case REFERENCE_SENS:
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			state->ptrGeneralState = startup;
+			state->ptrGeneralState->operation_mode = startup;
+			state->ptrGeneralState->modules_finished[MODULE_NUMBER -1] = 1;
 			vSwitchStateSens(state, ACTIVE_SENS);
 			break;
 		case ACTIVE_SENS:
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			for (int i = 0; i < 10; i++) { //TODO same as at STOPP_SENS for-loop
-				/* TODO if (input.Sensors.safety_push_buttons[i] == 0) {
-					state->ptrGeneralState = stop;
-					vSwitchStateSens(state, STOP_SENS);
-				}*/
+			if (input.Sensors.end_button_glass_present == TRUE) {
+				vSwitchState(state, GLAS_AT_END);
+				state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 0;
+				break;
 			}
-			//Stops transport as soon as a module sets their position to not finished in the array in input.Sensors
-			for (int i = 0; i < 7; i++) {
-				/* TODO if (input.Sensors.modules_finished[i] == 0) {
-					input.Transportation.start = FALSE;
-					break;
-				}*/
+			break;
+		case NEW_GLAS:
+			if (input.Sensors.start_light_barrier == TRUE && state->lightBarrierStart == 0) {
+				state->lightBarrierStart = xTaskGetTickCount();
 			}
-			//TODO input.Transportation.start = TRUE;
+			if (input.Sensors.start_light_barrier == FALSE && state->lightBarrierStart != 0) {
+				state->lightBarrierEnd = xTaskGetTickCount();
+			}
+			if (state->startTicket + 5000 >= xTaskGetTickCount() && state->lightBarrierEnd >= state->lightBarrierStart + WAIT_TIME) {
+				state->ptrGeneralState->modules_finished[MODULE_NUMBER -1] = 1;
+				vSwitchStateSens(state, ACTIVE_SENS);
+			}
 			break;
 		default:
 			break;
@@ -127,7 +145,14 @@ void vSwitchStateSens(Module_State_5_Sensors_t* state, int state_new)
 /* besitzen, damit vEvaluate nicht zu aufgeblasen wird					 */
 /*****************************************************************/
 
-//vHilfsfuntion1() {  }
+bool safetyCheck(InputValues_t input) {
+	if(input.Sensors.end_doors_open == TRUE || input.Sensors.end_light_barrier == FALSE
+			|| input.Sensors.start_doors_open == TRUE || input.Sensors.start_light_barrier == FALSE) {
+		return FALSE;
+	}
+	return TRUE;
+}
+}
 //vHilfsfuntion2() {  }
 
 
