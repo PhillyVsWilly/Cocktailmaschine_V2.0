@@ -1,6 +1,5 @@
 /Debug/
-<<<<<<< Updated upstream
-=======
-.settings/
+.settings/language.settings.xml
 /Release/
->>>>>>> Stashed changes
+
+
