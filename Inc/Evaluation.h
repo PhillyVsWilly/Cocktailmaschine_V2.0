@@ -92,8 +92,8 @@ typedef struct{
 typedef struct{
 	State_General_t* ptrGeneralState;
 	int state;
-	bool var_a;
-	float var_b; 
+	linked_list *drinkList;
+	listNode *currentNode;
 	}Module_State_x_Name_t;
 	
 

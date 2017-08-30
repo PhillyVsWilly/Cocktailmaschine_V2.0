@@ -157,8 +157,6 @@ void vReadSensorValues (InputValues_t* ptrInput)
 void vPrintReadSensorValues(InputValues_t input)
 {
 	printf("====================\n%s\n==============\n", "Sensor Values");
-	printf("Transport Modul: \nBand gestartet: %d\nNeues Glas hineinstellen: %d\nGlas in Modul 2: %d\nGlas in Modul 3: %d\nGlas in Modul 4: %d\nGlas in Modul 7: %d\n",
-			input.Transportation.start, input.Transportation.newGlas, input.Transportation.inModule2, input.Transportation.inModule3, input.Transportation.inModule4, input.Transportation.inModule7);
 	printf("Gravity Modul: \nGravity Weight: %d\nDoor Open: %d\nSensorUp: %d\nSensorDown: %d\nButton Fill: %d\nPosition Tree: %d\n",
 			(int)roundf(input.Gravity.weight_sensor), input.Gravity.doors_open, input.Gravity.sensor_up,
 			input.Gravity.sensor_down, input.Gravity.button_fill_in);

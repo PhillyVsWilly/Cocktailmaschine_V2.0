@@ -2,19 +2,19 @@
 #include "Evaluation.h"
 #include "linked_list.h"
 
-System_State_t* ptr_system_state;
+SystemState_t* ptr_system_state;
 
 typedef struct {
 	ingredient_t ingredient;
 	int module;
 }module_ingredient_t;
 
-void vInit_Module_3_Pumping(System_State_t* SystemState)
+void vInit_Module_6_Handling(SystemState_t* SystemState)
 {
 	//Nicht ädern, muss so sein!
 	ptr_system_state = SystemState;
 
-	init_drink_lists()
+	init_drink_lists();
 
 	// Hier können jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
 }
@@ -45,7 +45,7 @@ void init_drink_lists()
 	empty.lastInstruction = TRUE;
 
 	//Hinzufügen eines leeren Eintrags, wiederholen für mehrere leere Einträge
-	list_append(*(ptr_system_state->Ice.drink_list), empty);
+	//list_append(*(ptr_system_state->Ice.drinkList), empty);
 }
 
 
@@ -91,9 +91,9 @@ void packet_handler_type_2()
 	 */
 
 	//Schnüren des Pakets (musst du nicht mehr verändern)
-	ptr_packet = malloc(2+2*sizeof(int));
+	/*ptr_packet = malloc(2+2*sizeof(int));
 	*(ptr_packet+2) = inBearbeitung;
-	*(ptr_packet+2+sizeof(int)) = imSpeicher;
+	*(ptr_packet+2+sizeof(int)) = imSpeicher;*/
 
 	//TODO Philipp
 	//packet an TCP weitergeben

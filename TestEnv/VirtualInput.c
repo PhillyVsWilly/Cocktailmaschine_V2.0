@@ -14,7 +14,7 @@ void updateVirtualInput_Module_1(InputValues_t* input)
 {
 	// 15sec = 75 Schritte des Timers
 	// Nulletzen könnte man auch machen, aber wahrscheinlich ist ledilich erstmal ein Durchgang notwendig?!
-	switch(virtual_testenv_timer_variable)
+	/*switch(virtual_testenv_timer_variable)
 	{
 		case 5: 
 			input->Transportation.start = 1;		// transportation allowed to begin to work
@@ -33,7 +33,7 @@ void updateVirtualInput_Module_1(InputValues_t* input)
 			input->Transportation.inModule2 = 1;
 		default:
 			break;
-	}
+	}*/
 	
 }
 
