@@ -61,6 +61,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "stm32f7xx_nucleo_144.h"
+
+#include "FreeRTOS_IP.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -73,7 +75,10 @@ DMA_HandleTypeDef hdma_adc3;
 
 ETH_HandleTypeDef heth;
 
+RNG_HandleTypeDef hrng;
+
 osThreadId mainCycleHandle;
+osThreadId commTaskHandle;
 osTimerId Timer_TestEnvHandle;
 
 /* USER CODE BEGIN PV */
@@ -89,6 +94,18 @@ uint32_t ADC2ConvertedValues[4]; //PC0-A1
 uint32_t ADC3ConvertedValues[16]; //PF10-A5 //PF3-A3 //PC3-A2 //PF5-A4
 
 extern int virtual_testenv_timer_variable;
+
+//Networking constants
+static const uint8_t ucIPAddress[ 4 ] = { 192, 168, 0, 244 };
+static const uint8_t ucNetMask[ 4 ] = { 255, 255, 255, 0 };
+const uint8_t ucMACAddress [6] = {0x00, 0x80, 0xE1, 0x00, 0x00, 0x00}; //Achtung: Diese Adress wird ein
+//zweites Mal in der Initialisierung der HAL (weiter unten) verwendet.
+static const uint8_t ucGatewayAddress[ 4 ] = { 192, 168, 0, 1 };
+
+/* The following is the address of an OpenDNS server. */
+static const uint8_t ucDNSServerAddress[ 4 ] = { 208, 67, 222, 222 };
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -99,7 +116,9 @@ static void MX_ADC1_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_ADC3_Init(void);
 static void MX_ETH_Init(void);
+static void MX_RNG_Init(void);
 void mainCycleStart(void const * argument);
+void startCommTask(void const * argument);
 void TestEnvCallback(void const * argument);
 
 /* USER CODE BEGIN PFP */
@@ -141,6 +160,7 @@ int main(void)
   MX_ADC2_Init();
   MX_ADC3_Init();
   MX_ETH_Init();
+  MX_RNG_Init();
 
   /* USER CODE BEGIN 2 */
   if(HAL_ADC_Start(&hadc1) != HAL_OK)
@@ -175,6 +195,11 @@ int main(void)
   }
 
 
+  FreeRTOS_IPInit( ucIPAddress,
+                   ucNetMask,
+                   ucGatewayAddress,
+                   ucDNSServerAddress,
+                   ucMACAddress );
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -200,6 +225,10 @@ int main(void)
   /* definition and creation of mainCycle */
   osThreadDef(mainCycle, mainCycleStart, osPriorityNormal, 0, 256);
   mainCycleHandle = osThreadCreate(osThread(mainCycle), NULL);
+
+  /* definition and creation of commTask */
+  osThreadDef(commTask, startCommTask, osPriorityNormal, 0, 128);
+  commTaskHandle = osThreadCreate(osThread(commTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* USER CODE END RTOS_THREADS */
@@ -234,6 +263,7 @@ void SystemClock_Config(void)
 
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
 
     /**Configure the main internal regulator output voltage 
     */
@@ -251,7 +281,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLM = 8;
   RCC_OscInitStruct.PLL.PLLN = 120;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 2;
+  RCC_OscInitStruct.PLL.PLLQ = 5;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -267,6 +297,13 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
+  PeriphClkInitStruct.Clk48ClockSelection = RCC_CLK48SOURCE_PLL;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -489,6 +526,16 @@ static void MX_DMA_Init(void)
   HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
 
+/* RNG init function */
+static void MX_RNG_Init(void)
+{
+
+  hrng.Instance = RNG;
+  if (HAL_RNG_Init(&hrng) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
 }
 
 /** Configure pins as 
@@ -649,12 +696,21 @@ void mainCycleStart(void const * argument)
 
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
+
+	int led_on = 0;
   while(1)
   {
-	  BSP_LED_On(LED2);
-	  osDelay(500);
-	  BSP_LED_Off(LED2);
-	  osDelay(500);
+	  if(led_on == 0)
+	  {
+		  BSP_LED_On(LED2);
+		  led_on=1;
+	  }
+	  else
+	  {
+		  BSP_LED_Off(LED2);
+		  led_on=0;
+	  }
+
 
 	  printf("Main Cycle Start %s\n", " ");
 	  TickType_t startTicks = xTaskGetTickCount();
@@ -672,11 +728,39 @@ void mainCycleStart(void const * argument)
 	  int time_diff = (int)endTicks-(int)startTicks;
 	  printf("Main Cycle End: Needed %d Ticks\r\n", time_diff);
 
-	  //vTaskDelayUntil(&startTicks,1000);
-	  osDelay(1000);
+	  vTaskDelayUntil(&startTicks,1000);
+
 
   }
   /* USER CODE END 5 */ 
+}
+
+/* startCommTask function */
+void startCommTask(void const * argument)
+{
+  /* USER CODE BEGIN startCommTask */
+
+
+
+  /* Infinite loop */
+	int led_on = 0;
+	TickType_t ticks = xTaskGetTickCount();
+  while(1)
+  {
+	  if(led_on == 0)
+	  {
+		  BSP_LED_On(LED1);
+		  led_on=1;
+	  }
+	  else
+	  {
+		  BSP_LED_Off(LED1);
+		  led_on=0;
+	  }
+	  vTaskDelayUntil(&ticks, 500);
+  }
+
+  /* USER CODE END startCommTask */
 }
 
 /* TestEnvCallback function */
