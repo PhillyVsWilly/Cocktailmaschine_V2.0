@@ -27,6 +27,18 @@
 #define MODULE_7_USE_VIRTUAL_INPUT FALSE
 #define MODULE_7_USE_VIRTUAL_OUTPUT TRUE
 
+#define MODULE_ID_NONE
+#define MODULE_ID_TRANSPORT 1
+#define MODULE_ID_GRAVITY 2
+#define MODULE_ID_PUMPING 3
+#define MODULE_ID_POURING 4
+#define MODULE_ID_SENSORS 5
+#define MODULE_ID_HANDLING 6
+#define MODULE_ID_ICE 7
+
+//Wenn hier eine Zahl auﬂer -1 steht, wird ein einzelnen Modul getestet
+#define SINGLE_MODULE_TEST MODULE_ID_ICE
+
 #define FACTOR_BITS_TO_WEIGHT 10.0 //TODO Anpassen
 #define FACTOR_BITS_TO_ANGLE 360/4096
 #define FACTOR_BITS_TO_POSITION 8/4096

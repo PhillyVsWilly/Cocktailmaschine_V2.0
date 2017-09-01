@@ -1,6 +1,7 @@
 #include "Module_7_Ice.h"
 #include "Evaluation.h"
 #include "Module_common.h"
+#include "project_conf.h"
 
 
 #include "Sensors.h"
@@ -11,33 +12,33 @@
 #define DEBUG_ENABLED 1
 #include "Debug.h"
 
-//Hier steht die Modulnummer. Sie wird im Code nicht hart gecodet, sondern nur hier eingetragen
-//Im Code wird sie dann mit dem Namen MODULE_NUMBER verwendet
-#define MODULE_NUMBER 10
-
-
 /** @brief Initialisierung des Teilmoduls
  *
- * Hier werden die Anfangswerte der Zust舅de und der Variablen eingestellt. Die Funktion wird nur ein einziges
- * Mal beim Systemstart ausgef�hrt
+ * Hier werden die Anfangswerte der Zustäde und der Variablen eingestellt. Die Funktion wird nur ein einziges
+ * Mal beim Systemstart ausgeführt
 **/
 void vInit_Module_7_Ice(Module_State_7_Ice_t* state, State_General_t* ptrGeneralState)
 {
-	//Nicht 舅dern, muss so sein!
+	//Nicht ädern, muss so sein!
 	state->state = REFERENCE_ICE;
 	state->ptrGeneralState = ptrGeneralState;
 	list_new(state->drinkList);
 	state->currentNode = NULL;
 	state->glassInStation = FALSE;
-	// Hier knen jetzt noch - falls nig - Startwerte f�r die anderen Zustandsvariablen gegeben werden
+	// Hier könen jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
+
+	//Hier alle Einstellungen, die für den Einzelmodultest notwendig sind
+#if (SINGLE_MODULE_TEST == MODULE_ID_ICE)
+
+#endif
 }
 
-/** @brief Pr�fe nach allgmeinen Fehlern
- *Diese Funktion muss bei jedem Zyklus ausgef�hrt werden. In ihr werden Systemzust舅de �berpr�ft, die unabh舅gig vom
+/** @brief Prüfe nach allgmeinen Fehlern
+ *Diese Funktion muss bei jedem Zyklus ausgeführt werden. In ihr werden Systemzustäde überprüft, die unabhägig vom
  *Ablauf des Systems sind.
  *Bsp: Beim Transportmodul: Keine Hand in der Maschine
- *Beim Eis: ﾜberlaufbecken nicht voll
- *Deshalb wird ihr auch nicht der Systemzustand �bergeben
+ *Beim Eis: Überlaufbecken nicht voll
+ *Deshalb wird ihr auch nicht der Systemzustand übergeben
  **/
 static int vCheckForGeneralErrors(InputValues_t input)
 {
@@ -57,15 +58,15 @@ static int vCheckForGeneralErrors(InputValues_t input)
  *
  * Dieses Modul wird in jedem Zyklus aufgerufen und steuert das Modul
  * In ihr wird zuerst vCheckForErrors aufgerufen um zuerst nach allgemeinen Fehlern zu suchen
- * Danach wird in Abh舅gigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
- * oder mehrere bestimmte Aktionen ausgef�hrt und deren Verlauf �berwacht
- * Hier knen �ber ThrowError() auch weitere Fehler geworfen werden.
- * Soll der Modulzustand gewechselt werden, wird die vSwitchStateIce() Funktion benutzt. Diese pr�ft die generelle Zul舖sigkeit
- * (falls nig) des Zustandswechsels und schreibt einen Debug-Print.
+ * Danach wird in Abhägigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
+ * oder mehrere bestimmte Aktionen ausgeführt und deren Verlauf überwacht
+ * Hier können über ThrowError() auch weitere Fehler geworfen werden.
+ * Soll der Modulzustand gewechselt werden, wird die vSwitchStateIce() Funktion benutzt. Diese prüft die generelle Zul舖sigkeit
+ * (falls nötig) des Zustandswechsels und schreibt einen Debug-Print.
  **/
 void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, OutputValues_t* output)
 {
-	//listNode *ls_head = 0;[0] = Gewicht Eisw�rfel, [1] = Gewicht crushed eis
+	//listNode *ls_head = 0;[0] = Gewicht Eiswürfel, [1] = Gewicht crushed eis
 
 	//ﾄndern des Status auf Basis des Gesamtmaschinenzustand
 	if (state->ptrGeneralState->operation_mode == stop)
@@ -78,13 +79,12 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 	if(input.Ice.light_barrier_enough_cube_ice == FALSE){
 			vSwitchStateIce(state, INACTIVE_ICE);
 		}
-	//Ausf�hren von Funktionen basierend auf dem Zustand
+
+	//TODO Fehlendes Eis melden
+
+	//Ausführen von Funktionen basierend auf dem Zustand
 	switch (state->state){
 	case INACTIVE_ICE:
-		if (state->ptrGeneralState->operation_mode
-				== stop|| vCheckForGeneralErrors(input)!= -1 || input.Ice.light_barrier_enough_crushed_ice == FALSE || input.Ice.light_barrier_enough_cube_ice == FALSE) {
-			vSwitchStateIce(state, INACTIVE_ICE);
-		}
 		DPRINT_MESSAGE("I'm in State %d\n", state->state);
 		output->Ice.motor = 0;
 
@@ -95,7 +95,11 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 		break;
 
 
-
+		/*
+		 * Das Eismodul besitzt nicht wirklich eine Referenzposition
+		 * Daher entfällt hier die Referenzfahrt. Der Status wird sofort zu aktiv geswitcht
+		 * solange kein genereller Fehler besteht
+		 */
 		case REFERENCE_ICE:
 			//Do something
 			if(vCheckForGeneralErrors(input)!= -1){
