@@ -28,7 +28,7 @@ void vInit_Module_2_Gravity(Module_State_2_Gravity_t* state, State_General_t* pt
 static int vCheckForGeneralErrors(InputValues_t input)
 {
 
-	if(input.Module_x_Name.placeholder > 10.0)
+	if(input.Module_x_Name.placeholder > 10.0) //TODO
 	{
 		//ThrowError ist die zentrale "Fehlerverwaltung". An sie werden alle Fehler übergeben, die geworfen werden sollen
 		ThrowError(MODULE_NUMBER, MOTOR1_NOT_MOVING);

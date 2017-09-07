@@ -29,12 +29,12 @@ void init_drink_lists()
 {
 	/*
 	 * TODO Olaf
-	 * Bitte hier die Drinklisten mit leeren Eintr√§gen in folgender Reihenfolge vorinitialisieren:
+	 * Bitte hier die Drinklisten mit leeren Eintr‰gen in folgender Reihenfolge vorinitialisieren:
 	 * Eis: 1 Leerplatz
-	 * Schwerkraft: 2 Leerpl√§tze
+	 * Schwerkraft: 2 Leerpl‰tze
 	 * Pumpen: 3
 	 * Einschenken: 4
-	 * Die Listen bekommst du √ºber ptr_system_state
+	 * Die Listen bekommst du ¸ber ptr_system_state
 	 * Z.B. list_append(ptr_system_state->Gravity.drink_list
 	 */
 
@@ -44,7 +44,18 @@ void init_drink_lists()
 	empty.bottleID = 0;
 	empty.lastInstruction = TRUE;
 
-	//Hinzuf√ºgen eines leeren Eintrags, wiederholen f√ºr mehrere leere Eintr√§ge
+	list_append((ptr_system_state->Ice.drinkList), empty);
+	for (int i = 0; i<2; i++) {
+		list_append((ptr_system_state->Gravity.drinkList), empty);
+	}
+	for (int i = 0; i<3; i++) {
+		list_append((ptr_system_state->Pumping.drinkList), empty);
+	}
+	for (int i = 0; i<4; i++) {
+		list_append((ptr_system_state->Pouring.drinkList), empty);
+	}
+
+	//Hinzuf¸gen eines leeren Eintrags, wiederholen f¸r mehrere leere Eintr‰ge
 	//list_append(*(ptr_system_state->Ice.drinkList), empty);
 }
 
@@ -53,32 +64,177 @@ void packet_handler(char* ptr_packet_stack, int len_packet_stack)
 {
 	//TODO Olaf: packet handler
 	/*Diese Funktion wird vom TCP-Prozess ausgef√ºhrt, wenn ein (oder mehrere) neue Pakete angekommen ist/sind.
-	 *Die Funktion bekommt einen Pointer auf den Beginn des ersten Pakets und die Gr√∂√üe aller Pakete (also z.B. 150, wenn
-	 *3 Pakete √† 50 Byte angekommen sind).
-	 *Auf Basis dieser Daten liest du bitte die Pakete aus und ruft je Pakettyp die entsprechende Funktion auf.
-	 */
-}
+	*Die Funktion bekommt einen Pointer auf den Beginn des ersten Pakets und die Gr√∂√üe aller Pakete (also z.B. 150, wenn
+	*3 Pakete √† 50 Byte angekommen sind).
+	*Auf Basis dieser Daten liest du bitte die Pakete aus und rufst je Pakettyp die entsprechende Funktion auf.
+	*/
 
+	int still_to_do = len_packet_stack;
+
+	// list_for_each(linked_list *list, listIterator iterator);
+
+	const int header_length = 2;
+
+	while (still_to_do != 0) {
+		// first value displays the package's length
+		switch (*ptr_packet_stack) {
+		case 48: packet_handler_type_1(ptr_packet_stack);	// 36 + 12 (da uint_16 2 Byte?!)
+			still_to_do = still_to_do - 48 - header_length;	// 2 = length of header
+			ptr_packet_stack = ptr_packet_stack + 48 + header_length;
+			break;
+		case 0: packet_handler_type_2(ptr_packet_stack);	// keine Nutzdaten im Paket 2
+			still_to_do = still_to_do - 0 - header_length;
+			ptr_packet_stack = ptr_packet_stack + 0 + header_length;
+			break;
+		case 5: packet_handler_type_5(ptr_packet_stack);	// 1 + 4 Bytes
+					still_to_do = still_to_do - 5 - header_length;
+					ptr_packet_stack = ptr_packet_stack + 5 + header_length;
+					break;
+		default: break;
+		}
+	}
+
+}
 
 void packet_handler_type_1(char* ptr_packet)
 {
 	//TODO Olaf
 	/*
-	 * Diese Funktion behandelt die Pakete vom Pakettyp 1
-	 * 1. Loope durch die 48 Byte (ab Byte 3 bis Byte 50) und lies die 12 Zutaten aus. Falls keine 12 Zutaten definiert sind,
-	 * sind die restlichen Bytes = 0.
-	 * Speichere sie in einem Array vom Typ module_ingredient_t[12] (Definition siehe ganz oben) ab.
-	 * 2. Sortiere das Array nach Modulen
-	 * 3. H√§nge die Zutaten an die entsprechenden Listen an
-	 * Entgegen meiner Aussage musst du bei Dopplungen keine leeren Eintr√§ge generieren. Die Implementierung hat hierf√ºr
-	 * die Variable lastInstruction bei dem Datentyp der Zutaten erstellt. Du kannst die doppelten Zutaten einfach nacheinander
-	 * an die Liste anh√§ngen, wobei du bei allen lastIntstruction=FALSE und nur beim letzen =TRUE machst.
-	 * Pr√ºfe einfach, ob die folgende Zutat die gleiche Modulnummer hat und setze lastInstruction dementsprechend
-	 * 4. H√§nge an jedes nicht benutzte Modul einen leeren Eintrag an.
-	 *
-	 * Das anh√§ngen an die Listen geschieht mit der Funktion list_append, welche einen pointer auf den die Liste
-	 * und einen Eintrag des Datentypes ingredient_t (siehe Linked_List.h) bekommt.
-	 */
+	* Diese Funktion behandelt die Pakete vom Pakettyp 1
+	* 1. Loope durch die 48 Byte (ab Byte 3 bis Byte 50) und lies die 12 Zutaten aus. Falls keine 12 Zutaten definiert sind,
+	* sind die restlichen Bytes = 0.
+	* Speichere sie in einem Array vom Typ module_ingredient_t[12] (Definition siehe ganz oben) ab.
+	* 2. Sortiere das Array nach Modulen
+	* 		Bubble Sort reicht...
+	* 3. H√§nge die Zutaten an die entsprechenden Listen an
+	* Entgegen meiner Aussage musst du bei Dopplungen keine leeren Eintr√§ge generieren. Die Implementierung hat hierf√ºr
+	* die Variable lastInstruction bei dem Datentyp der Zutaten erstellt. Du kannst die doppelten Zutaten einfach nacheinander
+	* an die Liste anh√§ngen, wobei du bei allen lastIntstruction=FALSE und nur beim letzen =TRUE machst.
+	* Pr√ºfe einfach, ob die folgende Zutat die gleiche Modulnummer hat und setze lastInstruction dementsprechend
+	* 4. H√§nge an jedes nicht benutzte Modul einen leeren Eintrag an.
+	* 		Definition leerer Eintrag siehe oben
+	*
+	* Das Anh√§ngen an die Listen geschieht mit der Funktion list_append, welche einen pointer auf den die Liste
+	* und einen Eintrag des Datentypes ingredient_t (siehe Linked_List.h) bekommt.
+	*/
+
+
+// 1. Pakete speichern
+	module_ingredient_t module_ingredient[12];
+	for (int i = 0; i < 12; i += 4) {
+		if (*(ptr_packet + i) != 0) {
+			module_ingredient[i].module = *(ptr_packet + i);
+			module_ingredient[i].ingredient.bottleID = *(ptr_packet + i + 1);
+			module_ingredient[i].ingredient.amount = *(ptr_packet + i + 2);
+		}
+	}
+
+	// 2. BubbleSort implementieren
+
+	for (int j = 0; j < 12; j++) {
+		for (int i = 0; i < 12 - j; i++) {
+			if (module_ingredient[i + 1].module < module_ingredient[i].module) {
+				int save = module_ingredient[i + 1].module;
+				module_ingredient[i + 1].module = module_ingredient[i].module;
+				module_ingredient[i].module = save;
+			}
+		}
+	}
+
+	// 3. Zutaten an Liste anh‰ngen
+
+	// Leeres Element
+	ingredient_t empty;
+	empty.amount = -1;
+	empty.bottleID = 0;
+	empty.lastInstruction = TRUE;
+
+	/*typedef struct {
+	int bottleID;
+	float amount;
+	listbool lastInstruction;
+	}ingredient_t;
+	*/
+	for (int i = 0; i < 12; i++) {
+		ingredient_t ingredient;
+		ingredient.amount = module_ingredient[i].ingredient.amount;
+		ingredient.bottleID = module_ingredient[i].ingredient.bottleID;
+
+		ingredient.lastInstruction = TRUE; // standardm‰ﬂig die letzte, nur bei mehreren Eintr‰gen pro Modul ƒnderung
+
+											  // ‹berpr¸fen, ob gleiche Modulnummer nacheinander -> letztes gleiches Modul ist TRUE
+		if (module_ingredient[i].module == module_ingredient[i + 1].module) {
+			ingredient.lastInstruction = FALSE;
+		}
+
+		typedef struct {
+			int anzahl;
+			int module;
+		}anzahl_zutaten_t;
+
+		// Init
+		anzahl_zutaten_t anzahl_zutaten;
+		for (int i = 0; i<4; i++) { anzahl_zutaten.anzahl[i] = 0; }
+		anzahl_zutaten.module[0] = 2;
+		anzahl_zutaten.module[1] = 3;
+		anzahl_zutaten.module[2] = 4;
+		anzahl_zutaten.module[3] = 7;
+
+		// TODO Philipp -> Olaf: Reihenfolge der Module. Hier gem‰ﬂ Modularchitektur, nicht gem‰ﬂ Reihenfolge in Cocktailmaschine!
+		// TODO Olaf: Problemstellung: Erkennen, wie viele Zutaten maximal pro Modul. empty-Modul bei den Modulen zuweisen, wo es weniger sind.
+		switch (module_ingredient->module[i]) {
+		case 2:
+			list_append((ptr_system_state->Gravity.drinkList), ingredient[i]);
+			anzahl_zutaten.anzahl[0] += 1;
+			break;
+		case 3:
+			list_append((ptr_system_state->Pumping.drinkList), ingredient[i]);
+			anzahl_zutaten.anzahl[1] += 1;
+			break;
+		case 4:
+			list_append((ptr_system_state->Pouring.drinkList), ingredient[i]);
+			anzahl_zutaten.anzahl[2] += 1;
+			break;
+		case 7:
+			list_append((ptr_system_state->Ice.drinkList), ingredient[i]);
+			anzahl_zutaten.anzahl[3] += 1;
+			break;
+		default:
+			break;
+		}
+
+		// max. Anzahl bestimmen: aufsteigend sortieren
+		for (int j = 0; j < 4; j++) {
+			for (int i = 0; i < 4 - j; i++) {
+				if (anzahl_zutaten.anzahl[i + 1] < anzahl_zutaten.anzahl[i]) {
+					anzahl_zutaten_t save = anzahl_zutaten[i + 1];
+					anzahl_zutaten[i + 1] = anzahl_zutaten[i];
+					anzahl_zutaten[i] = save;
+				}
+			}
+		}
+		int max_anzahl_zutaten = anzahl_zutaten.anzahl[3];
+
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < (max_anzahl_zutaten - anzahl_zutaten.anzahl[i]); j++) {
+				switch (anzahl_zutaten.module[i]) {
+				case 2:	list_append(*(ptr_system_state->Gravity.drink_list), empty);
+					break;
+				case 3:	list_append(*(ptr_system_state->Pumping.drink_list), empty);
+					break;
+				case 4:	list_append(*(ptr_system_state->Pouring.drink_list), empty);
+					break;
+				case 7:	list_append(*(ptr_system_state->Ice.drink_list), empty);
+					break;
+				default: break;
+				}
+			}
+
+		}
+
+
+	}
+
 }
 
 
@@ -86,14 +242,40 @@ void packet_handler_type_2()
 {
 	//TODO Olaf
 	/*
-	 * Checke, wie du die Anzahl der aktuell in Bearbeitung und ausstehenden Cocktails aus den Drink-Listen auslesen kannst
-	 *
-	 */
+	* Checke, wie du die Anzahl der aktuell in Bearbeitung und ausstehenden Cocktails aus den Trink-Listen auslesen kannst
+	*
+	*/
+
+	//	ptr_system_state->Pumping.drink_list
+
+	// TODO Philipp->Olaf : in Bearbeitung: geht nicht -> nur f¸r n‰chsten Schritt, da in Liste jeweils die Zutaten f¸r den n‰chsten Schritt stehen und bei Beginn der Ausf¸hrung rausgelˆscht werden, oder ????
+	int anzahl_inBearbeitung_next[4];
+	int anzahl_ausstehend[4]; // 0: Gravity, 1: Pumping, 2: Pouring, 3: Ice
+
+							  // Ausstehende: Alle Trinklisten durchgehen -> jeweils aufaddieren, wenn lastInstruction = TRUE
+	for (int i = 0; i < list_size(ptr_system_state->Gravity.drinkList); i++) {
+		if (*(ptr_system_state->Gravity.drinkList->ingredient.last_instruction) == TRUE) //TODO Philipp->Olaf: Richtig ausgelesen? -> oder mit list_for_each!!
+			anzahl_ausstehend[0]++;
+		if (*(ptr_system_state->Pumping.drinkList->ingredient.last_instruction) == TRUE)
+			anzahl_ausstehend[1]++;
+		if (*(ptr_system_state->Pouring.drinkList->ingredient.last_instruction) == TRUE)
+			anzahl_ausstehend[2]++;
+		if (*(ptr_system_state->Ice.drinkList->ingredient.last_instruction) == TRUE)
+			anzahl_ausstehend[3]++;
+	}
+
+	// als n‰chstes in Bearbeitung:
+
+
+	// TODO Philipp->Olaf : Wie sollen diese Infos ausgegeben werden?
+
+
 
 	//Schn√ºren des Pakets (musst du nicht mehr ver√§ndern)
-	/*ptr_packet = malloc(2+2*sizeof(int));
-	*(ptr_packet+2) = inBearbeitung;
-	*(ptr_packet+2+sizeof(int)) = imSpeicher;*/
+	void* ptr_packet;
+	ptr_packet = malloc(2 + 2 * sizeof(int));
+	*(ptr_packet + 2) = inBearbeitung;
+	*(ptr_packet + 2 + sizeof(int)) = imSpeicher;
 
 	//TODO Philipp
 	//packet an TCP weitergeben
@@ -105,6 +287,10 @@ void packet_handler_type_5()
 	//Diese Pakete enthalten einen gew√ºnschten Systemzustand.
 	//Diesen kannst du mehr oder weniger (einfach bei allem mal kurz dr√ºber nachdenken, wann wir es nicht machen sollten)
 	//in system_state->General.operation_mode √ºbernehmen.
+
+	// TODO Philipp->Olaf Eine Weiterleitung des Systemzustand-Befehls ist derzeit nicht an die einzelnen Module mˆglich, nur als General State, richtig?
+	// W¸rde es nicht auch Sinn machen, dass die Module einzeln Hinweise bekommen oder ist das nicht notwendig?
+	// Jeder Ausfall eines Moduls f¸hrt zu einem Stopp der gesamten Anlage. Auﬂer man untersucht jeden einzelnen Cocktail danach, ob das aussetzende Modul daf¸r ¸berhaupt benˆtigt wird.
 
 }
 
