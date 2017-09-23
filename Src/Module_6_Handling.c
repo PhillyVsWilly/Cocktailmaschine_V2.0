@@ -1,6 +1,7 @@
 #include "Module_6_Handling.h"
 #include "Evaluation.h"
 #include "linked_list.h"
+#include <stdlib.h>
 
 SystemState_t* ptr_system_state;
 
@@ -163,7 +164,7 @@ void packet_handler_type_1(char* ptr_packet)
 		ingredient.lastInstruction = TRUE; // standardm‰ﬂig die letzte, nur bei mehreren Eintr‰gen pro Modul ƒnderung
 
 											  // ‹berpr¸fen, ob gleiche Modulnummer nacheinander -> letztes gleiches Modul ist TRUE
-		if (module_ingredient[i].module == module_ingredient[i + 1].module) {
+		if (i < 11 && module_ingredient[i].module == module_ingredient[i + 1].module) {
 			ingredient.lastInstruction = FALSE;
 		}
 
@@ -172,32 +173,33 @@ void packet_handler_type_1(char* ptr_packet)
 			int module;
 		}anzahl_zutaten_t;
 
+
 		// Init
-		anzahl_zutaten_t anzahl_zutaten;
-		for (int i = 0; i<4; i++) { anzahl_zutaten.anzahl[i] = 0; }
-		anzahl_zutaten.module[0] = 2;
-		anzahl_zutaten.module[1] = 3;
-		anzahl_zutaten.module[2] = 4;
-		anzahl_zutaten.module[3] = 7;
+		anzahl_zutaten_t anzahl_zutaten[4];
+		for (int i = 0; i<4; i++) { anzahl_zutaten[i].anzahl = 0; }
+		anzahl_zutaten[0].module = 2;
+		anzahl_zutaten[1].module = 3;
+		anzahl_zutaten[2].module = 4;
+		anzahl_zutaten[3].module = 7;
 
 		// TODO Philipp -> Olaf: Reihenfolge der Module. Hier gem‰ﬂ Modularchitektur, nicht gem‰ﬂ Reihenfolge in Cocktailmaschine!
 		// TODO Olaf: Problemstellung: Erkennen, wie viele Zutaten maximal pro Modul. empty-Modul bei den Modulen zuweisen, wo es weniger sind.
-		switch (module_ingredient->module[i]) {
+		switch (module_ingredient[i].module) {
 		case 2:
-			list_append((ptr_system_state->Gravity.drinkList), ingredient[i]);
-			anzahl_zutaten.anzahl[0] += 1;
+			list_append(ptr_system_state->Gravity.drinkList, ingredient);
+			anzahl_zutaten[0].anzahl += 1;
 			break;
 		case 3:
-			list_append((ptr_system_state->Pumping.drinkList), ingredient[i]);
-			anzahl_zutaten.anzahl[1] += 1;
+			list_append(ptr_system_state->Pumping.drinkList, ingredient);
+			anzahl_zutaten[1].anzahl += 1;
 			break;
 		case 4:
-			list_append((ptr_system_state->Pouring.drinkList), ingredient[i]);
-			anzahl_zutaten.anzahl[2] += 1;
+			list_append(ptr_system_state->Pouring.drinkList, ingredient);
+			anzahl_zutaten[2].anzahl += 1;
 			break;
 		case 7:
-			list_append((ptr_system_state->Ice.drinkList), ingredient[i]);
-			anzahl_zutaten.anzahl[3] += 1;
+			list_append(ptr_system_state->Ice.drinkList, ingredient);
+			anzahl_zutaten[3].anzahl += 1;
 			break;
 		default:
 			break;
@@ -206,25 +208,25 @@ void packet_handler_type_1(char* ptr_packet)
 		// max. Anzahl bestimmen: aufsteigend sortieren
 		for (int j = 0; j < 4; j++) {
 			for (int i = 0; i < 4 - j; i++) {
-				if (anzahl_zutaten.anzahl[i + 1] < anzahl_zutaten.anzahl[i]) {
+				if (anzahl_zutaten[i + 1].anzahl < anzahl_zutaten[i].anzahl) {
 					anzahl_zutaten_t save = anzahl_zutaten[i + 1];
 					anzahl_zutaten[i + 1] = anzahl_zutaten[i];
 					anzahl_zutaten[i] = save;
 				}
 			}
 		}
-		int max_anzahl_zutaten = anzahl_zutaten.anzahl[3];
+		int max_anzahl_zutaten = anzahl_zutaten[3].anzahl;
 
 		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < (max_anzahl_zutaten - anzahl_zutaten.anzahl[i]); j++) {
-				switch (anzahl_zutaten.module[i]) {
-				case 2:	list_append(*(ptr_system_state->Gravity.drink_list), empty);
+			for (int j = 0; j < (max_anzahl_zutaten - anzahl_zutaten[i].anzahl); j++) {
+				switch (anzahl_zutaten[i].module) {
+				case 2:	list_append(ptr_system_state->Gravity.drinkList, empty);
 					break;
-				case 3:	list_append(*(ptr_system_state->Pumping.drink_list), empty);
+				case 3:	list_append(ptr_system_state->Pumping.drinkList, empty);
 					break;
-				case 4:	list_append(*(ptr_system_state->Pouring.drink_list), empty);
+				case 4:	list_append(ptr_system_state->Pouring.drinkList, empty);
 					break;
-				case 7:	list_append(*(ptr_system_state->Ice.drink_list), empty);
+				case 7:	list_append(ptr_system_state->Ice.drinkList, empty);
 					break;
 				default: break;
 				}
@@ -249,22 +251,39 @@ void packet_handler_type_2()
 	//	ptr_system_state->Pumping.drink_list
 
 	// TODO Philipp->Olaf : in Bearbeitung: geht nicht -> nur f¸r n‰chsten Schritt, da in Liste jeweils die Zutaten f¸r den n‰chsten Schritt stehen und bei Beginn der Ausf¸hrung rausgelˆscht werden, oder ????
-	int anzahl_inBearbeitung_next[4];
+	int anzahl_inBearbeitung;
 	int anzahl_ausstehend[4]; // 0: Gravity, 1: Pumping, 2: Pouring, 3: Ice
 
 							  // Ausstehende: Alle Trinklisten durchgehen -> jeweils aufaddieren, wenn lastInstruction = TRUE
 	for (int i = 0; i < list_size(ptr_system_state->Gravity.drinkList); i++) {
-		if (*(ptr_system_state->Gravity.drinkList->ingredient.last_instruction) == TRUE) //TODO Philipp->Olaf: Richtig ausgelesen? -> oder mit list_for_each!!
+		if (ptr_system_state->Gravity.drinkList->head->ingredient.lastInstruction == TRUE) //TODO Philipp->Olaf: Richtig ausgelesen? -> oder mit list_for_each!!
 			anzahl_ausstehend[0]++;
-		if (*(ptr_system_state->Pumping.drinkList->ingredient.last_instruction) == TRUE)
+		if (ptr_system_state->Pumping.drinkList->head->ingredient.lastInstruction == TRUE)
 			anzahl_ausstehend[1]++;
-		if (*(ptr_system_state->Pouring.drinkList->ingredient.last_instruction) == TRUE)
+		if (ptr_system_state->Pouring.drinkList->head->ingredient.lastInstruction == TRUE)
 			anzahl_ausstehend[2]++;
-		if (*(ptr_system_state->Ice.drinkList->ingredient.last_instruction) == TRUE)
+		if (ptr_system_state->Ice.drinkList->head->ingredient.lastInstruction == TRUE)
 			anzahl_ausstehend[3]++;
 	}
 
 	// als n‰chstes in Bearbeitung:
+	anzahl_inBearbeitung = 0;
+	if(ptr_system_state->Gravity.drinkList->head->ingredient.bottleID == -1)
+	{
+		anzahl_inBearbeitung++;
+	}
+	if(ptr_system_state->Pumping.drinkList->head->ingredient.bottleID == -1)
+	{
+		anzahl_inBearbeitung++;
+	}
+	if(ptr_system_state->Pouring.drinkList->head->ingredient.bottleID == -1)
+	{
+		anzahl_inBearbeitung++;
+	}
+	if(ptr_system_state->Ice.drinkList->head->ingredient.bottleID == -1)
+	{
+		anzahl_inBearbeitung++;
+	}
 
 
 	// TODO Philipp->Olaf : Wie sollen diese Infos ausgegeben werden?
@@ -272,10 +291,10 @@ void packet_handler_type_2()
 
 
 	//Schn√ºren des Pakets (musst du nicht mehr ver√§ndern)
-	void* ptr_packet;
-	ptr_packet = malloc(2 + 2 * sizeof(int));
-	*(ptr_packet + 2) = inBearbeitung;
-	*(ptr_packet + 2 + sizeof(int)) = imSpeicher;
+	char* ptr_packet;
+	ptr_packet = (char*)malloc(2 + 2 * sizeof(int));
+	*(ptr_packet + 2) = anzahl_inBearbeitung;
+	*(ptr_packet + 2 + sizeof(int)) = anzahl_ausstehend[0];
 
 	//TODO Philipp
 	//packet an TCP weitergeben

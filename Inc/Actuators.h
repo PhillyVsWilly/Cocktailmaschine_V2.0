@@ -64,9 +64,15 @@ typedef struct {
 
 
 void vInitActuatorValues(OutputValues_t*);
-void vWriteActuatorValues(OutputValues_t);
+void vWriteActuatorValues(OutputValues_t*);
 
-void vAssignMotorValues(OutputValues_t*);
+void getPWM(int, int, int, int);
 void setPWM(int, uint16_t);
+
+void vModule_1_ActuatorValues(Transport_t*);
+void vModule_2_ActuatorValues(Gravity_t*);
+void vModule_3_ActuatorValues(Pumping_t*);
+void vModule_4_ActuatorValues(Pouring_t*);
+void vModule_5_ActuatorValues(Ice_t*);
 
 #endif

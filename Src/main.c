@@ -878,7 +878,7 @@ void mainCycleStart(void const * argument)
 	  //vEvaluate(Input_Storage, &System_State, &Output_Storage);
 
 	  //Set output
-	  vWriteActuatorValues(Output_Storage);
+	  vWriteActuatorValues(&Output_Storage);
 
 	  TickType_t endTicks = xTaskGetTickCount();
 	  int time_diff = (int)endTicks-(int)startTicks;
