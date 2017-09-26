@@ -18,7 +18,7 @@ int SetOperationMode(operation_mode newMode)
 /**
  * Für alle Fehler die zum sofortigen Notstopp der Maschine führen müssen
  */
-void ThrowErrorCritical(int module, CriticalErrorTypes error)
+void ThrowErrorCritical(int module, enum CriticalErrorTypes error)
 {
 	SetOperationMode(stop);
 }
@@ -26,7 +26,7 @@ void ThrowErrorCritical(int module, CriticalErrorTypes error)
 /**
  * Für alle Fehler die zum Sofortstopp eines Moduls führen
  */
-void ThrowError(int module, ErrorTypes error)
+void ThrowError(int module, enum ErrorTypes error)
 {
 	SetOperationMode(repair);
 }
@@ -35,7 +35,7 @@ void ThrowError(int module, ErrorTypes error)
  * Für alle Warnungen/Fehler die das Modul den Vorgang noch abschließen lassen,
  * es dann aber in den Wartungsmodus übergehen lassen
  */
-void ThrowWarning(int module, WarningTypes warning)
+void ThrowWarning(int module,enum WarningTypes warning)
 {
 
 }

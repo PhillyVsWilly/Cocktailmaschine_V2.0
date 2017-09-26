@@ -113,6 +113,10 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 			break;
 
 		case VALVE_ADJUSTING:
+			if(xTaskGetTickType() > (state->startTicket + 5000)){
+						//TODO überprüfen ob 5000 Ticks korrekt sind
+						//TODO Fehler werfen
+					}
 			if(vCheckForGeneralErrors(input)!= -1){
 							vSwitchStatePump(state, INACTIVE_PUMP);
 						}
@@ -131,6 +135,10 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 				vSwitchStatePump(state, PUMP_ACTIVE);
 			}
 		case PUMP_ACTIVE:
+			if(xTaskGetTickType() > (state->startTicket + 5000)){
+						//TODO überprüfen ob 5000 Ticks korrekt sind
+						//TODO Fehler werfen
+					}
 			if(vCheckForGeneralErrors(input)!= -1){
 							vSwitchStatePump(state, INACTIVE_PUMP);
 						}
@@ -174,7 +182,7 @@ void vSwitchStatePump(Module_State_3_Pumping_t* state, int state_new)
 	
 	//Das hier sollte passieren, sonst wird der Zustand nicht gewechselt
 	state->state = state_new;
-	
+	state->startTicket = xTaskGetTickCount();
 	return;
 }
 

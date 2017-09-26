@@ -44,8 +44,9 @@ static int vCheckForGeneralErrors(InputValues_t input)
 {
 
 	if(input.Ice.doors_open == TRUE){
-			ThrowError(3, DOOR_OPEN);
+			ThrowError(7, DOOR_OPEN);
 			return DOOR_OPEN;
+
 		}
 
 
@@ -132,6 +133,10 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 			if(vCheckForGeneralErrors(input)!= -1){
 							vSwitchStateIce(state, INACTIVE_ICE);
 						}
+			if(xTaskGetTickType() > (state->startTicket + 5000)){
+				//TODO überprüfen ob 5000 Ticks korrekt sind
+				//TODO Fehler werfen
+			}
 			state->ptrGeneralState->modules_finished[6]=0;
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			list_head(state->drinkList,state->currentNode,FALSE);
@@ -179,7 +184,7 @@ void vSwitchStateIce(Module_State_7_Ice_t* state, int state_new)
 	
 	//Das hier sollte passieren, sonst wird der Zustand nicht gewechselt
 	state->state = state_new;
-	
+	state->startTicket = xTaskGetTickCount();
 	return;
 }
 

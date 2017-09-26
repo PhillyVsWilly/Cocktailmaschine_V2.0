@@ -54,6 +54,7 @@ typedef struct{
 	linked_list *drinkList;
 	listNode *currentNode;
 	float drinkWeight;
+	TickType_t startTicket;
 	} Module_State_3_Pumping_t;
 
 typedef struct{
@@ -62,7 +63,7 @@ typedef struct{
 	linked_list *drinkList;
 	listNode *currentNode;
 	float drinkWeight;
-	//listNode *currentNode;
+	TickType_t startTicket;
 	} Module_State_4_Pouring_t;
 
 typedef struct{
@@ -87,6 +88,7 @@ typedef struct{
 	linked_list *drinkList;
 	listNode *currentNode;
 	float drinkWeight;
+	TickType_t startTicket;
 	}Module_State_7_Ice_t;
 
 typedef struct{

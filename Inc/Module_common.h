@@ -19,9 +19,9 @@ int SetOperationMode(int);
 
 //Diese Funktion �bernimmt das globale Fehlerhandling
 //Sie setzt aber nur gewisse Flags und macht Prints, die lokale Behandlung erfolgt in den Modulen selbst
-void ThrowErrorCritical(int , CriticalErrorTypes );
-void ThrowError(int , ErrorTypes );
-void ThrowWarning(int , WarningTypes );
+void ThrowErrorCritical(int ,enum CriticalErrorTypes );
+void ThrowError(int ,enum ErrorTypes );
+void ThrowWarning(int ,enum WarningTypes );
 
 	
 #endif
