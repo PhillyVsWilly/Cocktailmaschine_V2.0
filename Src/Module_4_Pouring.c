@@ -89,9 +89,17 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 				state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
 				vSwitchStatePour(state, ACTIVE_POUR);
 			}
+			if (state->stateTicket + 5000 > xTaskGetTickCount()) { //TODO Wert anpassen
+				ThrowError(2, BAD_POSITION);
+				break;
+			}
 			break;
 		case ACTIVE_POUR:
 			//Do something
+			if (state->stateTicket + 5000 > xTaskGetTickCount()) { //TODO Wert anpassen
+				ThrowError(2, BAD_POSITION);
+				break;
+			}
 			state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			if (input.Pouring.weight > EMPTY_WEIGHT) {
@@ -130,6 +138,10 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 			}
 			break;
 		case POURING:
+			if (state->stateTicket + 5000 > xTaskGetTickCount()) { //TODO Wert anpassen
+				ThrowError(2, MOTOR1_NOT_MOVING);
+				break;
+			}
 			if (input.Pouring.position_up == 1 && input.Pouring.weight < state->drinkWeight + state->currentNode->ingredient.amount + FILL_ERROR) {
 				output->Pouring.motor = -1; //TODO Motorwert
 			}
@@ -162,6 +174,7 @@ void vSwitchStatePour(Module_State_4_Pouring_t* state, int state_new)
 
 	//Das hier sollte passieren, sonst wird der Zustand nicht gewechselt
 	state->state = state_new;
+	state->stateTicket = xTaskGetTickCount();
 
 	return;
 }

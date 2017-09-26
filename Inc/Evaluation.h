@@ -30,6 +30,7 @@ typedef struct{
 	bool stopForNewGlass; //True wenn das Band für x Sekunden warten soll damit ein neues Glas auf das Band gestellt werden kann
 	bool transportCanStart; //bool set if all safety and service sensors are ok to signal Transport belt that it can start
 	TickType_t startTicket;
+	TickType_t stateTicket;
 	} Module_State_1_Transportation_t;
 
 typedef struct{
@@ -41,6 +42,7 @@ typedef struct{
 	linked_list *drinkList;
     listNode *currentNode;
     TickType_t startTicket;
+    TickType_t stateTicket;
 	} Module_State_2_Gravity_t;
 
 typedef struct{

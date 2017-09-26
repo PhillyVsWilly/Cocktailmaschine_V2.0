@@ -104,7 +104,7 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			if (input.Sensors.end_button_glass_present == TRUE) {
-				vSwitchState(state, GLAS_AT_END);
+				vSwitchStateSens(state, GLAS_AT_END);
 				state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 0;
 				break;
 			}
