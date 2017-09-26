@@ -84,6 +84,10 @@ void vEvaluate_Module_1_Transportation(InputValues_t input, Module_State_1_Trans
 			case REFERENCE_TRANS:
 				//Checks if the belt should be stopped for a new Glass or if the belt can start and switches states
 				DPRINT_MESSAGE("I'm in State %d\n", state->state);
+				if (state->stateTicket + 5000 > xTaskGetTickCount()) { //TODO Wert anpassen
+					ThrowError(2, BAD_POSITION);
+					break;
+				}
 				output->Transport.LED_Status = TRUE;
 				for(int i = 0; i < 7; i++) {
 					if(state->ptrGeneralState->modules_finished[i] == 0 || state->ptrGeneralState->safety_sensors[i] == 0) {
@@ -151,6 +155,7 @@ void vSwitchStateTrans(Module_State_1_Transportation_t* state, int state_new)
 
 	//Das hier sollte passieren, sonst wird der Zustand nicht gewechselt
 	state->state = state_new;
+	state->stateTicket = xTaskGetTickCount();
 
 	return;
 }

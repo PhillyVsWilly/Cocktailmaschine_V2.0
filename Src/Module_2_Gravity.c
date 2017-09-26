@@ -64,6 +64,10 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 				case REFERENCE_GRAV:
 					//Drives everything to its reference point
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
+					if (state->stateTicket + 5000 > xTaskGetTickCount()) { //TODO Wert anpassen
+						ThrowError(2, BAD_POSITION);
+						break;
+					}
 					if (input.Gravity.sensor_down == TRUE) {
 						output->Gravity.move_platform = 0;
 						vSwitchStateGrav(state, IDLE_GRAV);
@@ -92,6 +96,10 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					break;
 				case MOVING_TREE: //Moving the Tree to the next position
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
+					if (state->stateTicket + 5000 > xTaskGetTickCount()) { //TODO Wert anpassen
+											ThrowError(2, MOTOR1_NOT_MOVING);
+											break;
+					}
 					if (input.Gravity.position_tree != state->currentNode->ingredient.bottleID) {
 					output->Gravity.move_baum = 1; //TODO Wert bestimmen zum bewegen
 					}
@@ -112,6 +120,10 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					break;
 				case GLASS_IN_STATION:
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
+					if (state->stateTicket + 5000 > xTaskGetTickCount()) { //TODO Wert anpassen
+											ThrowError(2, BAD_POSITION);
+											break;
+					}
 					list_head(state->drinkList, state->currentNode, FALSE);
 					if (state->currentNode == NULL && input.Gravity.weight_sensor < EMPTY_WEIGHT) {
 						vSwitchStateGrav(state, IDLE_GRAV);
@@ -151,10 +163,14 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					break;
 				case MOVE_PLATTFORM:
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
+					if (state->stateTicket + 5000 > xTaskGetTickCount()) { //TODO Wert anpassen
+											ThrowError(2, BAD_POSITION);
+											break;
+					}
 					if (input.Gravity.sensor_down == TRUE) {
 						output->Gravity.move_platform = 1; //TODO Wert
 					}
-					if (input.Gravity.sensor_up == TRUE && state->startTicket == 0) {
+					if (input.Gravity.sensor_up == TRUE && state->startTicket == NULL) {
 						state->startTicket = xTaskGetTickCount();
 					}
 					if (input.Gravity.sensor_up == TRUE && state->startTicket >= xTaskGetTickCount() + 1000) {
@@ -186,6 +202,7 @@ void vSwitchStateGrav(Module_State_2_Gravity_t* state, int state_new)
 	
 	//Das hier sollte passieren, sonst wird der Zustand nicht gewechselt
 	state->state = state_new;
+	state->stateTicket = xTaskGetTickCount();
 	
 	return;
 }

@@ -10,18 +10,18 @@
  */
 enum ErrorTypes {MOTOR1_NOT_MOVING, MOTOR2_NOT_MOVING, FAULTY_SENSOR_VALUE, BAD_POSITION, DOOR_OPEN};
 
-enum CriticalErrorTypes{};
+enum CriticalErrorTypes{CRITICAL_FAILURE};
 
-enum WarningTypes {};
+enum WarningTypes {WARNING};
 
 int SetOperationMode(int);
 
 
 //Diese Funktion �bernimmt das globale Fehlerhandling
 //Sie setzt aber nur gewisse Flags und macht Prints, die lokale Behandlung erfolgt in den Modulen selbst
-void ThrowErrorCritical(int , CriticalErrorTypes );
-void ThrowError(int , ErrorTypes );
-void ThrowWarning(int , WarningTypes );
+void ThrowErrorCritical(int , enum CriticalErrorTypes);
+void ThrowError(int , enum ErrorTypes);
+void ThrowWarning(int , enum WarningTypes);
 
 	
 #endif
