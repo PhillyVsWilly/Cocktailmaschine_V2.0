@@ -53,6 +53,8 @@
 /* USER CODE BEGIN Includes */
 #include "Sensors.h"
 #include "Evaluation.h"
+#include "Module_7_Ice.h"
+#include "Module_common.h"
 #include "Actuators.h"
 
 #define DEBUG_ENABLED 1
@@ -236,7 +238,7 @@ int main(void)
 
   /* Create the thread(s) */
   /* definition and creation of mainCycle */
-  osThreadDef(mainCycle, mainCycleStart, osPriorityNormal, 0, 256);
+  osThreadDef(mainCycle, mainCycleStart, osPriorityNormal, 0, 128);
   mainCycleHandle = osThreadCreate(osThread(mainCycle), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -720,13 +722,20 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOG_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, LD1_Pin|LD3_Pin|LD2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, LD1_Pin|LD3_Pin|LD2_Pin|GPIO_PIN_8, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_9|GPIO_PIN_11, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_9|GPIO_PIN_11|GPIO_PIN_13|GPIO_PIN_14 
+                          |GPIO_PIN_15, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOG, USB_PowerSwitchOn_Pin|GPIO_PIN_9|GPIO_PIN_14, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PE3 PE4 PE5 PE6 */
   GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
@@ -766,8 +775,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LD1_Pin LD3_Pin LD2_Pin */
-  GPIO_InitStruct.Pin = LD1_Pin|LD3_Pin|LD2_Pin;
+  /*Configure GPIO pins : LD1_Pin LD3_Pin LD2_Pin PB8 */
+  GPIO_InitStruct.Pin = LD1_Pin|LD3_Pin|LD2_Pin|GPIO_PIN_8;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -779,8 +788,17 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PE9 PE11 */
-  GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_11;
+  /*Configure GPIO pins : PF14 PF15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_14|GPIO_PIN_15;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PE9 PE11 PE13 PE14 
+                           PE15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_11|GPIO_PIN_13|GPIO_PIN_14 
+                          |GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -800,12 +818,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : USB_PowerSwitchOn_Pin */
-  GPIO_InitStruct.Pin = USB_PowerSwitchOn_Pin;
+  /*Configure GPIO pins : PD14 PD15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_14|GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(USB_PowerSwitchOn_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : USB_PowerSwitchOn_Pin PG9 PG14 */
+  GPIO_InitStruct.Pin = USB_PowerSwitchOn_Pin|GPIO_PIN_9|GPIO_PIN_14;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
   /*Configure GPIO pin : USB_OverCurrent_Pin */
   GPIO_InitStruct.Pin = USB_OverCurrent_Pin;
@@ -852,7 +877,27 @@ void mainCycleStart(void const * argument)
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
 
+
 	int led_on = 0;
+
+	vInit_Module_common(&System_State);
+	vInit_Module_7_Ice(&(System_State.Ice), &(System_State.General));
+
+
+	ingredient_t testDrink1;
+	testDrink1.amount = 100.0;
+	testDrink1.bottleID = 1;
+	testDrink1.lastInstruction = FALSE;
+
+	ingredient_t testDrink2;
+	testDrink2.amount = 100.0;
+	testDrink2.bottleID = 0;
+	testDrink2.lastInstruction = TRUE;
+
+
+	printf("%x\n",(int)list_append(&System_State.Ice.drinkList, testDrink1));
+	printf("%x\n",(int)list_append(&System_State.Ice.drinkList, testDrink2));
+
   while(1)
   {
 	  if(led_on == 0)
@@ -866,15 +911,13 @@ void mainCycleStart(void const * argument)
 		  led_on=0;
 	  }
 
-
-	  printf("Main Cycle Start %s\n", " ");
 	  TickType_t startTicks = xTaskGetTickCount();
 
 	  //Read Sensors
-	  //vReadSensorValues(&Input_Storage);
+	  vReadSensorValues(&Input_Storage);
 
 	  //Calculate Output
-	  //vEvaluate_Module_7_Ice(Input_Storage.Ice, &(System_State.Ice), &(Output_Storage.Ice));
+	  vEvaluate_Module_7_Ice(Input_Storage, &(System_State.Ice), &(Output_Storage));
 	  //vEvaluate(Input_Storage, &System_State, &Output_Storage);
 
 	  //Set output
@@ -883,6 +926,7 @@ void mainCycleStart(void const * argument)
 	  TickType_t endTicks = xTaskGetTickCount();
 	  int time_diff = (int)endTicks-(int)startTicks;
 	  printf("Main Cycle End: Needed %d Ticks\r\n", time_diff);
+	  printf("%s\n", "=============");
 
 	  vTaskDelayUntil(&startTicks,1000);
 

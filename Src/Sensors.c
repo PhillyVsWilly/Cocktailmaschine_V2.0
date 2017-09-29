@@ -97,7 +97,7 @@ void vReadSensorValues (InputValues_t* ptrInput)
 
  void vReadSensorValues_Module_2(InputValues_t* ptrInput)
 {
-	ptrInput->Gravity.weight_sensor = ADC3ConvertedValues[3] / FACTOR_BITS_TO_WEIGHT; //A4
+	ptrInput->Gravity.weight_sensor = ADC3ConvertedValues[3] / FACTOR_BITS_TO_GRAMMS; //A4
 	ptrInput->Gravity.doors_open = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_3); // PE3 digital
 	ptrInput->Gravity.sensor_up = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_8); // PF8
 	ptrInput->Gravity.sensor_down = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_7); // PF7
@@ -111,7 +111,7 @@ void vReadSensorValues (InputValues_t* ptrInput)
 {
 	 ptrInput->Pumping.doors_open = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_2); // PE2
 	 ptrInput->Pumping.valve_position = ADC3ConvertedValues[2] / FACTOR_BITS_TO_POSITION; // A2
-	 ptrInput->Pumping.weight_glass = ADC2ConvertedValues[0] / FACTOR_BITS_TO_WEIGHT; // A1
+	 ptrInput->Pumping.weight_glass = (ADC2ConvertedValues[0] - OFFSET_WEIGHT) / FACTOR_BITS_TO_GRAMMS; // A1
 	return;
 }
 
@@ -120,7 +120,7 @@ void vReadSensorValues (InputValues_t* ptrInput)
 	 ptrInput->Pouring.doors_open = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_4); // PE4
 	 ptrInput->Pouring.position_up = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_6); // PE6
 	 ptrInput->Pouring.position_down = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_5); // PE5
-	 ptrInput->Pouring.weight = ADC3ConvertedValues[1] / FACTOR_BITS_TO_WEIGHT; // A3
+	 ptrInput->Pouring.weight = (ADC3ConvertedValues[1] - OFFSET_WEIGHT) / FACTOR_BITS_TO_GRAMMS;// A3
 	return;
 }
 
@@ -143,7 +143,7 @@ void vReadSensorValues (InputValues_t* ptrInput)
 
  void vReadSensorValues_Module_7(InputValues_t* ptrInput)
 {
-	 	 ptrInput->Ice.weight =(float)ADC1ConvertedValues[0]/FACTOR_BITS_TO_WEIGHT; // / FACTOR_BITS_TO_WEIGHT; // A0
+	 	 ptrInput->Ice.weight = (float)(ADC1ConvertedValues[0] - OFFSET_WEIGHT)/FACTOR_BITS_TO_GRAMMS; // / FACTOR_BITS_TO_GRAMMS; // A0
 	 	 ptrInput->Ice.doors_open = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_1); // PF1
 	 	 ptrInput->Ice.light_barrier_enough_cube_ice = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_0); // PF0
 	 	 ptrInput->Ice.light_barrier_enough_crushed_ice = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_9); // PF9
@@ -156,7 +156,7 @@ void vReadSensorValues (InputValues_t* ptrInput)
 #if DEBUG_ENABLED
 void vPrintReadSensorValues(InputValues_t input)
 {
-	printf("====================\n%s\n==============\n", "Sensor Values");
+	/*printf("====================\n%s\n==============\n", "Sensor Values");
 	printf("Gravity Modul: \nGravity Weight: %d\nDoor Open: %d\nSensorUp: %d\nSensorDown: %d\nButton Fill: %d\nPosition Tree: %d\n",
 			(int)roundf(input.Gravity.weight_sensor), input.Gravity.doors_open, input.Gravity.sensor_up,
 			input.Gravity.sensor_down, input.Gravity.button_fill_in);
@@ -168,7 +168,7 @@ void vPrintReadSensorValues(InputValues_t input)
 	printf("Sensor Modul: \nStart Door Open: %d\nStart Light Barrier: %d\nEnd Door Open: %d\nEnd Light Barrier: %d\nButton glass present: %d\n",
 			input.Sensors.start_doors_open, input.Sensors.start_light_barrier, input.Sensors.end_doors_open,
 			input.Sensors.end_light_barrier, input.Sensors.end_button_glass_present);
-	printf("Handling: Leer\n");
+	printf("Handling: Leer\n");*/
 	printf("Gewicht Modul: \nWeight: %d\nDoor open: %d\nLight Barrier enough cube ice: %d\nLight Barrier enough crushed ice: %d\n",
 			(int)roundf(input.Ice.weight), input.Ice.doors_open,
 			input.Ice.light_barrier_enough_cube_ice, input.Ice.light_barrier_enough_crushed_ice);

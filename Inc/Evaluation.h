@@ -14,13 +14,16 @@
 
 typedef char bool;
 
-enum operation_mode {startup, normal, repair, stop};
+enum OperationMode_t{startup, normal, repair, stop};
 
 /*Type Definitions for System States*/
 typedef struct{ 
 	int operation_mode;
 	int modules_finished[7];
 	int safety_sensors[7];
+	int WarnFlags[7];
+	int ErrFlags[7];
+	int CritFlags[7];
 	int glassCount;
 	} State_General_t;
 
@@ -38,7 +41,7 @@ typedef struct{
 	float drinkWeight;
 	bool glassInStation; //Bool um festzustellen ob sich noch ein Glas in der Station befindet
 	bool treeInPosition;
-	linked_list *drinkList;
+	linked_list drinkList;
     listNode *currentNode;
     TickType_t startTicket;
 	} Module_State_2_Gravity_t;
@@ -51,7 +54,7 @@ typedef struct{
 	bool valveInTransit; //Bool that tracks if the valve is in transit
 	bool valveInPosition;
 	bool finished;//Getraenk fertig
-	linked_list *drinkList;
+	linked_list drinkList;
 	listNode *currentNode;
 	float drinkWeight;
 	TickType_t startTicket;
@@ -60,7 +63,7 @@ typedef struct{
 typedef struct{
 	State_General_t *ptrGeneralState;
 	int state;
-	linked_list *drinkList;
+	linked_list drinkList;
 	listNode *currentNode;
 	float drinkWeight;
 	TickType_t startTicket;
@@ -85,7 +88,7 @@ typedef struct{
 	State_General_t* ptrGeneralState;
 	int state;
 	bool glassInStation;
-	linked_list *drinkList;
+	linked_list drinkList;
 	listNode *currentNode;
 	float drinkWeight;
 	TickType_t startTicket;
@@ -94,7 +97,7 @@ typedef struct{
 typedef struct{
 	State_General_t* ptrGeneralState;
 	int state;
-	linked_list *drinkList;
+	linked_list drinkList;
 	listNode *currentNode;
 	}Module_State_x_Name_t;
 	

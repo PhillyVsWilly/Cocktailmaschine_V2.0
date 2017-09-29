@@ -26,9 +26,9 @@ int debugPrintError(char* s, ...);
 
 /*use the following macros instead*/
 
-#define DPRINT_WARNING(...) debugPrintWarning (__VA_ARGS__)
-#define DPRINT_MESSAGE(...) debugPrintMessage(__VA_ARGS__)
-#define DPRINT_ERROR(...) debugPrintError(__VA_ARGS__)
+#define DPRINT_WARNING(...) printf (__VA_ARGS__)
+#define DPRINT_MESSAGE(...) printf(__VA_ARGS__)
+#define DPRINT_ERROR(...) printf(__VA_ARGS__)
 #else
 #define DPRINT_WARNING(...)
 #define DPRINT_ERROR(...)

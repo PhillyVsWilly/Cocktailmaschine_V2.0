@@ -18,7 +18,7 @@ void vInit_Module_2_Gravity(Module_State_2_Gravity_t* state, State_General_t* pt
 	//Nicht ändern, muss so sein!
 	state->state = REFERENCE_GRAV;
 	state->ptrGeneralState = ptrGeneralState;
-	list_new(state->drinkList);
+	list_new(&state->drinkList);
 	state->currentNode = NULL;
 	state->glassInStation = FALSE;
 
@@ -81,7 +81,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 						vSwitchStateGrav(state, GLASS_IN_STATION);
 						break;
 					}
-					list_head(state->drinkList, state->currentNode, FALSE);
+					list_head(&state->drinkList, &state->currentNode, FALSE);
 					if (state-> currentNode != NULL) {
 						if (state->currentNode->ingredient.bottleID != 0) {
 							vSwitchStateGrav(state, MOVING_TREE);
@@ -112,7 +112,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					break;
 				case GLASS_IN_STATION:
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
-					list_head(state->drinkList, state->currentNode, FALSE);
+					list_head(&state->drinkList, &state->currentNode, FALSE);
 					if (state->currentNode == NULL && input.Gravity.weight_sensor < EMPTY_WEIGHT) {
 						vSwitchStateGrav(state, IDLE_GRAV);
 						state->glassInStation = FALSE;
@@ -142,8 +142,8 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 							break;
 						}
 						if (state->currentNode->ingredient.amount <= 0 && state->currentNode->ingredient.lastInstruction == FALSE) {
-							list_head(state->drinkList, state->currentNode, TRUE);
-							list_head(state->drinkList, state->currentNode, FALSE);
+							list_head(&state->drinkList, &state->currentNode, TRUE);
+							list_head(&state->drinkList, &state->currentNode, FALSE);
 							vSwitchStateGrav(state, MOVING_TREE);
 							break;
 						}
@@ -168,7 +168,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					break;
 				case FILLED_GLASS:
 					if (input.Gravity.weight_sensor == 0) {
-						list_head(state->drinkList, state->currentNode, TRUE);
+						list_head(&state->drinkList, &state->currentNode, TRUE);
 						state->glassInStation = FALSE;
 						vSwitchStateGrav(state, IDLE_GRAV);
 					}

@@ -45,15 +45,15 @@ void init_drink_lists()
 	empty.bottleID = 0;
 	empty.lastInstruction = TRUE;
 
-	list_append((ptr_system_state->Ice.drinkList), empty);
+	list_append(&(ptr_system_state->Ice.drinkList), empty);
 	for (int i = 0; i<2; i++) {
-		list_append((ptr_system_state->Gravity.drinkList), empty);
+		list_append((&ptr_system_state->Gravity.drinkList), empty);
 	}
 	for (int i = 0; i<3; i++) {
-		list_append((ptr_system_state->Pumping.drinkList), empty);
+		list_append((&ptr_system_state->Pumping.drinkList), empty);
 	}
 	for (int i = 0; i<4; i++) {
-		list_append((ptr_system_state->Pouring.drinkList), empty);
+		list_append((&ptr_system_state->Pouring.drinkList), empty);
 	}
 
 	//Hinzufügen eines leeren Eintrags, wiederholen für mehrere leere Einträge
@@ -186,19 +186,19 @@ void packet_handler_type_1(char* ptr_packet)
 		// TODO Olaf: Problemstellung: Erkennen, wie viele Zutaten maximal pro Modul. empty-Modul bei den Modulen zuweisen, wo es weniger sind.
 		switch (module_ingredient[i].module) {
 		case 2:
-			list_append(ptr_system_state->Gravity.drinkList, ingredient);
+			list_append(&ptr_system_state->Gravity.drinkList, ingredient);
 			anzahl_zutaten[0].anzahl += 1;
 			break;
 		case 3:
-			list_append(ptr_system_state->Pumping.drinkList, ingredient);
+			list_append(&ptr_system_state->Pumping.drinkList, ingredient);
 			anzahl_zutaten[1].anzahl += 1;
 			break;
 		case 4:
-			list_append(ptr_system_state->Pouring.drinkList, ingredient);
+			list_append(&ptr_system_state->Pouring.drinkList, ingredient);
 			anzahl_zutaten[2].anzahl += 1;
 			break;
 		case 7:
-			list_append(ptr_system_state->Ice.drinkList, ingredient);
+			list_append(&ptr_system_state->Ice.drinkList, ingredient);
 			anzahl_zutaten[3].anzahl += 1;
 			break;
 		default:
@@ -220,13 +220,13 @@ void packet_handler_type_1(char* ptr_packet)
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < (max_anzahl_zutaten - anzahl_zutaten[i].anzahl); j++) {
 				switch (anzahl_zutaten[i].module) {
-				case 2:	list_append(ptr_system_state->Gravity.drinkList, empty);
+				case 2:	list_append(&ptr_system_state->Gravity.drinkList, empty);
 					break;
-				case 3:	list_append(ptr_system_state->Pumping.drinkList, empty);
+				case 3:	list_append(&ptr_system_state->Pumping.drinkList, empty);
 					break;
-				case 4:	list_append(ptr_system_state->Pouring.drinkList, empty);
+				case 4:	list_append(&ptr_system_state->Pouring.drinkList, empty);
 					break;
-				case 7:	list_append(ptr_system_state->Ice.drinkList, empty);
+				case 7:	list_append(&ptr_system_state->Ice.drinkList, empty);
 					break;
 				default: break;
 				}
@@ -255,32 +255,32 @@ void packet_handler_type_2()
 	int anzahl_ausstehend[4]; // 0: Gravity, 1: Pumping, 2: Pouring, 3: Ice
 
 							  // Ausstehende: Alle Trinklisten durchgehen -> jeweils aufaddieren, wenn lastInstruction = TRUE
-	for (int i = 0; i < list_size(ptr_system_state->Gravity.drinkList); i++) {
-		if (ptr_system_state->Gravity.drinkList->head->ingredient.lastInstruction == TRUE) //TODO Philipp->Olaf: Richtig ausgelesen? -> oder mit list_for_each!!
+	for (int i = 0; i < list_size(&ptr_system_state->Gravity.drinkList); i++) {
+		if (ptr_system_state->Gravity.drinkList.head->ingredient.lastInstruction == TRUE) //TODO Philipp->Olaf: Richtig ausgelesen? -> oder mit list_for_each!!
 			anzahl_ausstehend[0]++;
-		if (ptr_system_state->Pumping.drinkList->head->ingredient.lastInstruction == TRUE)
+		if (ptr_system_state->Pumping.drinkList.head->ingredient.lastInstruction == TRUE)
 			anzahl_ausstehend[1]++;
-		if (ptr_system_state->Pouring.drinkList->head->ingredient.lastInstruction == TRUE)
+		if (ptr_system_state->Pouring.drinkList.head->ingredient.lastInstruction == TRUE)
 			anzahl_ausstehend[2]++;
-		if (ptr_system_state->Ice.drinkList->head->ingredient.lastInstruction == TRUE)
+		if (ptr_system_state->Ice.drinkList.head->ingredient.lastInstruction == TRUE)
 			anzahl_ausstehend[3]++;
 	}
 
 	// als nächstes in Bearbeitung:
 	anzahl_inBearbeitung = 0;
-	if(ptr_system_state->Gravity.drinkList->head->ingredient.bottleID == -1)
+	if(ptr_system_state->Gravity.drinkList.head->ingredient.bottleID == -1)
 	{
 		anzahl_inBearbeitung++;
 	}
-	if(ptr_system_state->Pumping.drinkList->head->ingredient.bottleID == -1)
+	if(ptr_system_state->Pumping.drinkList.head->ingredient.bottleID == -1)
 	{
 		anzahl_inBearbeitung++;
 	}
-	if(ptr_system_state->Pouring.drinkList->head->ingredient.bottleID == -1)
+	if(ptr_system_state->Pouring.drinkList.head->ingredient.bottleID == -1)
 	{
 		anzahl_inBearbeitung++;
 	}
-	if(ptr_system_state->Ice.drinkList->head->ingredient.bottleID == -1)
+	if(ptr_system_state->Ice.drinkList.head->ingredient.bottleID == -1)
 	{
 		anzahl_inBearbeitung++;
 	}

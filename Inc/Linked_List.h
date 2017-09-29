@@ -44,12 +44,12 @@ void list_new(linked_list *list);
 void list_destroy(linked_list *list);
 
 void list_prepend(linked_list *list, ingredient_t ingredient);
-void list_append(linked_list *list, ingredient_t ingredient);
+listNode* list_append(linked_list *list, ingredient_t ingredient);
 int list_size(linked_list *list);
 void free_int(ingredient_t ingredient);
 
 void list_for_each(linked_list *list, listIterator iterator);
-void list_head(linked_list *list, listNode *currentNode, listbool removeFromList);
+void list_head(linked_list *list, listNode **currentNode, listbool removeFromList);
 void list_tail(linked_list *list, listNode *node);
 
 

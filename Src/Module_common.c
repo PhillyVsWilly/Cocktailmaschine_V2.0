@@ -2,16 +2,19 @@
 #include "main.h"
 #include "Evaluation.h"
 
+#define DPRINTF(...) printf(__VA_ARGS__)
+
 static SystemState_t* ptr_SystemState;
 
-int initModuleCommon(SystemState_t* pState)
+void vInit_Module_common(SystemState_t* pState)
 {
 	ptr_SystemState=pState;
 }
 
-int SetOperationMode(operation_mode newMode)
+enum OperationMode_t SetOperationMode(enum OperationMode_t newMode)
 {
-	ptrSystemState->General.operation_mode = newMode;
+	ptr_SystemState->General.operation_mode = newMode;
+	return ptr_SystemState->General.operation_mode;
 }
 
 
@@ -20,6 +23,7 @@ int SetOperationMode(operation_mode newMode)
  */
 void ThrowErrorCritical(int module, enum CriticalErrorTypes error)
 {
+	ptr_SystemState->General.CritFlags[module-1] |= (1 << error);
 	SetOperationMode(stop);
 }
 
@@ -28,6 +32,7 @@ void ThrowErrorCritical(int module, enum CriticalErrorTypes error)
  */
 void ThrowError(int module, enum ErrorTypes error)
 {
+	ptr_SystemState->General.ErrFlags[module-1] |= (1 << error);
 	SetOperationMode(repair);
 }
 
@@ -37,6 +42,45 @@ void ThrowError(int module, enum ErrorTypes error)
  */
 void ThrowWarning(int module,enum WarningTypes warning)
 {
+	ptr_SystemState->General.WarnFlags[module-1] |= (1 << warning);
+	DPRINTF("Setting Warning %d in Module %d!\n", warning, module);
+	DPRINTF("Warning Status: %d", ptr_SystemState->General.WarnFlags[module-1]);
+}
 
+void ClearErrorCritical(int module , enum CriticalErrorTypes error)
+{
+	ptr_SystemState->General.CritFlags[module-1] &= ~(1 << error);
+	if (ptr_SystemState->General.CritFlags[module-1] == 0)
+	{
+		SetOperationMode(normal);
+	}
+}
+
+void ClearError(int module , enum ErrorTypes error)
+{
+	ptr_SystemState->General.ErrFlags[module-1] &= ~(1 >> error);
+	if (ptr_SystemState->General.ErrFlags[module-1] == 0)
+	{
+		SetOperationMode(normal);
+	}
+}
+void ClearWarning(int module, enum WarningTypes warning)
+{
+	ptr_SystemState->General.WarnFlags[module-1] &= ~(1 >> warning);
+}
+
+int isSetCritical(int module, enum CriticalErrorTypes bit)
+{
+	return ptr_SystemState->General.CritFlags[module-1] & (1 << bit);
+}
+
+int isSetError(int module, enum ErrorTypes bit)
+{
+	return ptr_SystemState->General.ErrFlags[module-1] & (1 << bit);
+}
+
+int isSetWarning(int module, enum WarningTypes bit)
+{
+	return ptr_SystemState->General.WarnFlags[module-1] & (1 << bit);
 }
 

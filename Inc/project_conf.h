@@ -39,9 +39,15 @@
 //Wenn hier eine Zahl auﬂer -1 steht, wird ein einzelnen Modul getestet
 #define SINGLE_MODULE_TEST MODULE_ID_ICE
 
-#define FACTOR_BITS_TO_WEIGHT 10.0 //TODO Anpassen
+//Gewichte und Faktoren
+#define FACTOR_BITS_TO_GRAMMS 1.46 //TODO Anpassen
 #define FACTOR_BITS_TO_ANGLE 360/4096
 #define FACTOR_BITS_TO_POSITION 8/4096
+#define OFFSET_WEIGHT 1670
+#define GLASS_WEIGHT 100
+
+//Timeouts
+#define TIMEOUT_ICE_FILL 20000
 
 
 

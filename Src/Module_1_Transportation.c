@@ -1,6 +1,7 @@
 #include "Module_common.h"
 #include "Module_1_Transportation.h"
 #include "FreeRTOS.h"
+#include "task.h"
 
 #include "Sensors.h"
 #include "Evaluation.h"
@@ -24,7 +25,7 @@ void vInit_Module_1_Transport(Module_State_1_Transportation_t* state, State_Gene
 	//Nicht ändern, muss so sein!
 	state->state = REFERENCE_TRANS;
 	state->ptrGeneralState = ptrGeneralState;
-	state->startTicket = NULL;
+	state->startTicket = 0;
 	state->ptrGeneralState->glassCount = 0;
 
 	//Statisch eingefügt für das Handlingmodul da es atm nichts macht um Fehler aufgrund fehlendem Eintrag zu verhindern.

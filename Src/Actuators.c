@@ -1,6 +1,7 @@
 #include "Actuators.h"
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx_nucleo_144.h"
+#include "math.h"
 
 extern TIM_HandleTypeDef htim2, htim3, htim4;
 
@@ -17,8 +18,8 @@ extern TIM_HandleTypeDef htim2, htim3, htim4;
 #define PUMPING_PUMP_RAMP_DOWN -1
 #define POURING_RAMP_UP 1
 #define POURING_RAMP_DOWN -1
-#define ICE_RAMP_UP 1
-#define ICE_RAMP_DOWN -1
+#define ICE_RAMP_UP 100
+#define ICE_RAMP_DOWN -100
 
 #define MOTOR_ID_TRANSPORT 0
 #define MOTOR_ID_GRAVITY_PLATFORM 1
@@ -31,6 +32,10 @@ extern TIM_HandleTypeDef htim2, htim3, htim4;
 #define COUNT_MOTORS 7
 
 TIM_OC_InitTypeDef sConfigPWM[COUNT_MOTORS];
+
+void AuxPins(int*, int*, int);
+int getPWMValue(int, int, int, int);
+void setPWM(int, uint16_t);
 
 
 /*
@@ -49,14 +54,20 @@ void vWriteActuatorValues(OutputValues_t* output)
 	vModule_3_ActuatorValues(&(output->Pumping));
 	vModule_4_ActuatorValues(&(output->Pouring));
 	vModule_7_ActuatorValues(&(output->Ice));
+
+	printf("Ice Motor %d\n", output->Ice.motor);
 }
 
 void vModule_1_ActuatorValues(Transport_t* ptr_output)
 {
 	// Motor
 	int a,b;
-	ptr_output->pwm = getPWMValue(abs(ptr_output->motor), ptr_output->pwm, TRANSPORT_RAMP_UP, TRANSPORT_RAMP_DOWN);
-	setPWM(MOTOR_ID_TRANSPORT, ptr_output->pwm);
+	if(ptr_output->startUp == 1 || ptr_output->windDown == 1)
+	{
+		ptr_output->motor= (ptr_output->windDown == 1) ? 0 : 100;
+	}
+	ptr_output->pwm = getPWMValue(ptr_output->motor, ptr_output->pwm, TRANSPORT_RAMP_UP, TRANSPORT_RAMP_DOWN);
+	setPWM(MOTOR_ID_TRANSPORT, abs(ptr_output->pwm));
 	AuxPins(&a, &b, ptr_output->pwm);
 	HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, a);
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, b);
@@ -68,15 +79,15 @@ void vModule_2_ActuatorValues(Gravity_t* ptr_output)
 {
 	// Motor Plattform
 	int a,b;
-	ptr_output->pwm_platform = getPWMValue(abs(ptr_output->move_platform), ptr_output->pwm_platform, GRAVITY_PLATFORM_RAMP_UP, GRAVITY_PLATFORM_RAMP_DOWN);
-	setPWM(MOTOR_ID_GRAVITY_PLATFORM, ptr_output->pwm_platform);
+	ptr_output->pwm_platform = getPWMValue(ptr_output->move_platform, ptr_output->pwm_platform, GRAVITY_PLATFORM_RAMP_UP, GRAVITY_PLATFORM_RAMP_DOWN);
+	setPWM(MOTOR_ID_GRAVITY_PLATFORM, abs(ptr_output->pwm_platform));
 	AuxPins(&a, &b, ptr_output->pwm_platform);
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_14, a);
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, b);
 
 	// Motor Baum
-	ptr_output->pwm_baum = getPWMValue(abs(ptr_output->move_baum), ptr_output->pwm_baum, GRAVITY_TREE_RAMP_UP, GRAVITY_TREE_RAMP_DOWN);
-	setPWM(MOTOR_ID_GRAVITY_PLATFORM, ptr_output->pwm_baum);
+	ptr_output->pwm_baum = getPWMValue(ptr_output->move_baum, ptr_output->pwm_baum, GRAVITY_TREE_RAMP_UP, GRAVITY_TREE_RAMP_DOWN);
+	setPWM(MOTOR_ID_GRAVITY_PLATFORM, abs(ptr_output->pwm_baum));
 	AuxPins(&a, &b, ptr_output->pwm_baum);
 	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_14, a);
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, b);
@@ -86,15 +97,15 @@ void vModule_3_ActuatorValues(Pumping_t* ptr_output)
 {
 	int a,b;
 	// Wahl
-	ptr_output->pwm_choose = getPWMValue(abs(ptr_output->choose_motor), ptr_output->pwm_choose, PUMPING_CHOOSER_RAMP_UP, PUMPING_CHOOSER_RAMP_DOWN);
-	setPWM(MOTOR_ID_PUMPING_CHOOSER, ptr_output->choose_motor);
-	AuxPins(&a, &b, ptr_output->choose_motor);
+	ptr_output->pwm_choose = getPWMValue(ptr_output->choose_motor, ptr_output->pwm_choose, PUMPING_CHOOSER_RAMP_UP, PUMPING_CHOOSER_RAMP_DOWN);
+	setPWM(MOTOR_ID_PUMPING_CHOOSER, abs(ptr_output->pwm_choose));
+	AuxPins(&a, &b, ptr_output->pwm_choose);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, a);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, b);
 
 	// Pumpe
-	ptr_output->pwm_pump = getPWMValue(abs(ptr_output->pwm_pump), ptr_output->pwm_pump, PUMPING_PUMP_RAMP_UP, PUMPING_PUMP_RAMP_DOWN);
-	setPWM(MOTOR_ID_PUMPING_PUMP, ptr_output->pwm_pump);
+	ptr_output->pwm_pump = getPWMValue(ptr_output->pump, ptr_output->pwm_pump, PUMPING_PUMP_RAMP_UP, PUMPING_PUMP_RAMP_DOWN);
+	setPWM(MOTOR_ID_PUMPING_PUMP, abs(ptr_output->pwm_pump));
 	AuxPins(&a, &b, ptr_output->pwm_pump);
 	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, a);
 	HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, b);
@@ -105,7 +116,7 @@ void vModule_4_ActuatorValues(Pouring_t* ptr_output)
 	int a,b;
 	// Motor
 	ptr_output->pwm = getPWMValue(abs(ptr_output->motor), ptr_output->motor, POURING_RAMP_UP, POURING_RAMP_DOWN);
-	setPWM(MOTOR_ID_POURING, ptr_output->pwm);
+	setPWM(MOTOR_ID_POURING, abs(ptr_output->pwm));
 	AuxPins(&a, &b, ptr_output->pwm);
 	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_12, a);
 	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_13, b);
@@ -115,11 +126,12 @@ void vModule_7_ActuatorValues(Ice_t* ptr_output)
 {
 	int a,b;
 	// Motor Baum
-	ptr_output->pwm = getPWMValue(abs(ptr_output->motor), ptr_output->pwm, ICE_RAMP_UP, ICE_RAMP_DOWN);
-	setPWM(MOTOR_ID_GRAVITY_PLATFORM, ptr_output->pwm);
+	ptr_output->pwm = getPWMValue(ptr_output->motor, ptr_output->pwm, ICE_RAMP_UP, ICE_RAMP_DOWN);
+	setPWM(MOTOR_ID_ICE, abs(ptr_output->pwm));
 	AuxPins(&a, &b, ptr_output->pwm);
-	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_14, a);
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, b);
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_9, a);
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, b);
+	printf("PWM: %d\n", ptr_output->pwm);
 }
 
 
@@ -140,7 +152,7 @@ int getPWMValue(int desired, int last_pwm, int ascend, int descend)
 	int diff = desired - last_pwm;
 	if(diff < descend)
 	{
-		return last_pwm - ascend;
+		return last_pwm + descend;
 	}
 	else if(diff > descend && diff < ascend)
 	{

@@ -2,15 +2,22 @@
 #include "Evaluation.h"
 #include "Module_common.h"
 #include "project_conf.h"
+#include "task.h"
+
+#include "stm32f7xx_hal.h"
 
 
 #include "Sensors.h"
 #include "Evaluation.h"
 #include "Actuators.h"
 
-#undef DEBUG_ENABLED
+#define DPRINTF(...) printf(__VA_ARGS__)
+
+/*#undef DEBUG_ENABLED
 #define DEBUG_ENABLED 1
-#include "Debug.h"
+#include "Debug.h"*/
+
+#define MODULE_NUMBER 7
 
 /** @brief Initialisierung des Teilmoduls
  *
@@ -20,17 +27,15 @@
 void vInit_Module_7_Ice(Module_State_7_Ice_t* state, State_General_t* ptrGeneralState)
 {
 	//Nicht ädern, muss so sein!
-	state->state = REFERENCE_ICE;
+	state->state = ACTIVE_ICE;
 	state->ptrGeneralState = ptrGeneralState;
-	list_new(state->drinkList);
-	state->currentNode = NULL;
+	list_new(&state->drinkList);
 	state->glassInStation = FALSE;
+	ptrGeneralState->CritFlags[MODULE_NUMBER -1] = 0;
+	ptrGeneralState->ErrFlags[MODULE_NUMBER -1] = 0;
+	ptrGeneralState->WarnFlags[MODULE_NUMBER -1] = 0;
 	// Hier könen jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
 
-	//Hier alle Einstellungen, die für den Einzelmodultest notwendig sind
-#if (SINGLE_MODULE_TEST == MODULE_ID_ICE)
-
-#endif
 }
 
 /** @brief Prüfe nach allgmeinen Fehlern
@@ -40,19 +45,27 @@ void vInit_Module_7_Ice(Module_State_7_Ice_t* state, State_General_t* ptrGeneral
  *Beim Eis: Überlaufbecken nicht voll
  *Deshalb wird ihr auch nicht der Systemzustand übergeben
  **/
-static int vCheckForGeneralErrors(InputValues_t input)
+static void vCheckForGeneralErrors(InputValues_t input)
 {
 
-	if(input.Ice.doors_open == TRUE){
-			ThrowError(7, DOOR_OPEN);
-			return DOOR_OPEN;
-
+	if(input.Ice.doors_open == FALSE){
+			ThrowError(MODULE_NUMBER, DOOR_OPEN);
 		}
 
+	//Warnungen; hier wird kein Fehler geworfen
+	//Der Zustand muss nicht in Fehler wechseln
+	if(input.Ice.light_barrier_enough_crushed_ice == FALSE){
+		ThrowWarning(MODULE_NUMBER, ICE_1_EMPTY);
+	} else {
+		ClearWarning(MODULE_NUMBER, ICE_1_EMPTY);
+	}
 
+	if(input.Ice.light_barrier_enough_cube_ice == FALSE){
+			ThrowWarning(MODULE_NUMBER, ICE_2_EMPTY);
+		} else {
+			ClearWarning(MODULE_NUMBER, ICE_2_EMPTY);
+		}
 
-
-	return -1;
 }
 
 /** @brief Zentrale Ablaufsteuerung des Moduls
@@ -61,126 +74,133 @@ static int vCheckForGeneralErrors(InputValues_t input)
  * In ihr wird zuerst vCheckForErrors aufgerufen um zuerst nach allgemeinen Fehlern zu suchen
  * Danach wird in Abhägigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
  * oder mehrere bestimmte Aktionen ausgeführt und deren Verlauf überwacht
- * Hier können über ThrowError() auch weitere Fehler geworfen werden.
+ * Hier können über ThrowError(), ThrowErrorCritical() oder ThrowWarning() auch weitere Fehler geworfen werden.
  * Soll der Modulzustand gewechselt werden, wird die vSwitchStateIce() Funktion benutzt. Diese prüft die generelle Zul舖sigkeit
  * (falls nötig) des Zustandswechsels und schreibt einen Debug-Print.
  **/
 void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, OutputValues_t* output)
 {
-	//listNode *ls_head = 0;[0] = Gewicht Eiswürfel, [1] = Gewicht crushed eis
 
-	//ﾄndern des Status auf Basis des Gesamtmaschinenzustand
+
+
+	//Ändern des Status auf Basis des Gesamtmaschinenzustand
 	if (state->ptrGeneralState->operation_mode == stop)
 	{
 		vSwitchStateIce(state, INACTIVE_ICE);
 	}
-	if(input.Ice.light_barrier_enough_crushed_ice == FALSE){
-		vSwitchStateIce(state, INACTIVE_ICE);
-	}
-	if(input.Ice.light_barrier_enough_cube_ice == FALSE){
-			vSwitchStateIce(state, INACTIVE_ICE);
-		}
-
-	//TODO Fehlendes Eis melden
 
 	//Ausführen von Funktionen basierend auf dem Zustand
+	vCheckForGeneralErrors(input);
+	if(state->ptrGeneralState->ErrFlags[MODULE_NUMBER-1] != 0 ||
+			state->ptrGeneralState->CritFlags[MODULE_NUMBER-1] != 0)
+	{
+		vSwitchStateIce(state, INACTIVE_ICE);
+	}
+
+	DPRINTF("Warning Flags: %d\n", state->ptrGeneralState->WarnFlags[MODULE_NUMBER-1]);
+
 	switch (state->state){
+
+	/**
+	 * Das Eismodul ist nicht bereit.
+	 * Das ist der Fall, wenn das Modul einen Fehler oder eine Warnung hat.
+	 * Außerdem ist es inaktiv, wenn der Systemzustand auf "stop" steht
+	 */
 	case INACTIVE_ICE:
-		DPRINT_MESSAGE("I'm in State %d\n", state->state);
+		DPRINTF("Ice in State %d\n", state->state);
 		output->Ice.motor = 0;
 
-		if (!(state->ptrGeneralState->operation_mode
-				== stop|| vCheckForGeneralErrors(input)!= -1 || input.Ice.light_barrier_enough_crushed_ice == FALSE || input.Ice.light_barrier_enough_cube_ice == FALSE)) {
-			vSwitchStateIce(state, REFERENCE_ICE);
+		if (!(state->ptrGeneralState->operation_mode == stop||
+				state->ptrGeneralState->ErrFlags[MODULE_NUMBER-1] != 0 ||
+				state->ptrGeneralState->CritFlags[MODULE_NUMBER-1] != 0 ||
+				state->ptrGeneralState->WarnFlags[MODULE_NUMBER-1] != 0)) {
+			vSwitchStateIce(state, ACTIVE_ICE);
 		}
 		break;
 
+	/**
+	 * Das Eismodul ist bereit für neue Befehle
+	 */
+	case ACTIVE_ICE:
+		DPRINTF("Ice in State %d\n", state->state);
+		list_head(&state->drinkList,&state->currentNode,FALSE);
+		state->ptrGeneralState->modules_finished[6]=1;
 
-		/*
-		 * Das Eismodul besitzt nicht wirklich eine Referenzposition
-		 * Daher entfällt hier die Referenzfahrt. Der Status wird sofort zu aktiv geswitcht
-		 * solange kein genereller Fehler besteht
-		 */
-		case REFERENCE_ICE:
-			//Do something
-			if(vCheckForGeneralErrors(input)!= -1){
-							vSwitchStateIce(state, INACTIVE_ICE);
-						}
-			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			output->Ice.motor = 0;
-
-			if(input.Ice.weight > 0){
-				vSwitchStateIce(state,ACTIVE_ICE);
-			}
-
-			break;
-		case ACTIVE_ICE:
-			if(vCheckForGeneralErrors(input)!= -1){
-							vSwitchStateIce(state, INACTIVE_ICE);
-						}
-
-			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			list_head(state->drinkList,state->currentNode,FALSE);
-			if(input.Ice.weight && state->currentNode->ingredient.amount != 0){
+		if(state->drinkList.logicalLength > 0)
+		{
+			if(state->ptrGeneralState->WarnFlags[MODULE_NUMBER-1] != 0)
+			{
+				vSwitchStateIce(state, INACTIVE_ICE);
+			} else	if(input.Ice.weight > GLASS_WEIGHT*0.9 && state->currentNode->ingredient.amount != 0){
 				vSwitchStateIce(state, FILL_ICE);
 				state->glassInStation = TRUE;
-				state->ptrGeneralState->modules_finished[6]=1;
-
 			}
-			break;
-
-		case FILL_ICE:
-			if(vCheckForGeneralErrors(input)!= -1){
-							vSwitchStateIce(state, INACTIVE_ICE);
-						}
-			if(xTaskGetTickType() > (state->startTicket + 5000)){
-				//TODO überprüfen ob 5000 Ticks korrekt sind
-				//TODO Fehler werfen
-			}
-			state->ptrGeneralState->modules_finished[6]=0;
-			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			list_head(state->drinkList,state->currentNode,FALSE);
-			if((input.Ice.weight < state->currentNode->ingredient.amount) && state->glassInStation && (state->currentNode->ingredient.bottleID == 1)){
-				output->Ice.motor = 1;
-				break;
-			}
-			if((input.Ice.weight < state->currentNode->ingredient.amount) && state->glassInStation && (state->currentNode->ingredient.bottleID == -1)){
-				output->Ice.motor = -1;
-				break;
-			}
-			else{
-				list_head(state->drinkList,state->currentNode,TRUE);
-				if(state->currentNode->ingredient.lastInstruction == TRUE){
-				vSwitchStateIce(state,FINISHED_ICE);
-				}
-			}
-			break;
-
-		case FINISHED_ICE:
-			if(vCheckForGeneralErrors(input)!= -1){
-							vSwitchStatePump(state, INACTIVE_ICE);
-						}
-
-			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			state->ptrGeneralState->modules_finished[6]=1;
-			if(input.Ice.weight == 0){
-				vSwitchStateIce(state, ACTIVE_ICE);
-			}
-
-			break;
-
-
 
 		}
+		break;
+
+	/**
+	 * Das Modul arbeitet und füllt Eis in das Glas
+	 */
+	case FILL_ICE:
+		if(xTaskGetTickCount() > (state->startTicket + TIMEOUT_ICE_FILL)){
+			//TODO Fehler werfen
+		}
+		state->ptrGeneralState->modules_finished[6]=0;
+		DPRINTF("Ice in State %d\n", state->state);
+		list_head(&state->drinkList,&state->currentNode,FALSE);
+
+		//Beginne, Eis zu fördern
+		if((input.Ice.weight - GLASS_WEIGHT < state->currentNode->ingredient.amount) && state->glassInStation && (state->currentNode->ingredient.bottleID == 0)){
+			output->Ice.motor = 90;
+			break;
+		}
+		else if((input.Ice.weight - GLASS_WEIGHT < state->currentNode->ingredient.amount) && state->glassInStation && (state->currentNode->ingredient.bottleID == 1)){
+			output->Ice.motor = -90;
+			break;
+		}
+		else{
+			//Stoppe Motor
+			output->Ice.motor = 0;
+			if(state->currentNode->ingredient.lastInstruction == TRUE){
+				list_head(&state->drinkList, &state->currentNode, TRUE);
+				vSwitchStateIce(state,FINISHED_ICE);
+			}
+			else
+			{
+				list_head(&state->drinkList, &state->currentNode, TRUE);
+			}
+		}
+		break;
+
+	/**
+	 * Das Befüllen wurde abgeschlossen
+	 * Das erfolgreiche Abschließen wird an das System gemeldet.
+	 * Das Modul bleibt in diesem Zustand, bis das Glas nicht mehr im Modul ist
+	 */
+	case FINISHED_ICE:
+		output->Ice.motor = 0;
+
+		DPRINTF("Ice in State %d\n", state->state);
+		state->ptrGeneralState->modules_finished[6]=1;
+		if(input.Ice.weight < GLASS_WEIGHT * 0.75){
+			vSwitchStateIce(state, ACTIVE_ICE);
+		}
+
+		break;
 	
-		return;
+	default:
+		DPRINTF("%s\n", "Here");
+	}
+
+	return;
 
 }
 
 void vSwitchStateIce(Module_State_7_Ice_t* state, int state_new)
 {
 	//Hier kommt alles rein, was bei jedem(!) Zustandswechsel passieren soll
-	DPRINT_MESSAGE("Switching states from State %d to State %d\r\n", state->state, state_new);
+	DPRINTF("Switching states from State %d to State %d\r\n", state->state, state_new);
 	
 	//Das hier sollte passieren, sonst wird der Zustand nicht gewechselt
 	state->state = state_new;
@@ -194,8 +214,7 @@ void vSwitchStateIce(Module_State_7_Ice_t* state, int state_new)
 /* besitzen, damit vEvaluate nicht zu aufgeblasen wird					 */
 /*****************************************************************/
 
-//vHilfsfuntion1() {  }
-//vHilfsfuntion2() {  }
+
 
 
 

@@ -28,8 +28,7 @@ void vInit_Module_4_Pouring(Module_State_4_Pouring_t* state, State_General_t* pt
 	state->state = REFERENCE_POUR;
 	state->ptrGeneralState = ptrGeneralState;
 	//list_new(input.Pouring.drinkList, sizeof(int[4]));
-	state->currentNode = NULL;
-	list_new(state->drinkList);
+	list_new(&state->drinkList);
 
 	// Hier knen jetzt noch - falls nig - Startwerte f�r die anderen Zustandsvariablen gegeben werden
 }
@@ -109,13 +108,13 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 			}
 			break;
 		case GLASS_IN_STATION_POUR:
-			list_head(state->drinkList, state->currentNode, FALSE);
-			if (state->currentNode == NULL && input.Pouring.weight < EMPTY_WEIGHT) {
+			list_head(&state->drinkList, &state->currentNode, FALSE);
+			if (&state->currentNode == NULL && input.Pouring.weight < EMPTY_WEIGHT) {
 				vSwitchStatePour(state, ACTIVE_POUR);
 				break;
 			}
 			//Preventing NullPointer Exception
-			if (state->currentNode != NULL) {
+			if (&state->currentNode != NULL) {
 				if (state->currentNode->ingredient.bottleID == 0 && input.Pouring.weight == 0) {
 					vSwitchStatePour(state, ACTIVE_POUR);
 					break;
@@ -142,7 +141,7 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 			if (input.Pouring.weight >= state->drinkWeight + state->currentNode->ingredient.amount + FILL_ERROR && input.Pouring.position_up == 1) {
 				state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
 				output->Pouring.motor = 0;
-				list_head(state->drinkList, state->currentNode, TRUE);
+				list_head(&state->drinkList, &state->currentNode, TRUE);
 				vSwitchStatePour(state, ACTIVE_POUR);
 				break;
 			}

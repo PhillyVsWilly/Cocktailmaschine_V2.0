@@ -3,12 +3,15 @@
 #include <assert.h>
 
 #include "Linked_List.h"
+#include "FreeRTOS.h"
+
+#include "main.h"
 
 void list_new(linked_list *list)
 {
 
   list->logicalLength = 0;
-  //list->elementSize = NODE_SIZE;
+  //list->elementSize = sizeof(ingredient_t);
   list->head = list->tail = NULL;
 }
 
@@ -25,9 +28,9 @@ void list_destroy(linked_list *list)
 
 void list_prepend(linked_list *list, ingredient_t ingredient)
 {
-  listNode *node = malloc(sizeof(listNode) + sizeof(void*));
-  node->next = malloc(sizeof(void*));
-  node->ingredient = ingredient;
+
+	  listNode *node = (listNode*)pvPortMalloc(sizeof(listNode) + sizeof(void*));
+	  node->ingredient = ingredient;
 
   node->next = list->head;
   list->head = node;
@@ -40,23 +43,25 @@ void list_prepend(linked_list *list, ingredient_t ingredient)
   list->logicalLength++;
 }
 
-void list_append(linked_list *list, ingredient_t ingredient)
+listNode* list_append(linked_list *list, ingredient_t ingredient)
 {
-  listNode *node = malloc(sizeof(listNode) + sizeof(void*));
-  node->next = malloc(sizeof(void*));
+  listNode *node = (listNode*)pvPortMalloc(sizeof(listNode) + sizeof(void*));
   node->ingredient = ingredient;
 
   node->next = NULL;
 
 
   if(list->logicalLength == 0) {
-    list->head = list->tail = node;
+    list->head = node;
+    list->tail = node;
   } else {
     list->tail->next = node;
     list->tail = node;
   }
 
   list->logicalLength++;
+
+  return node;
 }
 
 void list_for_each(linked_list *list, listIterator iterator)
@@ -71,19 +76,18 @@ void list_for_each(linked_list *list, listIterator iterator)
   }
 }
 
-void list_head(linked_list *list, listNode *currentNode, listbool removeFromList)
+void list_head(linked_list *list, listNode **currentNode, listbool removeFromList)
 {
   if (list->head == NULL) {
 	  return;
   }
 
-  currentNode = list->head;
+  *currentNode = list->head;
 
   if(removeFromList) {
-    list->head = currentNode->next;
+    list->head = (*currentNode)->next;
     list->logicalLength--;
-    free(currentNode->next);
-    free(currentNode);
+    vPortFree(*currentNode);
   }
 }
 

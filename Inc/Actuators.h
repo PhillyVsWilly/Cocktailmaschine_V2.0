@@ -44,7 +44,7 @@ typedef struct {
 
 //Muss noch Hardwaremaessig umgesetzt werden, hier als Platzhalter fuer was wir brauchen
 typedef struct {
-	uint_8 motor;
+	int motor;
 	float motorAngle; //Winkelmesser am Motor zum feststellen ob er sich dreht oder feststeckt
 	int pwm;
 }Ice_t;
@@ -73,6 +73,6 @@ void vModule_1_ActuatorValues(Transport_t*);
 void vModule_2_ActuatorValues(Gravity_t*);
 void vModule_3_ActuatorValues(Pumping_t*);
 void vModule_4_ActuatorValues(Pouring_t*);
-void vModule_5_ActuatorValues(Ice_t*);
+void vModule_7_ActuatorValues(Ice_t*);
 
 #endif
