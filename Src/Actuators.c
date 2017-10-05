@@ -16,8 +16,8 @@ extern TIM_HandleTypeDef htim2, htim3, htim4;
 #define PUMPING_CHOOSER_RAMP_DOWN -1
 #define PUMPING_PUMP_RAMP_UP 1
 #define PUMPING_PUMP_RAMP_DOWN -1
-#define POURING_RAMP_UP 1
-#define POURING_RAMP_DOWN -1
+#define POURING_RAMP_UP 10
+#define POURING_RAMP_DOWN -40
 #define ICE_RAMP_UP 100
 #define ICE_RAMP_DOWN -100
 

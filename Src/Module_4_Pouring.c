@@ -84,7 +84,7 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 		case REFERENCE_POUR:
 			//Fahre den Motor so lange hoch, bis der Positionstaster für die obere Endlage gedrückt wurde
 			if (!(input.Pouring.position_up == BTN_PRESSED)) {
-				output->Pouring.motor = 1;
+				output->Pouring.motor = 40;
 			} else if (input.Pouring.position_up == BTN_PRESSED) {
 				output->Pouring.motor = 0;
 				vSwitchStatePour(state, ACTIVE_POUR);
@@ -95,7 +95,6 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 			state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
 			list_head(&state->drinkList, &state->currentNode, FALSE);
 
-			printf("%d\n",(int)state->currentNode->ingredient.amount);
 			if(state->currentNode != NULL)
 			{
 				if (input.Pouring.weight > EMPTY_WEIGHT_THRESH && state->currentNode->ingredient.amount > 0) {
@@ -135,6 +134,9 @@ void vEvaluate_Module_4_Pouring(InputValues_t input, Module_State_4_Pouring_t* s
 		case FINISHED_POUR:
 			output->Pouring.motor=0;
 			if(input.Pouring.weight < EMPTY_WEIGHT_THRESH - 10)
+			{
+				vSwitchStatePour(state, ACTIVE_POUR);
+			}
 		default:
 			break;
 		}
