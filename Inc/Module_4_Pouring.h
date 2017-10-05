@@ -7,7 +7,7 @@
 
 /**ÄNDERN: Zustande aus Ablaufdiagramm**/
 //REFERENCE ist der Zustand der Referenzfahrt und darf nicht herausgenommen werden !!
-enum statesPour {REFERENCE_POUR, ACTIVE_POUR, GLASS_IN_STATION_POUR, POURING, INACTIVE_POUR};
+enum statesPour {REFERENCE_POUR, ACTIVE_POUR, POURING, INACTIVE_POUR, FINISHED_POUR};
 
 void vInit_Module_4_Pouring(Module_State_4_Pouring_t*, State_General_t*);
 void vEvaluate_Module_4_Pouring(InputValues_t, Module_State_4_Pouring_t*, OutputValues_t*);

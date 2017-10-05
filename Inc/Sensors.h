@@ -96,5 +96,9 @@ void vReadSensorValues_Module_7(InputValues_t*);
 
 void vReadAnalogPin(GPIO_TypeDef*, int);
 
+volatile uint32_t ADC1ConvertedValues[12]; //PA3-A0 // PB1--
+volatile uint32_t ADC2ConvertedValues[4]; //PC0-A1
+volatile uint32_t ADC3ConvertedValues[16]; //PF10-A5 //PF3-A3 //PC3-A2 //PF5-A4
+
 #endif 
 

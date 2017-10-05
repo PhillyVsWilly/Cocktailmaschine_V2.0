@@ -11,7 +11,7 @@
 #include "Evaluation.h"
 #include "Actuators.h"
 
-#define DPRINTF(...) printf(__VA_ARGS__)
+#define DPRINTF(...)
 
 /*#undef DEBUG_ENABLED
 #define DEBUG_ENABLED 1

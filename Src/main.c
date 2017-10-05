@@ -53,7 +53,7 @@
 /* USER CODE BEGIN Includes */
 #include "Sensors.h"
 #include "Evaluation.h"
-#include "Module_7_Ice.h"
+#include "Module_4_Pouring.h"
 #include "Module_common.h"
 #include "Actuators.h"
 
@@ -93,10 +93,6 @@ OutputValues_t Output_Storage;
 SystemState_t System_State;
 
 osThreadId mainCycleHandle;
-
-uint32_t ADC1ConvertedValues[12]; //PA3-A0 // PB1--
-uint32_t ADC2ConvertedValues[4]; //PC0-A1
-uint32_t ADC3ConvertedValues[16]; //PF10-A5 //PF3-A3 //PC3-A2 //PF5-A4
 
 extern int virtual_testenv_timer_variable;
 
@@ -193,7 +189,7 @@ int main(void)
 	  printf("ADC not ok! \r\n");
 	  return 0;
   }
-  if(HAL_ADC_Start_DMA(&hadc2, (uint32_t*)ADC2ConvertedValues,4)!= HAL_OK)
+  if(HAL_ADC_Start_DMA(&hadc2, (uint32_t*)ADC2ConvertedValues,1)!= HAL_OK)
   {
 	  printf("DMA not ok! \r\n");
 	  return 0;
@@ -203,7 +199,7 @@ int main(void)
 	  printf("ADC not ok! \r\n");
 	  return 0;
   }
-  if(HAL_ADC_Start_DMA(&hadc3, (uint32_t*)ADC3ConvertedValues,16)!= HAL_OK)
+  if(HAL_ADC_Start_DMA(&hadc3, (uint32_t*)ADC3ConvertedValues,4)!= HAL_OK)
   {
 	  printf("DMA not ok! \r\n");
 	  return 0;
@@ -231,14 +227,11 @@ int main(void)
   Timer_TestEnvHandle = osTimerCreate(osTimer(Timer_TestEnv), osTimerPeriodic, NULL);
 
   /* USER CODE BEGIN RTOS_TIMERS */
-#if MODULE_1_USE_VIRTUAL_INPUTS | MODULE_2_USE_VIRTUAL_INPUTS //TODO: Alle weiteren Module hinzufügen
-  ososTimerStart(Timer_TestEnvHandle, 200)
-#endif
   /* USER CODE END RTOS_TIMERS */
 
   /* Create the thread(s) */
   /* definition and creation of mainCycle */
-  osThreadDef(mainCycle, mainCycleStart, osPriorityNormal, 0, 128);
+  osThreadDef(mainCycle, mainCycleStart, osPriorityNormal, 0, 256);
   mainCycleHandle = osThreadCreate(osThread(mainCycle), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -725,7 +718,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOB, LD1_Pin|LD3_Pin|LD2_Pin|GPIO_PIN_8, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOE, GPIO_PIN_9|GPIO_PIN_11|GPIO_PIN_13|GPIO_PIN_14 
@@ -788,8 +781,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PF14 PF15 */
-  GPIO_InitStruct.Pin = GPIO_PIN_14|GPIO_PIN_15;
+  /*Configure GPIO pins : PF12 PF13 PF14 PF15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -880,8 +873,9 @@ void mainCycleStart(void const * argument)
 
 	int led_on = 0;
 
-	vInit_Module_common(&System_State);
-	vInit_Module_7_Ice(&(System_State.Ice), &(System_State.General));
+	//Initialisierung
+	vInitModules(&System_State);
+
 
 
 	ingredient_t testDrink1;
@@ -894,9 +888,7 @@ void mainCycleStart(void const * argument)
 	testDrink2.bottleID = 0;
 	testDrink2.lastInstruction = TRUE;
 
-
-	printf("%x\n",(int)list_append(&System_State.Ice.drinkList, testDrink1));
-	printf("%x\n",(int)list_append(&System_State.Ice.drinkList, testDrink2));
+	list_append(&System_State.Pouring.drinkList, testDrink2);
 
   while(1)
   {
@@ -917,7 +909,7 @@ void mainCycleStart(void const * argument)
 	  vReadSensorValues(&Input_Storage);
 
 	  //Calculate Output
-	  vEvaluate_Module_7_Ice(Input_Storage, &(System_State.Ice), &(Output_Storage));
+	  vEvaluate_Module_4_Pouring(Input_Storage, &(System_State.Pouring), &(Output_Storage));
 	  //vEvaluate(Input_Storage, &System_State, &Output_Storage);
 
 	  //Set output

@@ -9,22 +9,22 @@ typedef unsigned char uint_8;
 
 
 typedef struct {
-	uint_8 move_baum;
-	uint_8 move_platform;
+	int move_baum;
+	int move_platform;
 	int pwm_baum;
 	int pwm_platform;
 }Gravity_t;
 
 typedef struct {
-	uint_8 choose_motor;
-	uint_8 pump;
+	int choose_motor;
+	int pump;
 	bool signal_sensor; // Wenn Ursprung erreicht, Signal an Sensor pos_start.
 	int pwm_choose;
 	int pwm_pump;
 }Pumping_t;
 
 typedef struct {
-	uint_8 motor;
+	int motor;
 	bool signal_sensor; // Wenn Ursprung erreicht, Signal an Sensor pos_start.
 	int pwm;
 }Pouring_t;
@@ -32,7 +32,7 @@ typedef struct {
 
 //Muss noch Hardwaremaessig umgesetzt werden, hier als Platzhalter fuer was wir brauchen
 typedef struct {
-	uint_8 motor;
+	int motor;
 	bool fullStop; //bool indicating transportation should do a full stop
 	bool startUp; //bool indicating transportation should start up
 	bool windDown; //bool indicating transportation should wind down
