@@ -2,6 +2,7 @@
 #include "Module_1_Transportation.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "project_conf.h"
 
 #include "Sensors.h"
 #include "Evaluation.h"
@@ -11,8 +12,7 @@
 #define DEBUG_ENABLED 1
 #include "Debug.h"
 
-
-#define MODULE_NUMBER 1
+#define MODULE_NUMBER MODULE_ID_TRANSPORT
 
 
 /** @brief Initialisierung des Teilmoduls
@@ -22,7 +22,7 @@
 **/
 void vInit_Module_1_Transport(Module_State_1_Transportation_t* state, State_General_t* ptrGeneralState)
 {
-	//Nicht ändern, muss so sein!
+	//Nicht ndern, muss so sein!
 	state->state = REFERENCE_TRANS;
 	state->ptrGeneralState = ptrGeneralState;
 	state->startTicket = 0;
@@ -35,7 +35,7 @@ void vInit_Module_1_Transport(Module_State_1_Transportation_t* state, State_Gene
 }
 
 /** @brief Prüfe nach allgmeinen Fehlern
- *Diese Funktion muss bei jedem Zyklus ausgeführt werden. In ihr werden Systemzustände überprüft, die unabhängig vom
+ *Diese Funktion muss bei jedem Zyklus ausgeführt werden. In ihr werden Systemzustnde überprüft, die unabhngig vom
  *Ablauf des Systems sind.
  *Bsp: Beim Transportmodul: Keine Hand in der Maschine
  *Beim Eis: Überlaufbecken nicht voll
@@ -44,31 +44,22 @@ void vInit_Module_1_Transport(Module_State_1_Transportation_t* state, State_Gene
 static int vCheckForGeneralErrors(InputValues_t input)
 {
 
-	if(input.Module_x_Name.placeholder > 10.0)
-	{
-		//ThrowError ist die zentrale "Fehlerverwaltung". An sie werden alle Fehler übergeben, die geworfen werden sollen
-		ThrowError(MODULE_NUMBER, MOTOR1_NOT_MOVING);
 
-		//Gibt den aktuell geworfenen Fehler aus
-		return MOTOR1_NOT_MOVING;
-	}
-
-	return -1;
 }
 
 /** @brief Zentrale Ablaufsteuerung des Moduls
  *
  * Dieses Modul wird in jedem Zyklus aufgerufen und steuert das Modul
  * In ihr wird zuerst vCheckForErrors aufgerufen um zuerst nach allgemeinen Fehlern zu suchen
- * Danach wird in Abhängigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
+ * Danach wird in Abhngigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
  * oder mehrere bestimmte Aktionen ausgeführt und deren Verlaufüberwacht
- * Hier knen �ber ThrowError() auch weitere Fehler geworfen werden.
- * Soll der Modulzustand gewechselt werden, wird die vSwitchStateTrans() Funktion benutzt. Diese pr�ft die generelle Zulässigkeit
+ * Hier können über ThrowError() auch weitere Fehler geworfen werden.
+ * Soll der Modulzustand gewechselt werden, wird die vSwitchStateTrans() Funktion benutzt. Diese prüft die generelle Zulssigkeit
  * (falls nötig) des Zustandswechsels und schreibt einen Debug-Print.
  **/
 void vEvaluate_Module_1_Transportation(InputValues_t input, Module_State_1_Transportation_t* state, OutputValues_t* output)
 {
-	//Ändern des Status auf Basis des Gesamtmaschinenzustand
+	//ndern des Status auf Basis des Gesamtmaschinenzustand
 		if (state->ptrGeneralState->operation_mode == stop)
 		{
 			vSwitchStateTrans(state, INACTIVE_TRANS);
@@ -152,6 +143,7 @@ void vSwitchStateTrans(Module_State_1_Transportation_t* state, int state_new)
 
 	//Das hier sollte passieren, sonst wird der Zustand nicht gewechselt
 	state->state = state_new;
+	state->startTicket = xTaskGetTickCount();
 
 	return;
 }

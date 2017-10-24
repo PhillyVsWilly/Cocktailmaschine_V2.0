@@ -179,7 +179,6 @@ void updateVirtualInput_Module_5(InputValues_t* input)
 
 void updateVirtualInput_Module_6(InputValues_t* input)
 {
-//TODO
 
 }
 

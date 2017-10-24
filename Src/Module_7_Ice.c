@@ -66,6 +66,8 @@ static void vCheckForGeneralErrors(InputValues_t input)
 			ClearWarning(MODULE_NUMBER, ICE_2_EMPTY);
 		}
 
+	//TODO Timeout: Wenn kein Gewicht hinzu kommt und eine Warnung wegen kein Eis kommt: Error
+
 }
 
 /** @brief Zentrale Ablaufsteuerung des Moduls

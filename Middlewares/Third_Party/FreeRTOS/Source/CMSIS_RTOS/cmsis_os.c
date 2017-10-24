@@ -903,7 +903,7 @@ osStatus osSemaphoreDelete (osSemaphoreId semaphore_id)
 
 #if (defined (osFeature_Pool)  &&  (osFeature_Pool != 0)) 
 
-//TODO
+
 //This is a primitive and inefficient wrapper around the existing FreeRTOS memory management.
 //A better implementation will have to modify heap_x.c!
 

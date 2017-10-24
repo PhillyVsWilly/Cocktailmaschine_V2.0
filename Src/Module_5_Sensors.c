@@ -5,6 +5,7 @@
 #include "Sensors.h"
 #include "Evaluation.h"
 #include "Actuators.h"
+#include "project_conf.h"
 
 #undef DEBUG_ENABLED
 #define DEBUG_ENABLED 1
@@ -13,17 +14,17 @@
 //Hier steht die Modulnummer. Sie wird im Code nicht hart gecodet, sondern nur hier eingetragen
 //Im Code wird sie dann mit dem Namen MODULE_NUMBER verwendet
 #define MODULE_NUMBER 5
-#define WAIT_TIME 250
+#define START_END_GLASS_PRESENT_WAIT 250
 
 
 /** @brief Initialisierung des Teilmoduls
  *
- * Hier werden die Anfangswerte der Zust舅de und der Variablen eingestellt. Die Funktion wird nur ein einziges
- * Mal beim Systemstart ausgef�hrt
+ * Hier werden die Anfangswerte der Zustände und der Variablen eingestellt. Die Funktion wird nur ein einziges
+ * Mal beim Systemstart ausgeführt
 **/
 void vInit_Module_5_Sensors(Module_State_5_Sensors_t* state, State_General_t* ptrGeneralState)
 {
-	//Nicht 舅dern, muss so sein!
+	//Nicht ändern, muss so sein!
 	state->state = REFERENCE_SENS;
 	state->ptrGeneralState = ptrGeneralState;
 	state->glassCount = 0;
@@ -31,72 +32,73 @@ void vInit_Module_5_Sensors(Module_State_5_Sensors_t* state, State_General_t* pt
 	state->lightBarrierEnd = 0;
 	state->startTicket = 0;
 
-	// Hier knen jetzt noch - falls nig - Startwerte f�r die anderen Zustandsvariablen gegeben werden
+	// Hier knen jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
 }
 
-/** @brief Pr�fe nach allgmeinen Fehlern
- *Diese Funktion muss bei jedem Zyklus ausgef�hrt werden. In ihr werden Systemzust舅de �berpr�ft, die unabh舅gig vom
+/** @brief Prüfe nach allgmeinen Fehlern
+ *Diese Funktion muss bei jedem Zyklus ausgeführt werden. In ihr werden Systemzustände überprüft, die unabhängig vom
  *Ablauf des Systems sind.
  *Bsp: Beim Transportmodul: Keine Hand in der Maschine
  *Beim Eis: ﾜberlaufbecken nicht voll
- *Deshalb wird ihr auch nicht der Systemzustand �bergeben
+ *Deshalb wird ihr auch nicht der Systemzustand übergeben
  **/
-int vCheckForGeneralErrorsSens(InputValues_t input)
+void vCheckForGeneralErrorsSens(InputValues_t input)
 {
 	
-	if(input.Module_x_Name.placeholder > 10.0)
+	if(input.Sensors.end_doors_open || input.Sensors.start_doors_open)
 	{
-		//ThrowError ist die zentrale "Fehlerverwaltung". An sie werden alle Fehler �bergeben, die geworfen werden sollen
-		ThrowError(MODULE_NUMBER, MOTOR1_NOT_MOVING);
-
-		//Gibt den aktuell geworfenen Fehler aus
-		return MOTOR1_NOT_MOVING;
+		ThrowError(MODULE_NUMBER, DOOR_OPEN);
 	}
-
-	return -1;
 }
 	
 /** @brief Zentrale Ablaufsteuerung des Moduls
  *
  * Dieses Modul wird in jedem Zyklus aufgerufen und steuert das Modul
  * In ihr wird zuerst vCheckForErrors aufgerufen um zuerst nach allgemeinen Fehlern zu suchen
- * Danach wird in Abh舅gigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
- * oder mehrere bestimmte Aktionen ausgef�hrt und deren Verlauf �berwacht
- * Hier knen �ber ThrowError() auch weitere Fehler geworfen werden.
- * Soll der Modulzustand gewechselt werden, wird die vSwitchState() Funktion benutzt. Diese pr�ft die generelle Zul舖sigkeit
- * (falls nig) des Zustandswechsels und schreibt einen Debug-Print.
+ * Danach wird in Abhängigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
+ * oder mehrere bestimmte Aktionen ausgeführt und deren Verlauf überwacht
+ * Hier knen über ThrowError() auch weitere Fehler geworfen werden.
+ * Soll der Modulzustand gewechselt werden, wird die vSwitchState() Funktion benutzt. Diese prüft die generelle Zul舖sigkeit
+ * (falls nötig) des Zustandswechsels und schreibt einen Debug-Print.
  **/
 void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* state, OutputValues_t* output)
 {
-	//ﾄndern des Status auf Basis des Gesamtmaschinenzustand
+	//Ändern des Status auf Basis des Gesamtmaschinenzustand
 	if (state->ptrGeneralState->operation_mode == stop)
 	{
 		vSwitchStateSens(state, STOP_SENS);
 	}
+
+	if(state->ptrGeneralState->ErrFlags[MODULE_NUMBER-1] != 0)
+	{
+		vSwitchStateSens(state, STOP_SENS);
+	}
+
+
 	if (state->glassCount < state->ptrGeneralState->glassCount) {
 		vSwitchStateSens(state,NEW_GLAS);
 		state->startTicket = xTaskGetTickCount();
 		state->ptrGeneralState->modules_finished[MODULE_NUMBER -1] = 0;
 	}
 	
-	//Ausf�hren von Funktionen basierend auf dem Zustand
+	//Ausführen von Funktionen basierend auf dem Zustand
 	switch (state->state){
 		case STOP_SENS:
-		if (safetyCheck(input)) {
-			state->ptrGeneralState->operation_mode = startup;
+		if (!(state->ptrGeneralState->operation_mode == stop) &&
+				!(state->ptrGeneralState->ErrFlags[MODULE_NUMBER-1] != 0)) {
+			//state->ptrGeneralState->operation_mode = startup;
 		}
 		break;
 		case GLAS_AT_END:
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			if (safetyCheck(input) && input.Sensors.end_button_glass_present == FALSE) {
+			if (input.Sensors.end_button_glass_present == FALSE) {
 				vSwitchStateSens(state, ACTIVE_SENS);
 				state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
 				break;
 		case REFERENCE_SENS:
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			state->ptrGeneralState->operation_mode = startup;
 			state->ptrGeneralState->modules_finished[MODULE_NUMBER -1] = 1;
 			vSwitchStateSens(state, ACTIVE_SENS);
 			break;
@@ -104,8 +106,13 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 			//Do something
 			DPRINT_MESSAGE("I'm in State %d\n", state->state);
 			if (input.Sensors.end_button_glass_present == TRUE) {
-				vSwitchState(state, GLAS_AT_END);
-				state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 0;
+				state->glass_at_end = TRUE;
+			} else {
+				state->glass_at_end = FALSE;
+			}
+
+			if (TRUE)
+
 				break;
 			}
 			break;
@@ -116,7 +123,7 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 			if (input.Sensors.start_light_barrier == FALSE && state->lightBarrierStart != 0) {
 				state->lightBarrierEnd = xTaskGetTickCount();
 			}
-			if (state->startTicket + 5000 >= xTaskGetTickCount() && state->lightBarrierEnd >= state->lightBarrierStart + WAIT_TIME) {
+			if (state->startTicket + 5000 >= xTaskGetTickCount() && state->lightBarrierEnd >= state->lightBarrierStart + START_END_GLASS_PRESENT_WAIT) {
 				state->ptrGeneralState->modules_finished[MODULE_NUMBER -1] = 1;
 				vSwitchStateSens(state, ACTIVE_SENS);
 			}
@@ -152,7 +159,7 @@ bool safetyCheck(InputValues_t input) {
 	}
 	return TRUE;
 }
-}
+
 //vHilfsfuntion2() {  }
 
 

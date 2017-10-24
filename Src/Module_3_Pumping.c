@@ -1,5 +1,6 @@
 #include "Module_common.h"
 #include "Module_3_Pumping.h"
+#include "task.h"
 
 #undef DEBUG_ENABLED
 #define DEBUG_ENABLED 1
@@ -8,6 +9,10 @@
 //Hier steht die Modulnummer. Sie wird im Code nicht hart gecodet, sondern nur hier eingetragen
 //Im Code wird sie dann mit dem Namen MODULE_NUMBER verwendet
 #define MODULE_NUMBER 3
+
+//TODO Pumping Timeouts einstellen
+#define TIMEOUT_VALVE_ADJUSTING 5000
+#define TIMEOUT_PUMP_ACTIVE 5000
 
 
 /** @brief Initialisierung des Teilmoduls
@@ -112,14 +117,13 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 			break;
 
 		case VALVE_ADJUSTING:
-			if(xTaskGetTickType() > (state->startTicket + 5000)){
-						//TODO überprüfen ob 5000 Ticks korrekt sind
+			if(xTaskGetTickType() > (state->startTicket + TIMEOUT_VALVE_ADJUSTING)){
 						//TODO Fehler werfen
 					}
 			if(vCheckForGeneralErrors(input)!= -1){
 							vSwitchStatePump(state, INACTIVE_PUMP);
 						}
-			//TODO list_head(input.Pumping.drinkList, ls_head, FALSE);
+			list_head(&state->drinkList, &state->currentNode, FALSE);
 			if(input.Pumping.valve_position < state->currentNode->ingredient.bottleID && !state->valveInTransit ){
 				output -> Pumping.choose_motor = 1;
 				state->valveInTransit = TRUE;
@@ -134,8 +138,7 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 				vSwitchStatePump(state, PUMP_ACTIVE);
 			}
 		case PUMP_ACTIVE:
-			if(xTaskGetTickType() > (state->startTicket + 5000)){
-						//TODO überprüfen ob 5000 Ticks korrekt sind
+			if(xTaskGetTickType() > (state->startTicket + TIMEOUT_PUMP_ACTIVE)){
 						//TODO Fehler werfen
 					}
 			if(vCheckForGeneralErrors(input)!= -1){

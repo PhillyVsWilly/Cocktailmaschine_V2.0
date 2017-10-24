@@ -29,7 +29,6 @@ void vEvaluate_Module_6_Handling(InputValues_t input, Module_State_6_Handling_t*
 void init_drink_lists()
 {
 	/*
-	 * TODO Olaf
 	 * Bitte hier die Drinklisten mit leeren Einträgen in folgender Reihenfolge vorinitialisieren:
 	 * Eis: 1 Leerplatz
 	 * Schwerkraft: 2 Leerplätze
@@ -63,7 +62,7 @@ void init_drink_lists()
 
 void packet_handler(char* ptr_packet_stack, int len_packet_stack)
 {
-	//TODO Olaf: packet handler
+	//packet handler
 	/*Diese Funktion wird vom TCP-Prozess ausgefÃ¼hrt, wenn ein (oder mehrere) neue Pakete angekommen ist/sind.
 	*Die Funktion bekommt einen Pointer auf den Beginn des ersten Pakets und die GrÃ¶ÃŸe aller Pakete (also z.B. 150, wenn
 	*3 Pakete Ã  50 Byte angekommen sind).
@@ -99,8 +98,7 @@ void packet_handler(char* ptr_packet_stack, int len_packet_stack)
 
 void packet_handler_type_1(char* ptr_packet)
 {
-	//TODO Olaf
-	/*
+   /*
 	* Diese Funktion behandelt die Pakete vom Pakettyp 1
 	* 1. Loope durch die 48 Byte (ab Byte 3 bis Byte 50) und lies die 12 Zutaten aus. Falls keine 12 Zutaten definiert sind,
 	* sind die restlichen Bytes = 0.
@@ -242,11 +240,8 @@ void packet_handler_type_1(char* ptr_packet)
 
 void packet_handler_type_2()
 {
-	//TODO Olaf
-	/*
-	* Checke, wie du die Anzahl der aktuell in Bearbeitung und ausstehenden Cocktails aus den Trink-Listen auslesen kannst
-	*
-	*/
+
+
 
 	//	ptr_system_state->Pumping.drink_list
 
@@ -285,29 +280,22 @@ void packet_handler_type_2()
 		anzahl_inBearbeitung++;
 	}
 
-
-	// TODO Philipp->Olaf : Wie sollen diese Infos ausgegeben werden?
-
-
-
-	//SchnÃ¼ren des Pakets (musst du nicht mehr verÃ¤ndern)
+	//Schnüren des Pakets (musst du nicht mehr verÃ¤ndern)
 	char* ptr_packet;
 	ptr_packet = (char*)malloc(2 + 2 * sizeof(int));
 	*(ptr_packet + 2) = anzahl_inBearbeitung;
 	*(ptr_packet + 2 + sizeof(int)) = anzahl_ausstehend[0];
 
-	//TODO Philipp
-	//packet an TCP weitergeben
+	//TODO packet an TCP weitergeben
 }
 
 void packet_handler_type_5()
 {
-	//TODO Olaf
-	//Diese Pakete enthalten einen gewÃ¼nschten Systemzustand.
-	//Diesen kannst du mehr oder weniger (einfach bei allem mal kurz drÃ¼ber nachdenken, wann wir es nicht machen sollten)
-	//in system_state->General.operation_mode Ã¼bernehmen.
-
-	// TODO Philipp->Olaf Eine Weiterleitung des Systemzustand-Befehls ist derzeit nicht an die einzelnen Module möglich, nur als General State, richtig?
+	//TODO packet handler type 5
+	//Diese Pakete enthalten einen gewünschten Systemzustand.
+	//Diesen kannst du mehr oder weniger (einfach bei allem mal kurz drüber nachdenken, wann wir es nicht machen sollten)
+	//in system_state->General.operation_mode übernehmen.
+	// Philipp->Olaf Eine Weiterleitung des Systemzustand-Befehls ist derzeit nicht an die einzelnen Module möglich, nur als General State, richtig?
 	// Würde es nicht auch Sinn machen, dass die Module einzeln Hinweise bekommen oder ist das nicht notwendig?
 	// Jeder Ausfall eines Moduls führt zu einem Stopp der gesamten Anlage. Außer man untersucht jeden einzelnen Cocktail danach, ob das aussetzende Modul dafür überhaupt benötigt wird.
 

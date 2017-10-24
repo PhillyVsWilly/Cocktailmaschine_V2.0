@@ -888,6 +888,7 @@ void mainCycleStart(void const * argument)
 	testDrink2.bottleID = 0;
 	testDrink2.lastInstruction = TRUE;
 
+	list_append(&System_State.Pouring.drinkList, testDrink1);
 	list_append(&System_State.Pouring.drinkList, testDrink2);
 
   while(1)

@@ -153,7 +153,7 @@ void vPrintReadSensorValues(InputValues_t input)
 			(int)roundf(input.Gravity.weight_sensor), input.Gravity.doors_open, input.Gravity.sensor_up,
 			input.Gravity.sensor_down, input.Gravity.button_fill_in);
 	printf("Pump Modul: \nDoor Open: %d\nValve Position: %d\nWeightGlass: %d\n",
-			input.Pumping.doors_open, input.Pumping.valve_position, (int)roundf(input.Pumping.weight_glass));*/
+			input.Pumping.doors_open, input.Pumping.valve_position, (int)roundf(input.Pumping.weight_glass));
 	printf("Pouring Modul: \nDoor Open: %d\nPosition Up: %d\nPosition Down: %d\nWeight: %d\n",
 			input.Pouring.doors_open, input.Pouring.position_up, input.Pouring.position_down,
 			(int)roundf(input.Pouring.weight));
@@ -161,7 +161,7 @@ void vPrintReadSensorValues(InputValues_t input)
 			input.Sensors.start_doors_open, input.Sensors.start_light_barrier, input.Sensors.end_doors_open,
 			input.Sensors.end_light_barrier, input.Sensors.end_button_glass_present);
 	printf("Handling: Leer\n");
-	printf("Gewicht Modul: \nWeight: %d\nDoor open: %d\nLight Barrier enough cube ice: %d\nLight Barrier enough crushed ice: %d\n",
+	printf("Eis Modul: \nWeight: %d\nDoor open: %d\nLight Barrier enough cube ice: %d\nLight Barrier enough crushed ice: %d\n",
 			(int)roundf(input.Ice.weight), input.Ice.doors_open,
 			input.Ice.light_barrier_enough_cube_ice, input.Ice.light_barrier_enough_crushed_ice);*/
 

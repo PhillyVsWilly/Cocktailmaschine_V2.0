@@ -38,10 +38,6 @@ int getPWMValue(int, int, int, int);
 void setPWM(int, uint16_t);
 
 
-/*
- * TODO Benedikt: Hier bitte deine Hilfsvariablen (speichern alter Werte ...)
- */
-
 
 void vInitActuatorValues(OutputValues_t* output_values)
 {

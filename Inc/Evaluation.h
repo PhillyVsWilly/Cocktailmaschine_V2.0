@@ -74,6 +74,8 @@ typedef struct{
 	int state;
 	int glassCount;
 	int modules_finished[7]; //Contains modules signals
+	bool new_glass;
+	bool glass_at_end;
 	TickType_t startTicket;
 	TickType_t lightBarrierStart;
 	TickType_t lightBarrierEnd;

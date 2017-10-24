@@ -1,5 +1,6 @@
 #include "Module_common.h"
 #include "FreeRTOS.h"
+#include "project_conf.h"
 
 #include "Module_2_Gravity.h"
 #include "Evaluation.h"
@@ -22,22 +23,16 @@ void vInit_Module_2_Gravity(Module_State_2_Gravity_t* state, State_General_t* pt
 	state->currentNode = NULL;
 	state->glassInStation = FALSE;
 
-	// Hier können jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
 }
 
 static int vCheckForGeneralErrors(InputValues_t input)
 {
-
-	if(input.Module_x_Name.placeholder > 10.0) //TODO
+	if(input.Gravity.doors_open == SWITCH_OPEN)
 	{
-		//ThrowError ist die zentrale "Fehlerverwaltung". An sie werden alle Fehler übergeben, die geworfen werden sollen
-		ThrowError(MODULE_NUMBER, MOTOR1_NOT_MOVING);
-
-		//Gibt den aktuell geworfenen Fehler aus
-		return MOTOR1_NOT_MOVING;
+		ThrowError(MODULE_NUMBER, DOOR_OPEN);
 	}
 
-	return -1;
+
 }
 
 void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* state, OutputValues_t* output)
@@ -47,9 +42,12 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 			{
 				vSwitchStateGrav(state, INACTIVE_GRAV);
 			}
-			if (input.Gravity.doors_open) {
+
+			vCheckForGeneralErrors(input);
+			if(state->ptrGeneralState->ErrFlags[MODULE_NUMBER-1] != 0 ||
+					state->ptrGeneralState->CritFlags[MODULE_NUMBER-1] != 0)
+			{
 				vSwitchStateGrav(state, INACTIVE_GRAV);
-				state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 0;
 			}
 
 			//Ausführen von Funktionen basierend auf dem Zustand
@@ -57,10 +55,14 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 				case INACTIVE_GRAV:
 					output->Gravity.move_baum = 0;
 					output->Gravity.move_platform = 0;
-					if (state->ptrGeneralState->operation_mode != stop) {
+
+					if (state->ptrGeneralState->operation_mode != stop &&
+							state->ptrGeneralState->ErrFlags[MODULE_NUMBER-1] == 0 &&
+							state->ptrGeneralState->CritFlags[MODULE_NUMBER-1] == 0){
 						vSwitchStateGrav(state, REFERENCE_GRAV);
 					}
 					break;
+
 				case REFERENCE_GRAV:
 					//Drives everything to its reference point
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
@@ -69,7 +71,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 						vSwitchStateGrav(state, IDLE_GRAV);
 						state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
 					} else {
-						output->Gravity.move_platform = -1; //Plattform soll herunterfahren
+						output->Gravity.move_platform = -5; //Plattform soll herunterfahren
 					}
 					break;
 				case IDLE_GRAV:
@@ -83,7 +85,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					}
 					list_head(&state->drinkList, &state->currentNode, FALSE);
 					if (state-> currentNode != NULL) {
-						if (state->currentNode->ingredient.bottleID != 0) {
+						if (state->currentNode->ingredient.bottleID != -1) {
 							vSwitchStateGrav(state, MOVING_TREE);
 							break;
 						}
@@ -93,7 +95,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 				case MOVING_TREE: //Moving the Tree to the next position
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
 					if (input.Gravity.position_tree != state->currentNode->ingredient.bottleID) {
-					output->Gravity.move_baum = 1; //TODO Wert bestimmen zum bewegen
+					output->Gravity.move_baum = 1; //TODO Motorgeschwindigkeit einstellen
 					}
 					if (input.Gravity.position_tree == state->currentNode->ingredient.bottleID) {
 						output->Gravity.move_baum = 0;
@@ -152,13 +154,13 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 				case MOVE_PLATTFORM:
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
 					if (input.Gravity.sensor_down == TRUE) {
-						output->Gravity.move_platform = 1; //TODO Wert
+						output->Gravity.move_platform = 1; //TODO Motorgeschwindigkeit einstellen
 					}
 					if (input.Gravity.sensor_up == TRUE && state->startTicket == 0) {
 						state->startTicket = xTaskGetTickCount();
 					}
 					if (input.Gravity.sensor_up == TRUE && state->startTicket >= xTaskGetTickCount() + 1000) {
-						output->Gravity.move_platform = -1; //TODO Wert
+						output->Gravity.move_platform = -1; //TODO Motorgeschwindigkeit einstellen
 					}
 					if (input.Gravity.sensor_down == FALSE && state->startTicket != 0) {
 						output->Gravity.move_platform = 0;
@@ -196,9 +198,3 @@ void vSwitchStateGrav(Module_State_2_Gravity_t* state, int state_new)
 /* besitzen, damit vEvaluate nicht zu aufgeblasen wird					 */
 /*****************************************************************/
 
-//Function for filling the array  with the beverages for the current drink
-//void vFillDrinkList(listNode *node) {
-//
-//}
-
-//vHilfsfuntion2() {  }

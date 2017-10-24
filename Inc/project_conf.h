@@ -40,10 +40,10 @@
 #define SINGLE_MODULE_TEST MODULE_ID_ICE
 
 //Gewichte und Faktoren
-#define FACTOR_BITS_TO_GRAMMS 10.0 //TODO Anpassen
+#define FACTOR_BITS_TO_GRAMMS 1.2 //TODO Umrechnungsfaktoren einstellen
 #define FACTOR_BITS_TO_ANGLE 360/4096
 #define FACTOR_BITS_TO_POSITION 8/4096
-#define OFFSET_WEIGHT 167
+#define OFFSET_WEIGHT 1900
 #define GLASS_WEIGHT 100
 
 //Timeouts
@@ -54,6 +54,9 @@
 #define BTN_RELEASED 1
 #define SWITCH_OPEN 1
 #define SWITCH_CLOSED 0
+
+//Zeitdauern
+#define START_END_GLASS_PRESENT_WAIT 250 //ms
 
 
 
