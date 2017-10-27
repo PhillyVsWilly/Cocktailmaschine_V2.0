@@ -88,12 +88,12 @@ void vReadSensorValues (InputValues_t* ptrInput)
 
  void vReadSensorValues_Module_2(InputValues_t* ptrInput)
 {
-	ptrInput->Gravity.weight_sensor = ADC3ConvertedValues[1] / FACTOR_BITS_TO_GRAMMS; //A4
+	ptrInput->Gravity.weight_sensor =  ((int)ADC3ConvertedValues[1] - OFFSET_WEIGHT) / FACTOR_BITS_TO_GRAMMS; //A4
 	ptrInput->Gravity.doors_open = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_3); // PE3 digital
 	ptrInput->Gravity.sensor_up = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_8); // PF8
 	ptrInput->Gravity.sensor_down = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_7); // PF7
 	ptrInput->Gravity.button_fill_in = HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_15); // PB15
-	ptrInput->Gravity.position_tree = ((int)ADC1ConvertedValues[1]) / FACTOR_BITS_TO_ANGLE; //A6 (PB1)
+	ptrInput->Gravity.position_tree = ((int)ADC1ConvertedValues[1]) / FACTOR_BITS_TO_ANGLE;//A6 (PB1)
 	
 	return;
 }
@@ -151,12 +151,12 @@ void vPrintReadSensorValues(InputValues_t input)
 	/*printf("====================\n%s\n==============\n", "Sensor Values");
 	printf("Gravity Modul: \nGravity Weight: %d\nDoor Open: %d\nSensorUp: %d\nSensorDown: %d\nButton Fill: %d\nPosition Tree: %d\n",
 			(int)roundf(input.Gravity.weight_sensor), input.Gravity.doors_open, input.Gravity.sensor_up,
-			input.Gravity.sensor_down, input.Gravity.button_fill_in);
+			input.Gravity.sensor_down, input.Gravity.button_fill_in, input.Gravity.position_tree);*/
 	printf("Pump Modul: \nDoor Open: %d\nValve Position: %d\nWeightGlass: %d\n",
 			input.Pumping.doors_open, input.Pumping.valve_position, (int)roundf(input.Pumping.weight_glass));
-	printf("Pouring Modul: \nDoor Open: %d\nPosition Up: %d\nPosition Down: %d\nWeight: %d\n",
+	/*printf("Pouring Modul: \nDoor Open: %d\nPosition Up: %d\nPosition Down: %d\nWeight: %d\n",
 			input.Pouring.doors_open, input.Pouring.position_up, input.Pouring.position_down,
-			(int)roundf(input.Pouring.weight));
+			(int)roundf(input.Pouring.weight));*/
 	/*printf("Sensor Modul: \nStart Door Open: %d\nStart Light Barrier: %d\nEnd Door Open: %d\nEnd Light Barrier: %d\nButton glass present: %d\n",
 			input.Sensors.start_doors_open, input.Sensors.start_light_barrier, input.Sensors.end_doors_open,
 			input.Sensors.end_light_barrier, input.Sensors.end_button_glass_present);

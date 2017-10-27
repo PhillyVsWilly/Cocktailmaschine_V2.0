@@ -87,7 +87,7 @@ void vEvaluate_Module_1_Transportation(InputValues_t input, Module_State_1_Trans
 				vSwitchStateTrans(state, ACTIVE_TRANS);
 				break;
 			case ACTIVE_TRANS:
-				//Do something
+
 				for (int i = 0; i < 7; i++) {
 					if(state->ptrGeneralState->safety_sensors[i] == 0) {
 						output->Transport.startUp = FALSE;

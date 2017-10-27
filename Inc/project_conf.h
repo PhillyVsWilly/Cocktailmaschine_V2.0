@@ -41,8 +41,9 @@
 
 //Gewichte und Faktoren
 #define FACTOR_BITS_TO_GRAMMS 1.2 //TODO Umrechnungsfaktoren einstellen
-#define FACTOR_BITS_TO_ANGLE 360/4096
-#define FACTOR_BITS_TO_POSITION 8/4096
+#define FACTOR_BITS_TO_ANGLE 670//360/4096
+#define OFFSET_ANGLE 100
+#define FACTOR_BITS_TO_POSITION 1 //8/4096
 #define OFFSET_WEIGHT 1900
 #define GLASS_WEIGHT 100
 

@@ -12,7 +12,7 @@
 #include "Debug.h"
 
 #define MODULE_NUMBER 2
-#define EMPTY_WEIGHT 15 //TODO Gewicht eines leeren Schlittens (muss noch gewogen werden)
+#define EMPTY_WEIGHT 100 //TODO Gewicht eines leeren Schlittens (muss noch gewogen werden)
 
 void vInit_Module_2_Gravity(Module_State_2_Gravity_t* state, State_General_t* ptrGeneralState)
 {
@@ -22,15 +22,19 @@ void vInit_Module_2_Gravity(Module_State_2_Gravity_t* state, State_General_t* pt
 	list_new(&state->drinkList);
 	state->currentNode = NULL;
 	state->glassInStation = FALSE;
+	state->ptrGeneralState->ErrFlags[MODULE_NUMBER-1] = 0;
+	state->ptrGeneralState->CritFlags[MODULE_NUMBER-1] = 0;
+	state->ptrGeneralState->WarnFlags[MODULE_NUMBER-1] = 0;
+	state->startTicket = 0;
 
 }
 
 static int vCheckForGeneralErrors(InputValues_t input)
 {
-	if(input.Gravity.doors_open == SWITCH_OPEN)
+	/*if(input.Gravity.doors_open == SWITCH_OPEN)
 	{
 		ThrowError(MODULE_NUMBER, DOOR_OPEN);
-	}
+	}*/
 
 
 }
@@ -66,7 +70,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 				case REFERENCE_GRAV:
 					//Drives everything to its reference point
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
-					if (input.Gravity.sensor_down == TRUE) {
+					if (input.Gravity.sensor_down == BTN_PRESSED) {
 						output->Gravity.move_platform = 0;
 						vSwitchStateGrav(state, IDLE_GRAV);
 						state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
@@ -84,7 +88,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 						break;
 					}
 					list_head(&state->drinkList, &state->currentNode, FALSE);
-					if (state-> currentNode != NULL) {
+					if (state-> currentNode != NULL && !state->treeInPosition && state->glassInStation) {
 						if (state->currentNode->ingredient.bottleID != -1) {
 							vSwitchStateGrav(state, MOVING_TREE);
 							break;
@@ -95,11 +99,12 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 				case MOVING_TREE: //Moving the Tree to the next position
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
 					if (input.Gravity.position_tree != state->currentNode->ingredient.bottleID) {
-					output->Gravity.move_baum = 1; //TODO Motorgeschwindigkeit einstellen
+					output->Gravity.move_baum = 5; //TODO Motorgeschwindigkeit einstellen
 					}
 					if (input.Gravity.position_tree == state->currentNode->ingredient.bottleID) {
-						output->Gravity.move_baum = 0;
+						output->Gravity.move_baum = 1;
 						state->treeInPosition = TRUE;
+						if(input.Gravity.button_fill_in == BTN_PRESSED);
 						vSwitchStateGrav(state, IDLE_GRAV);
 						break;
 					}
@@ -153,18 +158,19 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					break;
 				case MOVE_PLATTFORM:
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
-					if (input.Gravity.sensor_down == TRUE) {
+					if (!input.Gravity.sensor_up) {
 						output->Gravity.move_platform = 1; //TODO Motorgeschwindigkeit einstellen
 					}
 					if (input.Gravity.sensor_up == TRUE && state->startTicket == 0) {
 						state->startTicket = xTaskGetTickCount();
 					}
-					if (input.Gravity.sensor_up == TRUE && state->startTicket >= xTaskGetTickCount() + 1000) {
+					if (input.Gravity.sensor_up == TRUE && state->startTicket + 1000 <= xTaskGetTickCount()) {
 						output->Gravity.move_platform = -1; //TODO Motorgeschwindigkeit einstellen
 					}
 					if (input.Gravity.sensor_down == FALSE && state->startTicket != 0) {
 						output->Gravity.move_platform = 0;
 						state->currentNode->ingredient.amount--;
+						state->startTicket = 0;
 						vSwitchStateGrav(state, GLASS_IN_STATION);
 					}
 					break;

@@ -53,7 +53,7 @@
 /* USER CODE BEGIN Includes */
 #include "Sensors.h"
 #include "Evaluation.h"
-#include "Module_4_Pouring.h"
+#include "Module_2_Gravity.h"
 #include "Module_common.h"
 #include "Actuators.h"
 
@@ -64,7 +64,7 @@
 #include "task.h"
 #include "stm32f7xx_nucleo_144.h"
 
-#include "FreeRTOS_IP.h"
+
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -74,10 +74,6 @@ ADC_HandleTypeDef hadc3;
 DMA_HandleTypeDef hdma_adc1;
 DMA_HandleTypeDef hdma_adc2;
 DMA_HandleTypeDef hdma_adc3;
-
-ETH_HandleTypeDef heth;
-
-RNG_HandleTypeDef hrng;
 
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
@@ -96,15 +92,7 @@ osThreadId mainCycleHandle;
 
 extern int virtual_testenv_timer_variable;
 
-//Networking constants
-static const uint8_t ucIPAddress[ 4 ] = { 192, 168, 0, 244 };
-static const uint8_t ucNetMask[ 4 ] = { 255, 255, 255, 0 };
-const uint8_t ucMACAddress [6] = {0x00, 0x80, 0xE1, 0x00, 0x00, 0x00}; //Achtung: Diese Adress wird ein
-//zweites Mal in der Initialisierung der HAL (weiter unten) verwendet.
-static const uint8_t ucGatewayAddress[ 4 ] = { 192, 168, 0, 1 };
 
-/* The following is the address of an OpenDNS server. */
-static const uint8_t ucDNSServerAddress[ 4 ] = { 208, 67, 222, 222 };
 
 
 /* USER CODE END PV */
@@ -116,11 +104,9 @@ static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_ADC3_Init(void);
-static void MX_ETH_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_RNG_Init(void);
 void mainCycleStart(void const * argument);
 void TestEnvCallback(void const * argument);
 
@@ -167,11 +153,9 @@ int main(void)
   MX_ADC1_Init();
   MX_ADC2_Init();
   MX_ADC3_Init();
-  MX_ETH_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM2_Init();
-  MX_RNG_Init();
 
   /* USER CODE BEGIN 2 */
   if(HAL_ADC_Start(&hadc1) != HAL_OK)
@@ -206,11 +190,11 @@ int main(void)
   }
 
 
-  FreeRTOS_IPInit( ucIPAddress,
+  /*FreeRTOS_IPInit( ucIPAddress,
                    ucNetMask,
                    ucGatewayAddress,
                    ucDNSServerAddress,
-                   ucMACAddress );
+                   ucMACAddress );*/
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -267,7 +251,6 @@ void SystemClock_Config(void)
 
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
 
     /**Configure the main internal regulator output voltage 
     */
@@ -301,13 +284,6 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
-  PeriphClkInitStruct.Clk48ClockSelection = RCC_CLK48SOURCE_PLL;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -480,49 +456,6 @@ static void MX_ADC3_Init(void)
 
 }
 
-/* ETH init function */
-static void MX_ETH_Init(void)
-{
-
-   uint8_t MACAddr[6] ;
-
-  heth.Instance = ETH;
-  heth.Init.AutoNegotiation = ETH_AUTONEGOTIATION_ENABLE;
-  heth.Init.PhyAddress = LAN8742A_PHY_ADDRESS;
-  MACAddr[0] = 0x00;
-  MACAddr[1] = 0x80;
-  MACAddr[2] = 0xE1;
-  MACAddr[3] = 0x00;
-  MACAddr[4] = 0x00;
-  MACAddr[5] = 0x00;
-  heth.Init.MACAddr = &MACAddr[0];
-  heth.Init.RxMode = ETH_RXPOLLING_MODE;
-  heth.Init.ChecksumMode = ETH_CHECKSUM_BY_HARDWARE;
-  heth.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
-
-  /* USER CODE BEGIN MACADDRESS */
-    
-  /* USER CODE END MACADDRESS */
-
-  if (HAL_ETH_Init(&heth) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-}
-
-/* RNG init function */
-static void MX_RNG_Init(void)
-{
-
-  hrng.Instance = RNG;
-  if (HAL_RNG_Init(&hrng) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-}
-
 /* TIM2 init function */
 static void MX_TIM2_Init(void)
 {
@@ -688,9 +621,16 @@ static void MX_DMA_Init(void)
      PF5   ------> SharedAnalog_PF5
      PF10   ------> SharedAnalog_PF10
      PC0   ------> SharedAnalog_PC0
+     PC1   ------> ETH_MDC
      PC3   ------> SharedAnalog_PC3
+     PA1   ------> ETH_REF_CLK
+     PA2   ------> ETH_MDIO
      PA3   ------> SharedAnalog_PA3
+     PA7   ------> ETH_CRS_DV
+     PC4   ------> ETH_RXD0
+     PC5   ------> ETH_RXD1
      PB1   ------> SharedAnalog_PB1
+     PB13   ------> ETH_TXD1
      PD8   ------> USART3_TX
      PD9   ------> USART3_RX
      PA8   ------> USB_OTG_FS_SOF
@@ -698,6 +638,8 @@ static void MX_DMA_Init(void)
      PA10   ------> USB_OTG_FS_ID
      PA11   ------> USB_OTG_FS_DM
      PA12   ------> USB_OTG_FS_DP
+     PG11   ------> ETH_TX_EN
+     PG13   ------> ETH_TXD0
 */
 static void MX_GPIO_Init(void)
 {
@@ -762,6 +704,22 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : RMII_MDC_Pin RMII_RXD0_Pin RMII_RXD1_Pin */
+  GPIO_InitStruct.Pin = RMII_MDC_Pin|RMII_RXD0_Pin|RMII_RXD1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : RMII_REF_CLK_Pin RMII_MDIO_Pin RMII_CRS_DV_Pin */
+  GPIO_InitStruct.Pin = RMII_REF_CLK_Pin|RMII_MDIO_Pin|RMII_CRS_DV_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
   /*Configure GPIO pin : PA3 */
   GPIO_InitStruct.Pin = GPIO_PIN_3;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -802,6 +760,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : RMII_TXD1_Pin */
+  GPIO_InitStruct.Pin = RMII_TXD1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
+  HAL_GPIO_Init(RMII_TXD1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : STLK_RX_Pin STLK_TX_Pin */
   GPIO_InitStruct.Pin = STLK_RX_Pin|STLK_TX_Pin;
@@ -857,6 +823,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : RMII_TX_EN_Pin RMII_TXD0_Pin */
+  GPIO_InitStruct.Pin = RMII_TX_EN_Pin|RMII_TXD0_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
+  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+
 }
 
 /* USER CODE BEGIN 4 */
@@ -888,8 +862,8 @@ void mainCycleStart(void const * argument)
 	testDrink2.bottleID = 0;
 	testDrink2.lastInstruction = TRUE;
 
-	list_append(&System_State.Pouring.drinkList, testDrink1);
-	list_append(&System_State.Pouring.drinkList, testDrink2);
+	list_append(&System_State.Gravity.drinkList, testDrink1);
+	list_append(&System_State.Gravity.drinkList, testDrink2);
 
   while(1)
   {
@@ -910,11 +884,11 @@ void mainCycleStart(void const * argument)
 	  vReadSensorValues(&Input_Storage);
 
 	  //Calculate Output
-	  vEvaluate_Module_4_Pouring(Input_Storage, &(System_State.Pouring), &(Output_Storage));
-	  //vEvaluate(Input_Storage, &System_State, &Output_Storage);
+	  //vEvaluate_Module_2_Gravity(Input_Storage, &(System_State.Gravity), &(Output_Storage));
+	  vEvaluate(Input_Storage, &System_State, &Output_Storage);
 
 	  //Set output
-	  vWriteActuatorValues(&Output_Storage);
+	  //vWriteActuatorValues(&Output_Storage);
 
 	  TickType_t endTicks = xTaskGetTickCount();
 	  int time_diff = (int)endTicks-(int)startTicks;

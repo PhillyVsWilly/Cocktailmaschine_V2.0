@@ -10,6 +10,8 @@
 //Im Code wird sie dann mit dem Namen MODULE_NUMBER verwendet
 #define MODULE_NUMBER 3
 
+#define EMPTY_WEIGHT 100
+
 //TODO Pumping Timeouts einstellen
 #define TIMEOUT_VALVE_ADJUSTING 5000
 #define TIMEOUT_PUMP_ACTIVE 5000
@@ -17,32 +19,32 @@
 
 /** @brief Initialisierung des Teilmoduls
  *
- * Hier werden die Anfangswerte der Zust舅de und der Variablen eingestellt. Die Funktion wird nur ein einziges
- * Mal beim Systemstart ausgef�hrt
+ * Hier werden die Anfangswerte der Zustände und der Variablen eingestellt. Die Funktion wird nur ein einziges
+ * Mal beim Systemstart ausgeführt
 **/
 void vInit_Module_3_Pumping(Module_State_3_Pumping_t* state, State_General_t* ptrGeneralState)
 {
-	//Nicht 舅dern, muss so sein!
+	//Nicht ändern, muss so sein!
 	state->state = REFERENCE_PUMP;
 	state->ptrGeneralState = ptrGeneralState;
 	list_new(&state->drinkList);
 
-	// Hier knen jetzt noch - falls nig - Startwerte f�r die anderen Zustandsvariablen gegeben werden
+	// Hier knen jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
 }
 
-/** @brief Pr�fe nach allgmeinen Fehlern
- *Diese Funktion muss bei jedem Zyklus ausgef�hrt werden. In ihr werden Systemzust舅de �berpr�ft, die unabh舅gig vom
+/** @brief Prüfe nach allgmeinen Fehlern
+ *Diese Funktion muss bei jedem Zyklus ausgeführt werden. In ihr werden Systemzustände überprüft, die unabhängig vom
  *Ablauf des Systems sind.
  *Bsp: Beim Transportmodul: Keine Hand in der Maschine
  *Beim Eis: ﾜberlaufbecken nicht voll
- *Deshalb wird ihr auch nicht der Systemzustand �bergeben
+ *Deshalb wird ihr auch nicht der Systemzustand übergeben
  **/
 static int vCheckForGeneralErrors(InputValues_t input)
 {
-	if(input.Pumping.doors_open == TRUE){
+	/*if(input.Pumping.doors_open == TRUE){
 		ThrowError(3, DOOR_OPEN);
 		return DOOR_OPEN;
-	}
+	}*/
 	
 
 	return -1;
@@ -52,43 +54,50 @@ static int vCheckForGeneralErrors(InputValues_t input)
  *
  * Dieses Modul wird in jedem Zyklus aufgerufen und steuert das Modul
  * In ihr wird zuerst vCheckForErrors aufgerufen um zuerst nach allgemeinen Fehlern zu suchen
- * Danach wird in Abh舅gigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
- * oder mehrere bestimmte Aktionen ausgef�hrt und deren Verlauf �berwacht
- * Hier knen �ber ThrowError() auch weitere Fehler geworfen werden.
- * Soll der Modulzustand gewechselt werden, wird die vSwitchStatePump() Funktion benutzt. Diese pr�ft die generelle Zul舖sigkeit
- * (falls nig) des Zustandswechsels und schreibt einen Debug-Print.
+ * Danach wird in Abhängigkeit des Modulzustands state->state und des Betriebszustands *(state->ptrGeneralState) eine
+ * oder mehrere bestimmte Aktionen ausgeführt und deren Verlauf überwacht
+ * Hier knen über ThrowError() auch weitere Fehler geworfen werden.
+ * Soll der Modulzustand gewechselt werden, wird die vSwitchStatePump() Funktion benutzt. Diese prüft die generelle Zul舖sigkeit
+ * (falls nötig) des Zustandswechsels und schreibt einen Debug-Print.
  **/
 void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* state, OutputValues_t* output)
 {
-	//ﾄndern des Status auf Basis des Gesamtmaschinenzustand
-	if (state->ptrGeneralState->operation_mode == stop)
+	vCheckForGeneralErrors(input);
+
+	//ﾄndern des Status
+	if (state->ptrGeneralState->operation_mode == stop ||
+			state->ptrGeneralState->ErrFlags[MODULE_NUMBER-1] ||
+			state->ptrGeneralState->CritFlags[MODULE_NUMBER-1])
 	{
 		vSwitchStatePump(state, INACTIVE_PUMP);
 	}
-	//Ausf�hren von Funktionen basierend auf dem Zustand
+
+	DPRINT_MESSAGE("I'm in State %d\n", state->state);
+
+	//Ausführen von Funktionen basierend auf dem Zustand
 	switch (state->state){
 		case INACTIVE_PUMP:
-			if(vCheckForGeneralErrors(input)!= -1){
-					vSwitchStatePump(state, INACTIVE_PUMP);
-			}
+
 			//stops the Motors and
 			output -> Pumping.pump = 0;
 			output -> Pumping.choose_motor = 0;
 
-			DPRINT_MESSAGE("I'm in State %d\n", state->state);
-			if(state->ptrGeneralState->operation_mode!= stop)
+
+			if(state->ptrGeneralState->operation_mode!= stop
+					&& !state->ptrGeneralState->ErrFlags[MODULE_NUMBER-1] &&
+					!state->ptrGeneralState->CritFlags[MODULE_NUMBER-1])
 			{
 				vSwitchStatePump(state, REFERENCE_PUMP);
 			}
 			break;
+
+
 		case REFERENCE_PUMP:
-			if(vCheckForGeneralErrors(input)!= -1){
-				vSwitchStatePump(state, INACTIVE_PUMP);
-			}
+
 			output -> Pumping.pump = 0;
 			DPRINT_MESSAGE("I'm in State %d\n", state-> state);
-			if(input.Pumping.valve_position == -1){
-				output -> Pumping.choose_motor = -1;
+			if(input.Pumping.valve_position == 0){
+				output -> Pumping.choose_motor = 0;
 			}
 			else{
 				output -> Pumping.choose_motor = 0;
@@ -96,61 +105,57 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 				vSwitchStatePump(state, ACTIVE);
 
 			}
-			DPRINT_MESSAGE("The pump output is %d\nThe choose valve output is %d\n",output ->Pumping.pump,output ->Pumping.choose_motor);
+
+			//DPRINT_MESSAGE("The pump output is %d\nThe choose valve output is %d\n",output ->Pumping.pump,output ->Pumping.choose_motor);
 
 			break;
 		case ACTIVE:
-			if(vCheckForGeneralErrors(input)!= -1){
-							vSwitchStatePump(state, INACTIVE_PUMP);
-						}
+
 			DPRINT_MESSAGE("I'm in State %d\n",state ->state);
 
+			if(state->drinkList.logicalLength){
+				list_head(&state->drinkList, &state->currentNode, FALSE);
 
-			list_head(&state->drinkList, &state->currentNode, FALSE);
+				state->glassInStation = input.Pumping.weight_glass > EMPTY_WEIGHT;
 
-			if(state->glassInStation){
-				vSwitchStatePump(state, VALVE_ADJUSTING);
-
-				state->ptrGeneralState->modules_finished[3]=0;
+				if(state->currentNode->ingredient.amount > 0 && state->glassInStation){
+					vSwitchStatePump(state, VALVE_ADJUSTING);
+					state->drinkWeight = input.Pumping.weight_glass;
+					state->ptrGeneralState->modules_finished[3]=0;
+				}
 			}
 
 			break;
 
 		case VALVE_ADJUSTING:
-			if(xTaskGetTickType() > (state->startTicket + TIMEOUT_VALVE_ADJUSTING)){
+			if(xTaskGetTickCount() > (state->startTicket + TIMEOUT_VALVE_ADJUSTING)){
 						//TODO Fehler werfen
 					}
-			if(vCheckForGeneralErrors(input)!= -1){
-							vSwitchStatePump(state, INACTIVE_PUMP);
-						}
-			list_head(&state->drinkList, &state->currentNode, FALSE);
-			if(input.Pumping.valve_position < state->currentNode->ingredient.bottleID && !state->valveInTransit ){
+
+			if(input.Pumping.valve_position < state->currentNode->ingredient.bottleID){
 				output -> Pumping.choose_motor = 1;
 				state->valveInTransit = TRUE;
 			}
-			if(input.Pumping.valve_position > state->currentNode->ingredient.bottleID && !state->valveInTransit ){
-							output -> Pumping.choose_motor = -1;
-							state->valveInTransit = TRUE;
-						}
+			if(input.Pumping.valve_position > state->currentNode->ingredient.bottleID){
+				output -> Pumping.choose_motor = -1;
+				state->valveInTransit = TRUE;
+			}
 			if(input.Pumping.valve_position == state->currentNode->ingredient.bottleID ){
 				output -> Pumping.choose_motor = 0;
 				state->valveInTransit = FALSE;
 				vSwitchStatePump(state, PUMP_ACTIVE);
 			}
 		case PUMP_ACTIVE:
-			if(xTaskGetTickType() > (state->startTicket + TIMEOUT_PUMP_ACTIVE)){
+			if(xTaskGetTickCount() > (state->startTicket + TIMEOUT_PUMP_ACTIVE)){
 						//TODO Fehler werfen
 					}
-			if(vCheckForGeneralErrors(input)!= -1){
-							vSwitchStatePump(state, INACTIVE_PUMP);
-						}
-			//TODO list_head(input.Pumping.drinkList, ls_head, FALSE);
-			if(input.Pumping.weight_glass < state->currentNode->ingredient.amount){
+
+			if(input.Pumping.weight_glass < state->currentNode->ingredient.amount + state->drinkWeight){
 				output -> Pumping.pump = 1;
 			}
 			else{
 				output -> Pumping.pump = 0;
-				bool cont = (TRUE == state->currentNode->ingredient.lastInstruction);
+				bool cont = state->currentNode->ingredient.lastInstruction;
 				list_head(&state->drinkList, &state->currentNode, TRUE);
 				if (cont){
 					vSwitchStatePump(state,ACTIVE);
@@ -160,11 +165,9 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 				}
 			}
 		case FILLED_GLASS_PUMP:
-			if(vCheckForGeneralErrors(input)!= -1){
-							vSwitchStatePump(state, INACTIVE_PUMP);
-						}
+
 			state->ptrGeneralState->modules_finished[3]=1;
-			if(input.Pouring.weight == 0){
+			if(input.Pouring.weight < EMPTY_WEIGHT){
 				vSwitchStatePump(state,ACTIVE);
 			}
 

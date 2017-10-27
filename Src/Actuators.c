@@ -86,6 +86,8 @@ void vModule_2_ActuatorValues(Gravity_t* ptr_output)
 	AuxPins(&a, &b, ptr_output->pwm_baum);
 	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_14, a);
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, b);
+	printf("Motor PLattform %d\n", ptr_output->move_platform);
+	printf("Motor Baum %d\n", ptr_output->move_baum);
 }
 
 void vModule_3_ActuatorValues(Pumping_t* ptr_output)
