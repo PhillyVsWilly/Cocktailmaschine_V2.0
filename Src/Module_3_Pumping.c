@@ -10,11 +10,13 @@
 //Im Code wird sie dann mit dem Namen MODULE_NUMBER verwendet
 #define MODULE_NUMBER 3
 
-#define EMPTY_WEIGHT 100
+#define EMPTY_WEIGHT 200
 
 //TODO Pumping Timeouts einstellen
 #define TIMEOUT_VALVE_ADJUSTING 5000
 #define TIMEOUT_PUMP_ACTIVE 5000
+
+#define MAX_CHOOSE_MOTOR_SPEED 25
 
 
 /** @brief Initialisierung des Teilmoduls
@@ -95,14 +97,13 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 		case REFERENCE_PUMP:
 
 			output -> Pumping.pump = 0;
-			DPRINT_MESSAGE("I'm in State %d\n", state-> state);
-			if(input.Pumping.valve_position == 0){
-				output -> Pumping.choose_motor = 0;
+			if(input.Pumping.valve_position == -1){
+				output -> Pumping.choose_motor = -MAX_CHOOSE_MOTOR_SPEED;
 			}
 			else{
 				output -> Pumping.choose_motor = 0;
-				state -> valveInTransit = FALSE;
 				vSwitchStatePump(state, ACTIVE);
+				state->valveInTransit = FALSE;
 
 			}
 
@@ -111,17 +112,25 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 			break;
 		case ACTIVE:
 
-			DPRINT_MESSAGE("I'm in State %d\n",state ->state);
+			state->glassInStation = input.Pumping.weight_glass > EMPTY_WEIGHT;
+			output->Pumping.choose_motor = 0;
 
 			if(state->drinkList.logicalLength){
 				list_head(&state->drinkList, &state->currentNode, FALSE);
 
-				state->glassInStation = input.Pumping.weight_glass > EMPTY_WEIGHT;
-
 				if(state->currentNode->ingredient.amount > 0 && state->glassInStation){
-					vSwitchStatePump(state, VALVE_ADJUSTING);
-					state->drinkWeight = input.Pumping.weight_glass;
-					state->ptrGeneralState->modules_finished[3]=0;
+					if(!state->valveInPosition)
+					{
+						vSwitchStatePump(state, VALVE_ADJUSTING);
+						state->ptrGeneralState->modules_finished[3]=0;
+					}
+					else
+					{
+						vSwitchStatePump(state, VALVE_ADJUSTING);
+						state->drinkWeight = input.Pumping.weight_glass;
+					}
+
+
 				}
 			}
 
@@ -132,31 +141,46 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 						//TODO Fehler werfen
 					}
 
-			if(input.Pumping.valve_position < state->currentNode->ingredient.bottleID){
-				output -> Pumping.choose_motor = 1;
+			if(input.Pumping.valve_position < state->currentNode->ingredient.bottleID && input.Pumping.valve_position != -1){
+				output -> Pumping.choose_motor = MAX_CHOOSE_MOTOR_SPEED;
 				state->valveInTransit = TRUE;
 			}
-			if(input.Pumping.valve_position > state->currentNode->ingredient.bottleID){
-				output -> Pumping.choose_motor = -1;
+			if(input.Pumping.valve_position > state->currentNode->ingredient.bottleID && input.Pumping.valve_position != -1){
+				output -> Pumping.choose_motor = -MAX_CHOOSE_MOTOR_SPEED;
 				state->valveInTransit = TRUE;
 			}
+			//Wenn wir noch keine Richtung haben, nehmen wir -1, ansonsten belassen wir es bei der Richtung
+			if(input.Pumping.valve_position == -1 && output->Pumping.choose_motor != 1)
+			{
+				output->Pumping.choose_motor = -MAX_CHOOSE_MOTOR_SPEED;
+				state->valveInTransit = TRUE;
+
+			}
+
 			if(input.Pumping.valve_position == state->currentNode->ingredient.bottleID ){
 				output -> Pumping.choose_motor = 0;
+				state->valveInPosition = TRUE;
 				state->valveInTransit = FALSE;
+				state->drinkWeight = input.Pumping.weight_glass;
 				vSwitchStatePump(state, PUMP_ACTIVE);
 			}
+
+			break;
 		case PUMP_ACTIVE:
 			if(xTaskGetTickCount() > (state->startTicket + TIMEOUT_PUMP_ACTIVE)){
 						//TODO Fehler werfen
 					}
 
+
+
 			if(input.Pumping.weight_glass < state->currentNode->ingredient.amount + state->drinkWeight){
-				output -> Pumping.pump = 1;
+				output -> Pumping.pump = 40;
 			}
 			else{
 				output -> Pumping.pump = 0;
-				bool cont = state->currentNode->ingredient.lastInstruction;
+				bool cont = !state->currentNode->ingredient.lastInstruction;
 				list_head(&state->drinkList, &state->currentNode, TRUE);
+				state->valveInPosition = FALSE;
 				if (cont){
 					vSwitchStatePump(state,ACTIVE);
 				}
@@ -164,12 +188,14 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 					vSwitchStatePump(state,FILLED_GLASS_PUMP);
 				}
 			}
+			break;
 		case FILLED_GLASS_PUMP:
 
 			state->ptrGeneralState->modules_finished[3]=1;
-			if(input.Pouring.weight < EMPTY_WEIGHT){
+			if(input.Pumping.weight_glass < EMPTY_WEIGHT){
 				vSwitchStatePump(state,ACTIVE);
 			}
+			break;
 
 
 		default:

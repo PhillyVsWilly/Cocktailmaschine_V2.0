@@ -12,7 +12,9 @@
 #include "Debug.h"
 
 #define MODULE_NUMBER 2
-#define EMPTY_WEIGHT 100 //TODO Gewicht eines leeren Schlittens (muss noch gewogen werden)
+#define EMPTY_WEIGHT 5
+
+#define MOTOR_SPEED_PLATFORM 50
 
 void vInit_Module_2_Gravity(Module_State_2_Gravity_t* state, State_General_t* ptrGeneralState)
 {
@@ -26,6 +28,7 @@ void vInit_Module_2_Gravity(Module_State_2_Gravity_t* state, State_General_t* pt
 	state->ptrGeneralState->CritFlags[MODULE_NUMBER-1] = 0;
 	state->ptrGeneralState->WarnFlags[MODULE_NUMBER-1] = 0;
 	state->startTicket = 0;
+	state->platform_been_up = 0;
 
 }
 
@@ -57,7 +60,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 			//Ausführen von Funktionen basierend auf dem Zustand
 			switch (state->state){
 				case INACTIVE_GRAV:
-					output->Gravity.move_baum = 0;
+					output->Gravity.move_baum = 50;
 					output->Gravity.move_platform = 0;
 
 					if (state->ptrGeneralState->operation_mode != stop &&
@@ -75,7 +78,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 						vSwitchStateGrav(state, IDLE_GRAV);
 						state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
 					} else {
-						output->Gravity.move_platform = -5; //Plattform soll herunterfahren
+						output->Gravity.move_platform = -MOTOR_SPEED_PLATFORM; //Plattform soll herunterfahren
 					}
 					break;
 				case IDLE_GRAV:
@@ -99,79 +102,67 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 				case MOVING_TREE: //Moving the Tree to the next position
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
 					if (input.Gravity.position_tree != state->currentNode->ingredient.bottleID) {
-					output->Gravity.move_baum = 5; //TODO Motorgeschwindigkeit einstellen
+					output->Gravity.move_baum = 50; //TODO Motorgeschwindigkeit einstellen
 					}
+
 					if (input.Gravity.position_tree == state->currentNode->ingredient.bottleID) {
-						output->Gravity.move_baum = 1;
+						output->Gravity.move_baum = 50;
 						state->treeInPosition = TRUE;
-						if(input.Gravity.button_fill_in == BTN_PRESSED);
-						vSwitchStateGrav(state, IDLE_GRAV);
+						if(input.Gravity.button_fill_in == BTN_PRESSED)
+						{
+							output->Gravity.move_baum = 0;
+							vSwitchStateGrav(state, MOVE_PLATTFORM);
+						}
 						break;
 					}
-					if (input.Gravity.weight_sensor > EMPTY_WEIGHT) {
-						output->Gravity.move_baum = 0;
+					/*if (input.Gravity.weight_sensor > EMPTY_WEIGHT) {
+						output->Gravity.move_baum = 50;
+
 						if (state->glassInStation == FALSE) {
 						vSwitchStateGrav(state, IDLE_GRAV);
 						} else if (state->glassInStation == TRUE) {
 							vSwitchStateGrav(state, GLASS_IN_STATION);
 						}
-					}
+					}*/
 					break;
 				case GLASS_IN_STATION:
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
 					list_head(&state->drinkList, &state->currentNode, FALSE);
-					if (state->currentNode == NULL && input.Gravity.weight_sensor < EMPTY_WEIGHT) {
-						vSwitchStateGrav(state, IDLE_GRAV);
-						state->glassInStation = FALSE;
-						break;
-					}
+
 					if (state->currentNode != NULL) {
-						if (state->currentNode->ingredient.bottleID == 0 && input.Gravity.weight_sensor >= EMPTY_WEIGHT ) {
-							break;
-						}
-						if (state->currentNode->ingredient.bottleID == 0 && input.Gravity.weight_sensor < EMPTY_WEIGHT ) {
+						if (input.Gravity.weight_sensor < EMPTY_WEIGHT ) {
 							vSwitchStateGrav(state, IDLE_GRAV);
 							state->glassInStation = FALSE;
-							break;
 						}
-						state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 0;
-						if (input.Gravity.position_tree != state->currentNode->ingredient.bottleID) {
+						if (input.Gravity.position_tree != state->currentNode->ingredient.bottleID || !input.Gravity.button_fill_in == BTN_PRESSED) {
+							state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 0;
 							vSwitchStateGrav(state, MOVING_TREE);
-							break;
-						}
-						if (state->currentNode->ingredient.amount > 0) {
-							vSwitchStateGrav(state, MOVE_PLATTFORM);
-							break;
-						}
-						if (state->currentNode->ingredient.amount <= 0 && state->currentNode->ingredient.lastInstruction == TRUE) {
-							state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 1;
-							vSwitchStateGrav(state, FILLED_GLASS);
-							break;
-						}
-						if (state->currentNode->ingredient.amount <= 0 && state->currentNode->ingredient.lastInstruction == FALSE) {
-							list_head(&state->drinkList, &state->currentNode, TRUE);
-							list_head(&state->drinkList, &state->currentNode, FALSE);
-							vSwitchStateGrav(state, MOVING_TREE);
-							break;
 						}
 					}
 					break;
 				case MOVE_PLATTFORM:
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
-					if (!input.Gravity.sensor_up) {
-						output->Gravity.move_platform = 1; //TODO Motorgeschwindigkeit einstellen
+
+					if (!input.Gravity.sensor_up == BTN_PRESSED && !state->platform_been_up) {
+						output->Gravity.move_platform = MOTOR_SPEED_PLATFORM; //TODO Motorgeschwindigkeit einstellen
 					}
-					if (input.Gravity.sensor_up == TRUE && state->startTicket == 0) {
-						state->startTicket = xTaskGetTickCount();
+					if (input.Gravity.sensor_up == BTN_PRESSED) {
+						state->platform_been_up = 1;
 					}
-					if (input.Gravity.sensor_up == TRUE && state->startTicket + 1000 <= xTaskGetTickCount()) {
-						output->Gravity.move_platform = -1; //TODO Motorgeschwindigkeit einstellen
+					if (state->platform_been_up == TRUE && !input.Gravity.sensor_down == BTN_PRESSED) {
+						output->Gravity.move_platform = -MOTOR_SPEED_PLATFORM; //TODO Motorgeschwindigkeit einstellen
 					}
-					if (input.Gravity.sensor_down == FALSE && state->startTicket != 0) {
+					if (input.Gravity.sensor_down == BTN_PRESSED && state->platform_been_up) {
 						output->Gravity.move_platform = 0;
 						state->currentNode->ingredient.amount--;
-						state->startTicket = 0;
-						vSwitchStateGrav(state, GLASS_IN_STATION);
+						state->platform_been_up = 0;
+						if(state->currentNode->ingredient.amount > 0)
+						{
+							vSwitchStateGrav(state,MOVE_PLATTFORM);
+						} else {
+							vSwitchStateGrav(state, FILLED_GLASS);
+						}
+
 					}
 					break;
 				case FILLED_GLASS:

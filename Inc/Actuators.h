@@ -13,6 +13,8 @@ typedef struct {
 	int move_platform;
 	int pwm_baum;
 	int pwm_platform;
+	int stepper_a;
+	int stepper_b;
 }Gravity_t;
 
 typedef struct {

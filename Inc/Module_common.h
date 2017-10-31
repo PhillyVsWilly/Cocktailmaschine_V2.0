@@ -5,7 +5,7 @@
 
 
 
-/**Erweiterbare Enumeration f�r verschiedene Fehlertypen
+/**Erweiterbare Enumeration für verschiedene Fehlertypen
  *Aber gleich für alle Module
  *Die Modulbezeichnung wird extra übermittelt
  */
@@ -25,7 +25,7 @@ enum OperationMode_t SetOperationMode(enum OperationMode_t);
 
 void vInit_Module_common(SystemState_t*);
 
-//Diese Funktion �bernimmt das globale Fehlerhandling
+//Diese Funktion übernimmt das globale Fehlerhandling
 //Sie setzt aber nur gewisse Flags und macht Prints, die lokale Behandlung erfolgt in den Modulen selbst
 void ThrowErrorCritical(int ,enum CriticalErrorTypes );
 void ThrowError(int ,enum ErrorTypes );

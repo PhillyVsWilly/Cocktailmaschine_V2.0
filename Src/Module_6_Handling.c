@@ -1,14 +1,20 @@
 #include "Module_6_Handling.h"
 #include "Evaluation.h"
 #include "linked_list.h"
+#include "stm32f7xx_hal.h"
 #include <stdlib.h>
+#include <string.h>
 
 SystemState_t* ptr_system_state;
+
+extern UART_HandleTypeDef huart7;
 
 typedef struct {
 	ingredient_t ingredient;
 	int module;
 }module_ingredient_t;
+
+void packet_handler(uint_8*, int);
 
 void vInit_Module_6_Handling(SystemState_t* SystemState)
 {
@@ -16,6 +22,7 @@ void vInit_Module_6_Handling(SystemState_t* SystemState)
 	ptr_system_state = SystemState;
 
 	init_drink_lists();
+	memset(handling_rx_buffer, 0, 50);
 
 	// Hier können jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
 }
@@ -23,7 +30,18 @@ void vInit_Module_6_Handling(SystemState_t* SystemState)
 
 void vEvaluate_Module_6_Handling(InputValues_t input, Module_State_6_Handling_t* state, OutputValues_t* output)
 {
-	return;
+	//check if Buffer is not empty
+	if(handling_rx_buffer[0] != 0)
+	{
+		packet_handler(handling_rx_buffer, 50);
+		printf("Got Package %d\n",1);
+	} else {
+		printf("%d No Package\n", 2);
+	}
+	printf("Success 1?: %d\n",HAL_UART_Receive(&huart7, handling_rx_buffer, 4, 1000));
+
+	int send[4] = {1,2,3,4};
+	printf("Success 2?: %d\n", (int)HAL_UART_Transmit(&huart7, send, 16, 100));
 }
 
 void init_drink_lists()
@@ -60,7 +78,7 @@ void init_drink_lists()
 }
 
 
-void packet_handler(char* ptr_packet_stack, int len_packet_stack)
+void packet_handler(uint_8* ptr_packet_stack, int len_packet_stack)
 {
 	//packet handler
 	/*Diese Funktion wird vom TCP-Prozess ausgeführt, wenn ein (oder mehrere) neue Pakete angekommen ist/sind.
@@ -286,7 +304,8 @@ void packet_handler_type_2()
 	*(ptr_packet + 2) = anzahl_inBearbeitung;
 	*(ptr_packet + 2 + sizeof(int)) = anzahl_ausstehend[0];
 
-	//TODO packet an TCP weitergeben
+	HAL_UART_Transmit(&huart7, ptr_packet, 6, 100);
+	osDelay(20);
 }
 
 void packet_handler_type_5()

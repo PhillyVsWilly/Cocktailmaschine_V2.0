@@ -44,6 +44,7 @@ typedef struct{
 	linked_list drinkList;
     listNode *currentNode;
     TickType_t startTicket;
+    bool platform_been_up;
 	} Module_State_2_Gravity_t;
 
 typedef struct{
@@ -56,7 +57,7 @@ typedef struct{
 	bool finished;//Getraenk fertig
 	linked_list drinkList;
 	listNode *currentNode;
-	float drinkWeight;
+	int drinkWeight;
 	TickType_t startTicket;
 	} Module_State_3_Pumping_t;
 

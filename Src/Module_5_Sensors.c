@@ -32,6 +32,7 @@ void vInit_Module_5_Sensors(Module_State_5_Sensors_t* state, State_General_t* pt
 	state->lightBarrierEnd = 0;
 	state->startTicket = 0;
 
+
 	// Hier knen jetzt noch - falls nötig - Startwerte für die anderen Zustandsvariablen gegeben werden
 }
 

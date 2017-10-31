@@ -8,14 +8,14 @@ extern TIM_HandleTypeDef htim2, htim3, htim4;
 //Rampen in V/s (Steuerspannung)
 #define TRANSPORT_RAMP_UP 1
 #define TRANSPORT_RAMP_DOWN -1
-#define GRAVITY_PLATFORM_RAMP_UP 1
-#define GRAVITY_PLATFORM_RAMP_DOWN -1
+#define GRAVITY_PLATFORM_RAMP_UP 100
+#define GRAVITY_PLATFORM_RAMP_DOWN -100
 #define GRAVITY_TREE_RAMP_UP 1
 #define GRAVITY_TREE_RAMP_DOWN -1
-#define PUMPING_CHOOSER_RAMP_UP 1
-#define PUMPING_CHOOSER_RAMP_DOWN -1
-#define PUMPING_PUMP_RAMP_UP 1
-#define PUMPING_PUMP_RAMP_DOWN -1
+#define PUMPING_CHOOSER_RAMP_UP 30
+#define PUMPING_CHOOSER_RAMP_DOWN -30
+#define PUMPING_PUMP_RAMP_UP 100
+#define PUMPING_PUMP_RAMP_DOWN -100
 #define POURING_RAMP_UP 10
 #define POURING_RAMP_DOWN -40
 #define ICE_RAMP_UP 100
@@ -86,8 +86,15 @@ void vModule_2_ActuatorValues(Gravity_t* ptr_output)
 	AuxPins(&a, &b, ptr_output->pwm_baum);
 	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_14, a);
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, b);
-	printf("Motor PLattform %d\n", ptr_output->move_platform);
-	printf("Motor Baum %d\n", ptr_output->move_baum);
+
+	printf("Motor Plattform %d\n", ptr_output->pwm_platform);
+	printf("Motor Baum %d\n", a);
+
+	/*a = ptr_output->move_baum >0;
+	b = ptr_output->move_baum <0;
+	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_14, a);
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, b);*/
+
 }
 
 void vModule_3_ActuatorValues(Pumping_t* ptr_output)
@@ -106,6 +113,8 @@ void vModule_3_ActuatorValues(Pumping_t* ptr_output)
 	AuxPins(&a, &b, ptr_output->pwm_pump);
 	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_15, a);
 	HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, b);
+
+
 }
 
 void vModule_4_ActuatorValues(Pouring_t* ptr_output)
@@ -150,7 +159,7 @@ int getPWMValue(int desired, int last_pwm, int ascend, int descend)
 	{
 		return last_pwm + descend;
 	}
-	else if(diff > descend && diff < ascend)
+	else if(diff >= descend && diff <= ascend)
 	{
 		return desired;
 	}
@@ -218,5 +227,45 @@ void AuxPins(int* a, int* b, int pwm)
 	{
 		*a = 1;
 		*b = 0;
+	}
+}
+
+void StepperOut(int* a, int* b, int dir)
+{
+	if(dir>0)
+	{
+		if(*a == 0 && *b == 0)
+		{
+			*a = 1;
+			*b = 0;
+		} else if (*a == 1 && *b == 0)
+		{
+			*a = 1;
+			*b = 1;
+		} else if (*a == 1 && *b == 1)
+		{
+			*a = 0;
+			*b = 1;
+		} else {
+			*a = 0;
+			*b = 0;
+		}
+	} else if ( dir < 0) {
+		if(*a == 0 && *b == 0)
+		{
+			*a = 0;
+			*b = 1;
+		} else if (*a == 0 && *b == 1)
+		{
+			*a = 1;
+			*b = 1;
+		} else if (*a == 1 && *b == 1)
+		{
+			*a = 1;
+			*b = 0;
+		} else {
+			*a = 0;
+			*b = 0;
+		}
 	}
 }
