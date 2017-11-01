@@ -51,17 +51,19 @@ typedef struct {
 	int pwm;
 }Ice_t;
 
+typedef struct {
+	int led_cocktail_chosen;
+}Sensors_t;
+
 //Define the Type where all output values will be stored later
 typedef struct {
 	uint_8 LED2;
-	int actuator_transport;
 	Gravity_t Gravity;
 	Pumping_t Pumping;
 	Pouring_t Pouring;
+	Sensors_t Sensors;
 	Transport_t Transport;
 	Ice_t Ice;
-	int allow_modules[7]; // Anweisung an die Module, ob erlaubt mit Arbeit zu beginnen.
-	int placeholder_handling;
 } OutputValues_t;
 
 
@@ -75,6 +77,7 @@ void vModule_1_ActuatorValues(Transport_t*);
 void vModule_2_ActuatorValues(Gravity_t*);
 void vModule_3_ActuatorValues(Pumping_t*);
 void vModule_4_ActuatorValues(Pouring_t*);
+void vModule_5_ActuatorValues(Sensors_t*);
 void vModule_7_ActuatorValues(Ice_t*);
 
 #endif

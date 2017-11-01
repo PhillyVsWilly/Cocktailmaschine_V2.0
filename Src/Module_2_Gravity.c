@@ -60,6 +60,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 			//Ausführen von Funktionen basierend auf dem Zustand
 			switch (state->state){
 				case INACTIVE_GRAV:
+					state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 0;
 					output->Gravity.move_baum = 50;
 					output->Gravity.move_platform = 0;
 
@@ -71,6 +72,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					break;
 
 				case REFERENCE_GRAV:
+					state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 0;
 					//Drives everything to its reference point
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
 					if (input.Gravity.sensor_down == BTN_PRESSED) {
@@ -82,6 +84,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					}
 					break;
 				case IDLE_GRAV:
+					state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 1;
 					//Do something
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
 					if (input.Gravity.weight_sensor > EMPTY_WEIGHT) {
@@ -100,6 +103,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 
 					break;
 				case MOVING_TREE: //Moving the Tree to the next position
+					state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 0;
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
 					if (input.Gravity.position_tree != state->currentNode->ingredient.bottleID) {
 					output->Gravity.move_baum = 50; //TODO Motorgeschwindigkeit einstellen
@@ -126,6 +130,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					}*/
 					break;
 				case GLASS_IN_STATION:
+					state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 1;
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
 					list_head(&state->drinkList, &state->currentNode, FALSE);
 
@@ -141,6 +146,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					}
 					break;
 				case MOVE_PLATTFORM:
+					state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 0;
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
 
 					if (!input.Gravity.sensor_up == BTN_PRESSED && !state->platform_been_up) {
@@ -166,6 +172,7 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					}
 					break;
 				case FILLED_GLASS:
+					state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 1;
 					if (input.Gravity.weight_sensor == 0) {
 						list_head(&state->drinkList, &state->currentNode, TRUE);
 						state->glassInStation = FALSE;

@@ -11,11 +11,10 @@
 #include "Evaluation.h"
 #include "Actuators.h"
 
-#define DPRINTF(...)
 
-/*#undef DEBUG_ENABLED
+#undef DEBUG_ENABLED
 #define DEBUG_ENABLED 1
-#include "Debug.h"*/
+#include "Debug.h"
 
 #define MODULE_NUMBER 7
 
@@ -99,7 +98,7 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 		vSwitchStateIce(state, INACTIVE_ICE);
 	}
 
-	DPRINTF("Warning Flags: %d\n", state->ptrGeneralState->WarnFlags[MODULE_NUMBER-1]);
+	DPRINT_MESSAGE("Warning Flags: %d\n", state->ptrGeneralState->WarnFlags[MODULE_NUMBER-1]);
 
 	switch (state->state){
 
@@ -109,7 +108,8 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 	 * Außerdem ist es inaktiv, wenn der Systemzustand auf "stop" steht
 	 */
 	case INACTIVE_ICE:
-		DPRINTF("Ice in State %d\n", state->state);
+		state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 0;
+		DPRINT_MESSAGE("Ice in State %d\n", state->state);
 		output->Ice.motor = 0;
 
 		if (!(state->ptrGeneralState->operation_mode == stop||
@@ -124,7 +124,8 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 	 * Das Eismodul ist bereit für neue Befehle
 	 */
 	case ACTIVE_ICE:
-		DPRINTF("Ice in State %d\n", state->state);
+		state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 1;
+		DPRINT_MESSAGE("Ice in State %d\n", state->state);
 		list_head(&state->drinkList,&state->currentNode,FALSE);
 		state->ptrGeneralState->modules_finished[6]=1;
 
@@ -145,11 +146,12 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 	 * Das Modul arbeitet und füllt Eis in das Glas
 	 */
 	case FILL_ICE:
+		state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 0;
 		if(xTaskGetTickCount() > (state->startTicket + TIMEOUT_ICE_FILL)){
 			//TODO Fehler werfen
 		}
 		state->ptrGeneralState->modules_finished[6]=0;
-		DPRINTF("Ice in State %d\n", state->state);
+		DPRINT_MESSAGE("Ice in State %d\n", state->state);
 		list_head(&state->drinkList,&state->currentNode,FALSE);
 
 		//Beginne, Eis zu fördern
@@ -181,9 +183,10 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 	 * Das Modul bleibt in diesem Zustand, bis das Glas nicht mehr im Modul ist
 	 */
 	case FINISHED_ICE:
+		state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 1;
 		output->Ice.motor = 0;
 
-		DPRINTF("Ice in State %d\n", state->state);
+		DPRINT_MESSAGE("Ice in State %d\n", state->state);
 		state->ptrGeneralState->modules_finished[6]=1;
 		if(input.Ice.weight < GLASS_WEIGHT * 0.75){
 			vSwitchStateIce(state, ACTIVE_ICE);
@@ -192,7 +195,7 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 		break;
 	
 	default:
-		DPRINTF("%s\n", "Here");
+		DPRINT_MESSAGE("%s\n", "Here");
 	}
 
 	return;
@@ -202,7 +205,7 @@ void vEvaluate_Module_7_Ice(InputValues_t input, Module_State_7_Ice_t* state, Ou
 void vSwitchStateIce(Module_State_7_Ice_t* state, int state_new)
 {
 	//Hier kommt alles rein, was bei jedem(!) Zustandswechsel passieren soll
-	DPRINTF("Switching states from State %d to State %d\r\n", state->state, state_new);
+	DPRINT_MESSAGE("Switching states from State %d to State %d\r\n", state->state, state_new);
 	
 	//Das hier sollte passieren, sonst wird der Zustand nicht gewechselt
 	state->state = state_new;

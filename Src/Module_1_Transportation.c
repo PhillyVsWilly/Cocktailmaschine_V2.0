@@ -9,20 +9,20 @@
 #include "Actuators.h"
 
 #undef DEBUG_ENABLED
-#define DEBUG_ENABLED 1
+#define DEBUG_ENABLED 0
 #include "Debug.h"
 
 #define MODULE_NUMBER MODULE_ID_TRANSPORT
 
 /** @brief Initialisierung des Teilmoduls
  *
- * Hier werden die Anfangswerte der Zust舅de und der Variablen eingestellt. Die Funktion wird nur ein einziges
+ * Hier werden die Anfangswerte der Zustände und der Variablen eingestellt. Die Funktion wird nur ein einziges
  * Mal beim Systemstart ausgefuehrt
  **/
 void vInit_Module_1_Transport(Module_State_1_Transportation_t* state,
 		State_General_t* ptrGeneralState) {
 	//Nicht ndern, muss so sein!
-	state->state = REFERENCE_TRANS;
+	state->state = STOPP_TRANS;
 	state->ptrGeneralState = ptrGeneralState;
 	state->startTicket = 0;
 	state->ptrGeneralState->glassCount = 0;
@@ -63,6 +63,7 @@ void vEvaluate_Module_1_Transportation(InputValues_t input,
 
 	bool finished;
 	//Ausführen von Funktionen basierend auf dem Zustand
+	DPRINT_MESSAGE("Transport State: %d\n", state->state);
 	switch (state->state) {
 	case INACTIVE_TRANS:
 		output->Transport.windDown = TRUE;
@@ -103,12 +104,10 @@ void vEvaluate_Module_1_Transportation(InputValues_t input,
 				finished = FALSE;
 			}
 		}
-		if (finished) {
+		if (finished && state->ptrGeneralState->glassCount>0) {
 			output->Transport.windDown = FALSE;
 			output->Transport.startUp = TRUE;
 			vSwitchStateTrans(state, ACTIVE_TRANS);
-		} else {
-			vSwitchStateTrans(state, STOPP_TRANS);
 		}
 
 		break;

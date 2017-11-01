@@ -3,11 +3,15 @@
 #include "stm32f7xx_nucleo_144.h"
 #include "math.h"
 
+#undef DEBUG_ENABLED
+#define DEBUG_ENABLED 1
+#include "Debug.h"
+
 extern TIM_HandleTypeDef htim2, htim3, htim4;
 
 //Rampen in V/s (Steuerspannung)
-#define TRANSPORT_RAMP_UP 1
-#define TRANSPORT_RAMP_DOWN -1
+#define TRANSPORT_RAMP_UP 20
+#define TRANSPORT_RAMP_DOWN -500
 #define GRAVITY_PLATFORM_RAMP_UP 100
 #define GRAVITY_PLATFORM_RAMP_DOWN -100
 #define GRAVITY_TREE_RAMP_UP 1
@@ -36,6 +40,7 @@ TIM_OC_InitTypeDef sConfigPWM[COUNT_MOTORS];
 void AuxPins(int*, int*, int);
 int getPWMValue(int, int, int, int);
 void setPWM(int, uint16_t);
+void StepperOut(int*, int*, int);
 
 
 
@@ -49,6 +54,7 @@ void vWriteActuatorValues(OutputValues_t* output)
 	vModule_2_ActuatorValues(&(output->Gravity));
 	vModule_3_ActuatorValues(&(output->Pumping));
 	vModule_4_ActuatorValues(&(output->Pouring));
+	vModule_5_ActuatorValues(&(output->Sensors));
 	vModule_7_ActuatorValues(&(output->Ice));
 
 }
@@ -57,15 +63,22 @@ void vModule_1_ActuatorValues(Transport_t* ptr_output)
 {
 	// Motor
 	int a,b;
-	if(ptr_output->startUp == 1 || ptr_output->windDown == 1)
+	if(ptr_output->windDown == TRUE)
 	{
-		ptr_output->motor= (ptr_output->windDown == 1) ? 0 : 100;
+		ptr_output->motor=0;
+	} else if(ptr_output->startUp == TRUE){
+		ptr_output->motor=300;
+
 	}
 	ptr_output->pwm = getPWMValue(ptr_output->motor, ptr_output->pwm, TRANSPORT_RAMP_UP, TRANSPORT_RAMP_DOWN);
 	setPWM(MOTOR_ID_TRANSPORT, abs(ptr_output->pwm));
 	AuxPins(&a, &b, ptr_output->pwm);
 	HAL_GPIO_WritePin(GPIOG, GPIO_PIN_9, a);
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8, b);
+
+	DPRINT_MESSAGE("Transport PWM_ %d\n", ptr_output->pwm);
+	DPRINT_MESSAGE("Transport IN A %d\n", a);
+	DPRINT_MESSAGE("Transport IN B %d\n", b);
 
 }
 
@@ -87,8 +100,8 @@ void vModule_2_ActuatorValues(Gravity_t* ptr_output)
 	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_14, a);
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, b);
 
-	printf("Motor Plattform %d\n", ptr_output->pwm_platform);
-	printf("Motor Baum %d\n", a);
+	/*DPRINT_MESSAGE("Motor Plattform %d\n", ptr_output->pwm_platform);
+	DPRINT_MESSAGE("Motor Baum %d\n", a);*/
 
 	/*a = ptr_output->move_baum >0;
 	b = ptr_output->move_baum <0;
@@ -122,10 +135,22 @@ void vModule_4_ActuatorValues(Pouring_t* ptr_output)
 	int a,b;
 	// Motor
 	ptr_output->pwm = getPWMValue(ptr_output->motor, ptr_output->pwm, POURING_RAMP_UP, POURING_RAMP_DOWN);
-	setPWM(MOTOR_ID_POURING, abs(ptr_output->pwm));
-	AuxPins(&a, &b, ptr_output->pwm);
+	/*setPWM(MOTOR_ID_POURING, abs(ptr_output->pwm));
+	AuxPins(&a, &b, ptr_output->pwm);*/
+	StepperOut(&a,&b,ptr_output->motor);
 	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_12, a);
 	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_13, b);
+}
+
+void vModule_5_ActuatorValues(Sensors_t* ptr_output)
+{
+	printf("Here %d\n",ptr_output->led_cocktail_chosen);
+	if(ptr_output->led_cocktail_chosen)
+	{
+		BSP_LED_On(LED3);
+	} else {
+		BSP_LED_Off(LED3);
+	}
 }
 
 void vModule_7_ActuatorValues(Ice_t* ptr_output)

@@ -35,6 +35,13 @@ void vInit_Module_5_Sensors(Module_State_5_Sensors_t* state, State_General_t* pt
 
 	state->startTime = 0;
 
+	state->aux_btn_cock_1 =BTN_RELEASED;
+	state->aux_btn_cock_2 =BTN_RELEASED;
+	state->aux_btn_cock_3 =BTN_RELEASED;
+	state->aux_btn_start_stop =BTN_RELEASED;
+	state->aux_end = BTN_RELEASED;
+
+
 	ptrGeneralState->WarnFlags[MODULE_NUMBER-1] = 0;
 	ptrGeneralState->ErrFlags[MODULE_NUMBER-1] = 0;
 	ptrGeneralState->CritFlags[MODULE_NUMBER-1] = 0;
@@ -96,7 +103,7 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 	//Ende Flanken
 	
 	//Ausführen von Funktionen basierend auf dem Zustand
-	printf("Sensors in State: %d\n", state->state);
+	DPRINT_MESSAGE("Sensors in State: %d\n", state->state);
 	switch (state->state){
 		case INACTIVE_SENS:
 			if (!(state->ptrGeneralState->operation_mode == stop) &&
@@ -111,15 +118,17 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 			{
 				vSwitchStateSens(state,CHOOSE_COCKTAIL_SENS);
 			}
+			output->Sensors.led_cocktail_chosen = 0;
 			break;
+
 
 		case ACTIVE_SENS:
 			state->finished_start = 0;
 
-			printf("Flank 0: %d\n" , flank_start_stop);
-			printf("Flank 1: %d\n" , flank_cocktail_1);
-			printf("Flank 2: %d\n" , flank_cocktail_2);
-			printf("Flank 3: %d\n" , flank_cocktail_3);
+			DPRINT_MESSAGE("Flank 0: %d\n" , flank_start_stop);
+			DPRINT_MESSAGE("Flank 1: %d\n" , flank_cocktail_1);
+			DPRINT_MESSAGE("Flank 2: %d\n" , flank_cocktail_2);
+			DPRINT_MESSAGE("Flank 3: %d\n" , flank_cocktail_3);
 			if(flank_cocktail_1	|| flank_cocktail_2 || flank_cocktail_3 || flank_start_stop)
 			{
 				vSwitchStateSens(state,CHOOSE_COCKTAIL_SENS);
@@ -127,27 +136,29 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 			break;
 
 		case CHOOSE_COCKTAIL_SENS:
+			output->Sensors.led_cocktail_chosen = 1;
+			state->finished_start =0;
 				if(flank_cocktail_1)
 				{
 					addCocktail1();
-					printf("Chosen Cocktail %d\n" ,1);
 					state->ptrGeneralState->glassCount++;
+					DPRINT_MESSAGE("Chosen Cocktail %d\n" ,1);
 					vSwitchStateSens(state,IDLE_SENS);
 
 				} else if (flank_cocktail_2){
-					addCocktail2();
-					printf("Chosen Cocktail %d\n" ,2);
 					state->ptrGeneralState->glassCount++;
+					addCocktail2();
+					DPRINT_MESSAGE("Chosen Cocktail %d\n" ,2);
 					vSwitchStateSens(state,IDLE_SENS);
 
 				} else if (flank_cocktail_3){
 					addCocktail3();
-					printf("Chosen Cocktail %d\n" ,3);
 					state->ptrGeneralState->glassCount++;
+					DPRINT_MESSAGE("Chosen Cocktail %d\n" ,3);
 					vSwitchStateSens(state,IDLE_SENS);
 
 				} else if (flank_start_stop){
-					printf("None %d\n" , 0);
+					DPRINT_MESSAGE("None %d\n" , 0);
 					vSwitchStateSens(state,IDLE_SENS);
 				}
 
@@ -158,10 +169,11 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 	
 
 	//Endmodul
-	printf("End in State: %d\n", state->state_end);
+	DPRINT_MESSAGE("End in State: %d\n", state->state_end);
 	switch(state->state_end)
 	{
 	case IDLE_SENS:
+		state->finished_end=TRUE;
 		if(input.Sensors.end_button_glass_present == BTN_PRESSED)
 		{
 			vSwitchStateSensEnd(state, ACTIVE_SENS);
@@ -169,6 +181,8 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 		}
 		break;
 	case ACTIVE_SENS:
+		state->finished_end = FALSE;
+		output->Sensors.led_cocktail_chosen = 1;
 		if(input.Sensors.end_button_glass_present == BTN_RELEASED && flank_end)
 		{
 			vSwitchStateSensEnd(state, IDLE_SENS);
@@ -181,7 +195,8 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 
 	}
 
-
+	DPRINT_MESSAGE("Finished Start %d\n", state->finished_start);
+	DPRINT_MESSAGE("Finished End %d\n", state->finished_end);
 	state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = state->finished_end && state->finished_start;
 
 	return;
@@ -193,7 +208,7 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 void vSwitchStateSens(Module_State_5_Sensors_t* state, int state_new)
 {
 	//Hier kommt alles rein, was bei jedem(!) Zustandswechsel passieren soll
-	printf("Switching states from State %d to State %d\r\n", state->state, state_new);
+	DPRINT_MESSAGE("Switching states from State %d to State %d\r\n", state->state, state_new);
 	
 	//Das hier sollte passieren, sonst wird der Zustand nicht gewechselt
 	state->state = state_new;
@@ -207,7 +222,7 @@ void vSwitchStateSensEnd(Module_State_5_Sensors_t* state, int state_new)
 {
 	{
 		//Hier kommt alles rein, was bei jedem(!) Zustandswechsel passieren soll
-		printf("Switching END states from State %d to State %d\r\n", state->state, state_new);
+		DPRINT_MESSAGE("Switching END states from State %d to State %d\r\n", state->state, state_new);
 
 		//Das hier sollte passieren, sonst wird der Zustand nicht gewechselt
 		state->state_end = state_new;

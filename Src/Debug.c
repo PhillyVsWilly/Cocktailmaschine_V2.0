@@ -8,7 +8,7 @@
 #include "Debug.h"
 #include "String.h"
 
-#ifdef DEBUG_ENABLED
+#if DEBUG_ENABLED == 1
 
 int debugPrintWarning(char* s, ...) {
 		va_list arg;

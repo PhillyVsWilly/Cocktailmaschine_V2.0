@@ -79,6 +79,7 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 	//Ausführen von Funktionen basierend auf dem Zustand
 	switch (state->state){
 		case INACTIVE_PUMP:
+			state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 0;
 
 			//stops the Motors and
 			output -> Pumping.pump = 0;
@@ -97,6 +98,7 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 		case REFERENCE_PUMP:
 
 			output -> Pumping.pump = 0;
+			state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 0;
 			if(input.Pumping.valve_position == -1){
 				output -> Pumping.choose_motor = -MAX_CHOOSE_MOTOR_SPEED;
 			}
@@ -111,7 +113,7 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 
 			break;
 		case ACTIVE:
-
+			state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 1;
 			state->glassInStation = input.Pumping.weight_glass > EMPTY_WEIGHT;
 			output->Pumping.choose_motor = 0;
 
@@ -137,6 +139,8 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 			break;
 
 		case VALVE_ADJUSTING:
+			state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 0;
+
 			if(xTaskGetTickCount() > (state->startTicket + TIMEOUT_VALVE_ADJUSTING)){
 						//TODO Fehler werfen
 					}
@@ -167,6 +171,7 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 
 			break;
 		case PUMP_ACTIVE:
+			state->ptrGeneralState->modules_finished[MODULE_NUMBER-1] = 0;
 			if(xTaskGetTickCount() > (state->startTicket + TIMEOUT_PUMP_ACTIVE)){
 						//TODO Fehler werfen
 					}
@@ -191,7 +196,7 @@ void vEvaluate_Module_3_Pumping(InputValues_t input, Module_State_3_Pumping_t* s
 			break;
 		case FILLED_GLASS_PUMP:
 
-			state->ptrGeneralState->modules_finished[3]=1;
+			state->ptrGeneralState->modules_finished[MODULE_NUMBER-1]=1;
 			if(input.Pumping.weight_glass < EMPTY_WEIGHT){
 				vSwitchStatePump(state,ACTIVE);
 			}

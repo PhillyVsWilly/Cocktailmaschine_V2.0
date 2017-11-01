@@ -5,7 +5,7 @@
 #include "project_conf.h"
 #include "math.h"
 
-#define DEBUG_ENABLED TRUE
+#define DEBUG_ENABLED 1
 #include "Debug.h"
 
 #if DEBUG_ENABLED
@@ -173,15 +173,15 @@ void vPrintReadSensorValues(InputValues_t input)
 	/*printf("Gravity Modul: \nGravity Weight: %d\nDoor Open: %d\nSensorUp: %d\nSensorDown: %d\nButton Fill: %d\nPosition Tree: %d\n",
 			(int)roundf(input.Gravity.weight_sensor), input.Gravity.doors_open, input.Gravity.sensor_up,
 			input.Gravity.sensor_down, input.Gravity.button_fill_in, input.Gravity.position_tree);*/
-	/*printf("Pump Modul: \nDoor Open: %d\nValve Position: %d\nWeightGlass: %d\n",
-			input.Pumping.doors_open, input.Pumping.valve_position, (int)roundf(input.Pumping.weight_glass));*/
+	printf("Pump Modul: \nDoor Open: %d\nValve Position: %d\nWeightGlass: %d\n",
+			input.Pumping.doors_open, input.Pumping.valve_position, (int)roundf(input.Pumping.weight_glass));
 	/*printf("Pouring Modul: \nDo
 	 * or Open: %d\nPosition Up: %d\nPosition Down: %d\nWeight: %d\n",
 			input.Pouring.doors_open, input.Pouring.position_up, input.Pouring.position_down,
 			(int)roundf(input.Pouring.weight));*/
-	printf("Sensor Modul: \nStart Door Open: %d\nStart Stop: %d\nEnd Door Open: %d\nCocktail 1: %d\nButton glass present: %d\nCocktail 2: %d\nCocktail 3: %d\nEnd Accept: %d\n",
+	/*printf("Sensor Modul: \nStart Door Open: %d\nStart Stop: %d\nEnd Door Open: %d\nCocktail 1: %d\nButton glass present: %d\nCocktail 2: %d\nCocktail 3: %d\nEnd Accept: %d\n",
 			input.Sensors.start_doors_open, input.Sensors.start_stop_button, input.Sensors.end_button_glass_present,
-			input.Sensors.button_cocktail_1, input.Sensors.end_button_glass_present,input.Sensors.button_cocktail_2,input.Sensors.button_cocktail_3, input.Sensors.end_accept);
+			input.Sensors.button_cocktail_1, input.Sensors.end_button_glass_present,input.Sensors.button_cocktail_2,input.Sensors.button_cocktail_3, input.Sensors.end_accept);*/
 	/*printf("Handling: Leer\n");
 	printf("Eis Modul: \nWeight: %d\nDoor open: %d\nLight Barrier enough cube ice: %d\nLight Barrier enough crushed ice: %d\n",
 			(int)roundf(input.Ice.weight), input.Ice.doors_open,

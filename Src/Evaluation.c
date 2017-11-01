@@ -8,6 +8,10 @@
 #include "Module_6_Handling.h"
 #include "Module_7_Ice.h"
 
+#undef DEBUG_ENABLED
+#define DEBUG_ENABLED 0
+#include "Debug.h"
+
 static SystemState_t* ptr_System_State;
 
 void vInitModules(SystemState_t* pState)
@@ -147,13 +151,22 @@ void vEvaluate(InputValues_t input, SystemState_t* state, OutputValues_t* output
 		}
 		
 		vEvaluate_Module_1_Transportation(input, &(state->Transportation), output);
-		vEvaluate_Module_2_Gravity(input, &(state->Gravity), output);
-		vEvaluate_Module_3_Pumping(input, &(state->Pumping), output);
-		vEvaluate_Module_4_Pouring(input, &(state->Pouring), output);
+		//vEvaluate_Module_2_Gravity(input, &(state->Gravity), output);
+		//vEvaluate_Module_3_Pumping(input, &(state->Pumping), output);
+		//vEvaluate_Module_4_Pouring(input, &(state->Pouring), output);
 		vEvaluate_Module_5_Sensors(input, &(state->Sensors), output);
-		vEvaluate_Module_6_Handling(input,&(state->Handling), output);
-		vEvaluate_Module_7_Ice(input, &(state->Ice), output);
+		//vEvaluate_Module_6_Handling(input,&(state->Handling), output);
+		//vEvaluate_Module_7_Ice(input, &(state->Ice), output);
 		
+		DPRINT_MESSAGE("Glass Count: %d\n", state->General.glassCount);
+		DPRINT_MESSAGE("Finished Sensors: %d\n", state->General.modules_finished[4]);
+		DPRINT_MESSAGE("Finished Ice: %d\n", state->General.modules_finished[6]);
+		DPRINT_MESSAGE("Finished Rondell: %d\n", state->General.modules_finished[1]);
+		DPRINT_MESSAGE("Finished Pumping: %d\n", state->General.modules_finished[2]);
+		DPRINT_MESSAGE("Finished Pouring: %d\n", state->General.modules_finished[3]);
+
+
+
 }
 
 //TODO Add ingredients of cocktail 1 to the stations

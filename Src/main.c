@@ -894,7 +894,7 @@ void mainCycleStart(void const * argument)
 
 
 
-	ingredient_t testDrink1;
+	/*ingredient_t testDrink1;
 	testDrink1.amount = 100.0;
 	testDrink1.bottleID = 1;
 	testDrink1.lastInstruction = FALSE;
@@ -905,7 +905,7 @@ void mainCycleStart(void const * argument)
 	testDrink2.lastInstruction = TRUE;
 
 	list_append(&System_State.Gravity.drinkList, testDrink1);
-	list_append(&System_State.Gravity.drinkList, testDrink2);
+	list_append(&System_State.Gravity.drinkList, testDrink2);*/
 
   while(1)
   {
@@ -926,12 +926,12 @@ void mainCycleStart(void const * argument)
 	  vReadSensorValues(&Input_Storage);
 
 	  //Calculate Output
-	  vEvaluate_Module_5_Sensors(Input_Storage, &(System_State.Sensors), &(Output_Storage));
+	  //vEvaluate_Module_5_Sensors(Input_Storage, &(System_State.Sensors), &(Output_Storage));
 	  //vEvaluate_Module_6_Handling(Input_Storage, &(System_State.Handling), &(Output_Storage));
 	  //vEvaluate(Input_Storage, &System_State, &Output_Storage);
 
 	  //Set output
-	  vWriteActuatorValues(&Output_Storage);
+	  //vWriteActuatorValues(&Output_Storage);
 
 	  TickType_t endTicks = xTaskGetTickCount();
 	  int time_diff = (int)endTicks-(int)startTicks;

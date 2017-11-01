@@ -11,7 +11,14 @@ static SystemState_t* ptr_SystemState;
 void vInit_Module_common(SystemState_t* pState)
 {
 	ptr_SystemState=pState;
-	memset(ptr_SystemState->General.modules_finished,1,7*sizeof(int));
+	ptr_SystemState->General.modules_finished[0] = 1;
+	ptr_SystemState->General.modules_finished[1] = 1;
+	ptr_SystemState->General.modules_finished[2] = 1;
+	ptr_SystemState->General.modules_finished[3] = 1;
+	ptr_SystemState->General.modules_finished[4] = 1;
+	ptr_SystemState->General.modules_finished[5] = 1;
+	ptr_SystemState->General.modules_finished[6] = 1;
+
 	memset(ptr_SystemState->General.ErrFlags,0,7*sizeof(int));
 	memset(ptr_SystemState->General.CritFlags,0,7*sizeof(int));
 	memset(ptr_SystemState->General.WarnFlags,0,7*sizeof(int));
