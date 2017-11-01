@@ -4,7 +4,7 @@
 #include "math.h"
 
 #undef DEBUG_ENABLED
-#define DEBUG_ENABLED 1
+#define DEBUG_ENABLED 0
 #include "Debug.h"
 
 extern TIM_HandleTypeDef htim2, htim3, htim4;
@@ -14,8 +14,8 @@ extern TIM_HandleTypeDef htim2, htim3, htim4;
 #define TRANSPORT_RAMP_DOWN -500
 #define GRAVITY_PLATFORM_RAMP_UP 100
 #define GRAVITY_PLATFORM_RAMP_DOWN -100
-#define GRAVITY_TREE_RAMP_UP 1
-#define GRAVITY_TREE_RAMP_DOWN -1
+#define GRAVITY_TREE_RAMP_UP 100
+#define GRAVITY_TREE_RAMP_DOWN -100
 #define PUMPING_CHOOSER_RAMP_UP 30
 #define PUMPING_CHOOSER_RAMP_DOWN -30
 #define PUMPING_PUMP_RAMP_UP 100

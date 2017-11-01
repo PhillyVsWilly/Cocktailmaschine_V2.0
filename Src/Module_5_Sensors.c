@@ -9,7 +9,7 @@
 #include "task.h"
 
 #undef DEBUG_ENABLED
-#define DEBUG_ENABLED 1
+#define DEBUG_ENABLED 0
 #include "Debug.h"
 
 //Hier steht die Modulnummer. Sie wird im Code nicht hart gecodet, sondern nur hier eingetragen

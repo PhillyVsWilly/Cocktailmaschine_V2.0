@@ -101,10 +101,10 @@ void vReadSensorValues (InputValues_t* ptrInput)
  void vReadSensorValues_Module_3(InputValues_t* ptrInput)
 {
 	 ptrInput->Pumping.doors_open = HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_2); // PE2
-	 if(!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_9))
+	 /*if(!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_9))
 	 {
 		 ptrInput->Pumping.valve_position = 0;
-	 }else if(!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_10)){
+	 }else*/ if(!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_10)){
 		 ptrInput->Pumping.valve_position = 1;
 	 }else if(!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_11)){
 		 ptrInput->Pumping.valve_position = 2;
@@ -112,8 +112,8 @@ void vReadSensorValues (InputValues_t* ptrInput)
 		 ptrInput->Pumping.valve_position = 3;
 	 }else if(!HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_7)){
 		 ptrInput->Pumping.valve_position = 4;
-	 }else if(!HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_6)){
-		 ptrInput->Pumping.valve_position = 5;
+	 /*}else if(!HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_6)){
+		 ptrInput->Pumping.valve_position = 5;*/
 	 }else if(!HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_5)){
 		 ptrInput->Pumping.valve_position = 6;
 	 /*}else if(!HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_4)){
@@ -170,11 +170,11 @@ void vReadSensorValues (InputValues_t* ptrInput)
 void vPrintReadSensorValues(InputValues_t input)
 {
 	/*printf("====================\n%s\n==============\n", "Sensor Values");*/
-	/*printf("Gravity Modul: \nGravity Weight: %d\nDoor Open: %d\nSensorUp: %d\nSensorDown: %d\nButton Fill: %d\nPosition Tree: %d\n",
+	printf("Gravity Modul: \nGravity Weight: %d\nDoor Open: %d\nSensorUp: %d\nSensorDown: %d\nButton Fill: %d\nPosition Tree: %d\n",
 			(int)roundf(input.Gravity.weight_sensor), input.Gravity.doors_open, input.Gravity.sensor_up,
-			input.Gravity.sensor_down, input.Gravity.button_fill_in, input.Gravity.position_tree);*/
-	printf("Pump Modul: \nDoor Open: %d\nValve Position: %d\nWeightGlass: %d\n",
-			input.Pumping.doors_open, input.Pumping.valve_position, (int)roundf(input.Pumping.weight_glass));
+			input.Gravity.sensor_down, input.Gravity.button_fill_in, input.Gravity.position_tree);
+	/*printf("Pump Modul: \nDoor Open: %d\nValve Position: %d\nWeightGlass: %d\n",
+			input.Pumping.doors_open, input.Pumping.valve_position, (int)roundf(input.Pumping.weight_glass));*/
 	/*printf("Pouring Modul: \nDo
 	 * or Open: %d\nPosition Up: %d\nPosition Down: %d\nWeight: %d\n",
 			input.Pouring.doors_open, input.Pouring.position_up, input.Pouring.position_down,

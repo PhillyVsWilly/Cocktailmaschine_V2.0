@@ -12,7 +12,7 @@
 #include "Debug.h"
 
 #define MODULE_NUMBER 2
-#define EMPTY_WEIGHT 5
+#define EMPTY_WEIGHT 15
 
 #define MOTOR_SPEED_PLATFORM 50
 
@@ -134,14 +134,24 @@ void vEvaluate_Module_2_Gravity(InputValues_t input, Module_State_2_Gravity_t* s
 					DPRINT_MESSAGE("I'm in State %d\n", state->state);
 					list_head(&state->drinkList, &state->currentNode, FALSE);
 
+					if (input.Gravity.weight_sensor < EMPTY_WEIGHT ) {
+						vSwitchStateGrav(state, IDLE_GRAV);
+						state->glassInStation = FALSE;
+					}
+
+					DPRINT_MESSAGE("Amount: %d\n", state->currentNode->ingredient.amount);
+
 					if (state->currentNode != NULL) {
-						if (input.Gravity.weight_sensor < EMPTY_WEIGHT ) {
-							vSwitchStateGrav(state, IDLE_GRAV);
-							state->glassInStation = FALSE;
-						}
-						if (input.Gravity.position_tree != state->currentNode->ingredient.bottleID || !input.Gravity.button_fill_in == BTN_PRESSED) {
-							state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 0;
-							vSwitchStateGrav(state, MOVING_TREE);
+
+						if(state->currentNode->ingredient.amount>0)
+						{
+							if (input.Gravity.position_tree != state->currentNode->ingredient.bottleID || !input.Gravity.button_fill_in == BTN_PRESSED) {
+								state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 0;
+								vSwitchStateGrav(state, MOVING_TREE);
+							} else {
+								state->ptrGeneralState->modules_finished[MODULE_NUMBER - 1] = 0;
+								vSwitchStateGrav(state, MOVE_PLATTFORM);
+							}
 						}
 					}
 					break;
