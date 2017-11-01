@@ -2,6 +2,8 @@
 #include "main.h"
 #include "Evaluation.h"
 
+#include "string.h"
+
 #define DPRINTF(...) printf(__VA_ARGS__)
 
 static SystemState_t* ptr_SystemState;
@@ -9,6 +11,10 @@ static SystemState_t* ptr_SystemState;
 void vInit_Module_common(SystemState_t* pState)
 {
 	ptr_SystemState=pState;
+	memset(ptr_SystemState->General.modules_finished,1,7*sizeof(int));
+	memset(ptr_SystemState->General.ErrFlags,0,7*sizeof(int));
+	memset(ptr_SystemState->General.CritFlags,0,7*sizeof(int));
+	memset(ptr_SystemState->General.WarnFlags,0,7*sizeof(int));
 }
 
 enum OperationMode_t SetOperationMode(enum OperationMode_t newMode)

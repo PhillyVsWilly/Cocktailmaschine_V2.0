@@ -17,7 +17,8 @@
 #define MODULE_NUMBER 5
 #define START_END_GLASS_PRESENT_WAIT 250
 
-vSwitchStateSensEnd(Module_State_5_Sensors_t*, int );
+void vSwitchState(Module_State_5_Sensors_t*, int );
+void vSwitchStateSensEnd(Module_State_5_Sensors_t*, int );
 
 
 /** @brief Initialisierung des Teilmoduls
@@ -72,12 +73,12 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 	//Ändern des Status auf Basis des Gesamtmaschinenzustand
 	if (state->ptrGeneralState->operation_mode == stop)
 	{
-		vSwitchStateSens(state->state, INACTIVE_SENS);
+		vSwitchStateSens(state, INACTIVE_SENS);
 	}
 
 	if(state->ptrGeneralState->ErrFlags[MODULE_NUMBER-1] != 0 || state->ptrGeneralState->CritFlags[MODULE_NUMBER-1] != 0)
 	{
-		vSwitchStateSens(state->state, INACTIVE_SENS);
+		vSwitchStateSens(state, INACTIVE_SENS);
 	}
 
 	//Flanken
@@ -128,19 +129,19 @@ void vEvaluate_Module_5_Sensors(InputValues_t input, Module_State_5_Sensors_t* s
 		case CHOOSE_COCKTAIL_SENS:
 				if(flank_cocktail_1)
 				{
-					//TODO Do Cocktail 1
+					addCocktail1();
 					printf("Chosen Cocktail %d\n" ,1);
 					state->ptrGeneralState->glassCount++;
 					vSwitchStateSens(state,IDLE_SENS);
 
 				} else if (flank_cocktail_2){
-					//TODO Do Cocktail 2
+					addCocktail2();
 					printf("Chosen Cocktail %d\n" ,2);
 					state->ptrGeneralState->glassCount++;
 					vSwitchStateSens(state,IDLE_SENS);
 
 				} else if (flank_cocktail_3){
-					//TODO Do Cocktail 3
+					addCocktail3();
 					printf("Chosen Cocktail %d\n" ,3);
 					state->ptrGeneralState->glassCount++;
 					vSwitchStateSens(state,IDLE_SENS);
@@ -202,7 +203,7 @@ void vSwitchStateSens(Module_State_5_Sensors_t* state, int state_new)
 	return;
 }
 
-vSwitchStateSensEnd(Module_State_5_Sensors_t* state, int state_new)
+void vSwitchStateSensEnd(Module_State_5_Sensors_t* state, int state_new)
 {
 	{
 		//Hier kommt alles rein, was bei jedem(!) Zustandswechsel passieren soll

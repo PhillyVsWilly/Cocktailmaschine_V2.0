@@ -16,6 +16,11 @@ typedef char bool;
 
 enum OperationMode_t{startup, normal, repair, stop};
 
+ingredient_t IceIngArray[3];
+ingredient_t GravIngArray[4];
+ingredient_t PumpIngArray[7];
+ingredient_t PourIngArray[3];
+
 /*Type Definitions for System States*/
 typedef struct{ 
 	int operation_mode;
@@ -124,5 +129,9 @@ typedef struct{
 
 																									
 void vEvaluate(InputValues_t, SystemState_t*, OutputValues_t*);
+
+void addCocktail1();
+void addCocktail2();
+void addCocktail3();
 
 #endif

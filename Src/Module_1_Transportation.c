@@ -14,14 +14,13 @@
 
 #define MODULE_NUMBER MODULE_ID_TRANSPORT
 
-
 /** @brief Initialisierung des Teilmoduls
  *
  * Hier werden die Anfangswerte der Zust舅de und der Variablen eingestellt. Die Funktion wird nur ein einziges
  * Mal beim Systemstart ausgefuehrt
-**/
-void vInit_Module_1_Transport(Module_State_1_Transportation_t* state, State_General_t* ptrGeneralState)
-{
+ **/
+void vInit_Module_1_Transport(Module_State_1_Transportation_t* state,
+		State_General_t* ptrGeneralState) {
 	//Nicht ndern, muss so sein!
 	state->state = REFERENCE_TRANS;
 	state->ptrGeneralState = ptrGeneralState;
@@ -41,9 +40,7 @@ void vInit_Module_1_Transport(Module_State_1_Transportation_t* state, State_Gene
  *Beim Eis: Überlaufbecken nicht voll
  *Deshalb wird ihr auch nicht der Systemzustand übergeben
  **/
-static int vCheckForGeneralErrors(InputValues_t input)
-{
-
+static int vCheckForGeneralErrors(InputValues_t input) {
 
 }
 
@@ -57,91 +54,78 @@ static int vCheckForGeneralErrors(InputValues_t input)
  * Soll der Modulzustand gewechselt werden, wird die vSwitchStateTrans() Funktion benutzt. Diese prüft die generelle Zulssigkeit
  * (falls nötig) des Zustandswechsels und schreibt einen Debug-Print.
  **/
-void vEvaluate_Module_1_Transportation(InputValues_t input, Module_State_1_Transportation_t* state, OutputValues_t* output)
-{
-	//ndern des Status auf Basis des Gesamtmaschinenzustand
-		if (state->ptrGeneralState->operation_mode == stop)
-		{
-			vSwitchStateTrans(state, INACTIVE_TRANS);
+void vEvaluate_Module_1_Transportation(InputValues_t input,
+		Module_State_1_Transportation_t* state, OutputValues_t* output) {
+	//Ändern des Status auf Basis des Gesamtmaschinenzustand
+	if (state->ptrGeneralState->operation_mode == stop) {
+		vSwitchStateTrans(state, INACTIVE_TRANS);
+	}
+
+	bool finished;
+	//Ausführen von Funktionen basierend auf dem Zustand
+	switch (state->state) {
+	case INACTIVE_TRANS:
+		output->Transport.windDown = TRUE;
+		if (state->ptrGeneralState->operation_mode != stop) {
+			vSwitchStateTrans(state, STOPP_TRANS);
 		}
+		break;
 
-		//Ausführen von Funktionen basierend auf dem Zustand
-		switch (state->state){
-			case INACTIVE_TRANS:
-				output->Transport.fullStop = TRUE;
-				if (state->ptrGeneralState->operation_mode != stop) {
-					vSwitchStateTrans(state, REFERENCE_TRANS);
-				}
-				break;
-			case REFERENCE_TRANS:
-				//Checks if the belt should be stopped for a new Glass or if the belt can start and switches states
-				DPRINT_MESSAGE("I'm in State %d\n", state->state);
-				output->Transport.LED_Status = TRUE;
-				for(int i = 0; i < 7; i++) {
-					if(state->ptrGeneralState->modules_finished[i] == 0 || state->ptrGeneralState->safety_sensors[i] == 0) {
-						break;
-					}
-				}
-				output->Transport.startUp = TRUE;
-				output->Transport.windDown = FALSE;
-				vSwitchStateTrans(state, ACTIVE_TRANS);
-				break;
-			case ACTIVE_TRANS:
+	case ACTIVE_TRANS:
 
-				for (int i = 0; i < 7; i++) {
-					if(state->ptrGeneralState->safety_sensors[i] == 0) {
-						output->Transport.startUp = FALSE;
-						output->Transport.fullStop = TRUE;
-						vSwitchStateTrans(state, STOPP_TRANS);
-						break;
-					}
-				}
-				for (int i = 0; i < 7; i++) {
-					if(state->ptrGeneralState->modules_finished[i] == 0) {
-						output->Transport.windDown = TRUE;
-						output->Transport.startUp = FALSE;
-						vSwitchStateTrans(state, STOPP_TRANS);
-						break;
-					}
-				}
-
-				DPRINT_MESSAGE("I'm in State %d\n", state->state);
-				break;
-			case STOPP_TRANS:
-				if (input.Transportation.start == TRUE) {
-					output->Transport.startUp = TRUE;
-					output->Transport.windDown = FALSE;
-					vSwitchStateTrans(state, ACTIVE_TRANS);
-				}
-				break;
-			case WAITING_TRANS: //State for waiting for a new Glass.
-				DPRINT_MESSAGE("I'm in State %d\n", state->state);
-				if (state->startTicket == 0) {
-					state->startTicket = xTaskGetTickCount();
-					output->Transport.LED_Status = TRUE;
-				}
-				TickType_t currentTickets = xTaskGetTickCount();
-				if (state->startTicket + 5000 <= currentTickets && state->transportCanStart == TRUE) {
-					state->startTicket = 0;
-					output->Transport.startUp = TRUE;
-					output->Transport.windDown = FALSE;
-					output->Transport.LED_Status = FALSE;
-					vSwitchStateTrans(state, ACTIVE_TRANS);
-				}
-				break;
-			default:
-				break;
+		output->Transport.startUp = TRUE;
+		output->Transport.windDown = FALSE;
+		finished = TRUE;
+		for (int i = 0; i < 7; i++) {
+			if (state->ptrGeneralState->modules_finished[i] == 0) {
+				finished = FALSE;
 			}
 
-			return;
+		}
+		if (!finished) {
+			output->Transport.windDown = TRUE;
+			output->Transport.startUp = FALSE;
+			vSwitchStateTrans(state, STOPP_TRANS);
+			break;
+		} else {
+			vSwitchStateTrans(state, ACTIVE_TRANS);
+		}
+
+		DPRINT_MESSAGE("I'm in State %d\n", state->state);
+		break;
+	case STOPP_TRANS:
+
+		output->Transport.startUp = FALSE;
+		output->Transport.windDown = TRUE;
+		finished = TRUE;
+		for (int i = 0; i < 7; i++) {
+			if (state->ptrGeneralState->modules_finished[i] == 0) {
+				finished = FALSE;
+			}
+		}
+		if (finished) {
+			output->Transport.windDown = FALSE;
+			output->Transport.startUp = TRUE;
+			vSwitchStateTrans(state, ACTIVE_TRANS);
+		} else {
+			vSwitchStateTrans(state, STOPP_TRANS);
+		}
+
+		break;
+
+	default:
+		break;
+	}
+
+	return;
 }
 
-void vSwitchStateTrans(Module_State_1_Transportation_t* state, int state_new)
-{
-	//Hier kommt alles rein, was bei jedem(!) Zustandswechsel passieren soll
-	DPRINT_MESSAGE("Switching states from State %d to State %d\r\n", state->state, state_new);
+void vSwitchStateTrans(Module_State_1_Transportation_t* state, int state_new) {
+//Hier kommt alles rein, was bei jedem(!) Zustandswechsel passieren soll
+	DPRINT_MESSAGE("Switching states from State %d to State %d\r\n",
+			state->state, state_new);
 
-	//Das hier sollte passieren, sonst wird der Zustand nicht gewechselt
+//Das hier sollte passieren, sonst wird der Zustand nicht gewechselt
 	state->state = state_new;
 	state->startTicket = xTaskGetTickCount();
 
@@ -156,4 +140,3 @@ void vSwitchStateTrans(Module_State_1_Transportation_t* state, int state_new)
 
 //vHilfsfuntion1() {  }
 //vHilfsfuntion2() {  }
-
