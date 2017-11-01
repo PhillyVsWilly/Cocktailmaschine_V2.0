@@ -42,11 +42,13 @@ typedef struct {
 
 typedef struct {
 	bool start_doors_open;
-	bool start_light_barrier;
+	bool start_stop_button;
 	bool end_doors_open;
-	bool end_light_barrier;
-	bool end_button_glass_present;	//am ende wird geprüft, ob ein glas vorhanden ist.
-								     	 //die überprüfung ob ein glas neu eingestellt wurde findet am eis modul statt
+	bool button_cocktail_1;
+	bool button_cocktail_2;
+	bool button_cocktail_3;
+	bool end_button_glass_present;
+	bool end_accept;
 } Module_5_Sensors_Input_t;
 
 

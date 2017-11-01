@@ -162,7 +162,7 @@ void updateVirtualInput_Module_5(InputValues_t* input)
 		bool end_doors_open;
 		bool end_light_barrier;
 		bool glass_finished;
-	switch(virtual_testenv_timer_variable)
+	/*switch(virtual_testenv_timer_variable)
 	{
 		case 10:
 			input->Sensors.start_light_barrier = 1;		// human's hand stops light interaction of light barrier
@@ -174,7 +174,7 @@ void updateVirtualInput_Module_5(InputValues_t* input)
 			input->Sensors.end_doors_open = 1;	
 			break;
 			
-	}
+	}*/
 }
 
 void updateVirtualInput_Module_6(InputValues_t* input)

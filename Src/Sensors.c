@@ -139,10 +139,13 @@ void vReadSensorValues (InputValues_t* ptrInput)
  void vReadSensorValues_Module_5(InputValues_t* ptrInput)
 {
 	 ptrInput->Sensors.start_doors_open = HAL_GPIO_ReadPin(GPIOD,GPIO_PIN_0); // PD0
-	 ptrInput->Sensors.start_light_barrier = HAL_GPIO_ReadPin(GPIOF,GPIO_PIN_2); // PF2
+	 ptrInput->Sensors.start_stop_button = HAL_GPIO_ReadPin(GPIOG,GPIO_PIN_2); // PF2
 	 ptrInput->Sensors.end_doors_open = HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_9); // PB9
-	 ptrInput->Sensors.end_light_barrier = HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15); // PA15
-	 ptrInput->Sensors.end_button_glass_present = HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_12); // PB12
+	 ptrInput->Sensors.button_cocktail_1 = HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_5); // PB5
+	 ptrInput->Sensors.button_cocktail_2 = HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_4); // PA4
+	 ptrInput->Sensors.button_cocktail_3 = HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_4); // PB4
+	 ptrInput->Sensors.end_accept = HAL_GPIO_ReadPin(GPIOG, GPIO_PIN_3); //PG3
+	 ptrInput->Sensors.end_button_glass_present = HAL_GPIO_ReadPin(GPIOG, GPIO_PIN_1);
 	return;
 }
 
@@ -167,19 +170,19 @@ void vReadSensorValues (InputValues_t* ptrInput)
 void vPrintReadSensorValues(InputValues_t input)
 {
 	/*printf("====================\n%s\n==============\n", "Sensor Values");*/
-	printf("Gravity Modul: \nGravity Weight: %d\nDoor Open: %d\nSensorUp: %d\nSensorDown: %d\nButton Fill: %d\nPosition Tree: %d\n",
+	/*printf("Gravity Modul: \nGravity Weight: %d\nDoor Open: %d\nSensorUp: %d\nSensorDown: %d\nButton Fill: %d\nPosition Tree: %d\n",
 			(int)roundf(input.Gravity.weight_sensor), input.Gravity.doors_open, input.Gravity.sensor_up,
-			input.Gravity.sensor_down, input.Gravity.button_fill_in, input.Gravity.position_tree);
+			input.Gravity.sensor_down, input.Gravity.button_fill_in, input.Gravity.position_tree);*/
 	/*printf("Pump Modul: \nDoor Open: %d\nValve Position: %d\nWeightGlass: %d\n",
 			input.Pumping.doors_open, input.Pumping.valve_position, (int)roundf(input.Pumping.weight_glass));*/
 	/*printf("Pouring Modul: \nDo
 	 * or Open: %d\nPosition Up: %d\nPosition Down: %d\nWeight: %d\n",
 			input.Pouring.doors_open, input.Pouring.position_up, input.Pouring.position_down,
 			(int)roundf(input.Pouring.weight));*/
-	/*printf("Sensor Modul: \nStart Door Open: %d\nStart Light Barrier: %d\nEnd Door Open: %d\nEnd Light Barrier: %d\nButton glass present: %d\n",
-			input.Sensors.start_doors_open, input.Sensors.start_light_barrier, input.Sensors.end_doors_open,
-			input.Sensors.end_light_barrier, input.Sensors.end_button_glass_present);
-	printf("Handling: Leer\n");
+	printf("Sensor Modul: \nStart Door Open: %d\nStart Stop: %d\nEnd Door Open: %d\nCocktail 1: %d\nButton glass present: %d\nCocktail 2: %d\nCocktail 3: %d\nEnd Accept: %d\n",
+			input.Sensors.start_doors_open, input.Sensors.start_stop_button, input.Sensors.end_button_glass_present,
+			input.Sensors.button_cocktail_1, input.Sensors.end_button_glass_present,input.Sensors.button_cocktail_2,input.Sensors.button_cocktail_3, input.Sensors.end_accept);
+	/*printf("Handling: Leer\n");
 	printf("Eis Modul: \nWeight: %d\nDoor open: %d\nLight Barrier enough cube ice: %d\nLight Barrier enough crushed ice: %d\n",
 			(int)roundf(input.Ice.weight), input.Ice.doors_open,
 			input.Ice.light_barrier_enough_cube_ice, input.Ice.light_barrier_enough_crushed_ice);*/

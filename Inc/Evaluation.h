@@ -73,13 +73,17 @@ typedef struct{
 typedef struct{
 	State_General_t* ptrGeneralState;
 	int state;
-	int glassCount;
-	int modules_finished[7]; //Contains modules signals
-	bool new_glass;
-	bool glass_at_end;
-	TickType_t startTicket;
-	TickType_t lightBarrierStart;
-	TickType_t lightBarrierEnd;
+	int state_end;
+
+	bool finished_start;
+	bool finished_end;
+	TickType_t startTime;
+	bool aux_btn_start_stop;
+	bool aux_btn_cock_1;
+	bool aux_btn_cock_2;
+	bool aux_btn_cock_3;
+	bool aux_end;
+
 	} Module_State_5_Sensors_t;
 
 typedef struct{

@@ -7,7 +7,6 @@
 
 SystemState_t* ptr_system_state;
 
-extern UART_HandleTypeDef huart7;
 
 typedef struct {
 	ingredient_t ingredient;
@@ -30,18 +29,7 @@ void vInit_Module_6_Handling(SystemState_t* SystemState)
 
 void vEvaluate_Module_6_Handling(InputValues_t input, Module_State_6_Handling_t* state, OutputValues_t* output)
 {
-	//check if Buffer is not empty
-	if(handling_rx_buffer[0] != 0)
-	{
-		packet_handler(handling_rx_buffer, 50);
-		printf("Got Package %d\n",1);
-	} else {
-		printf("%d No Package\n", 2);
-	}
-	printf("Success 1?: %d\n",HAL_UART_Receive(&huart7, handling_rx_buffer, 4, 1000));
 
-	int send[4] = {1,2,3,4};
-	printf("Success 2?: %d\n", (int)HAL_UART_Transmit(&huart7, send, 16, 100));
 }
 
 void init_drink_lists()
@@ -304,7 +292,7 @@ void packet_handler_type_2()
 	*(ptr_packet + 2) = anzahl_inBearbeitung;
 	*(ptr_packet + 2 + sizeof(int)) = anzahl_ausstehend[0];
 
-	HAL_UART_Transmit(&huart7, ptr_packet, 6, 100);
+
 	osDelay(20);
 }
 

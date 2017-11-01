@@ -5,7 +5,7 @@
 #include "Evaluation.h"
 #include "Actuators.h"
 
-enum statesSens {REFERENCE_SENS, STOP_SENS, ACTIVE_SENS, NEW_GLAS, GLAS_AT_END};
+enum statesSens {INACTIVE_SENS, IDLE_SENS, ACTIVE_SENS,CHOOSE_COCKTAIL_SENS};
 
 void vInit_Module_5_Sensors(Module_State_5_Sensors_t*, State_General_t*);
 void vEvaluate_Module_5_Sensors(InputValues_t, Module_State_5_Sensors_t*, OutputValues_t*);
