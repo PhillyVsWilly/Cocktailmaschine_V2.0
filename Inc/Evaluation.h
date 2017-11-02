@@ -50,6 +50,8 @@ typedef struct{
     listNode *currentNode;
     TickType_t startTicket;
     bool platform_been_up;
+    TickType_t plat_start_time;
+    TickType_t plat_up_time;
 	} Module_State_2_Gravity_t;
 
 typedef struct{

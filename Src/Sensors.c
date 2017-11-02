@@ -174,7 +174,7 @@ void vPrintReadSensorValues(InputValues_t input)
 			(int)roundf(input.Gravity.weight_sensor), input.Gravity.doors_open, input.Gravity.sensor_up,
 			input.Gravity.sensor_down, input.Gravity.button_fill_in, input.Gravity.position_tree);
 	/*printf("Pump Modul: \nDoor Open: %d\nValve Position: %d\nWeightGlass: %d\n",
-			input.Pumping.doors_open, input.Pumping.valve_position, (int)roundf(input.Pumping.weight_glass));*/
+			input.Pumping.doors_open, input.Pumping.valve_position, (int)roundf(input.Pumping.weight_glass));
 	/*printf("Pouring Modul: \nDo
 	 * or Open: %d\nPosition Up: %d\nPosition Down: %d\nWeight: %d\n",
 			input.Pouring.doors_open, input.Pouring.position_up, input.Pouring.position_down,

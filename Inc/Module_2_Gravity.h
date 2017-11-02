@@ -7,7 +7,7 @@
 
 /**ÄNDERN: Zustande aus Ablaufdiagramm**/
 //REFERENCE ist der Zustand der Referenzfahrt und darf nicht herausgenommen werden !!
-enum statesGRAV {REFERENCE_GRAV, MOVING_TREE, FILLED_GLASS, GLASS_IN_STATION, MOVE_PLATTFORM, INACTIVE_GRAV, IDLE_GRAV};
+enum statesGRAV {REFERENCE_GRAV, MOVING_TREE, FILLED_GLASS, GLASS_IN_STATION, MOVE_PLATTFORM, INACTIVE_GRAV, IDLE_GRAV,PARTY_PLAT,PARTY_TREE_1,PARTY_TREE_2};
 
 void vInit_Module_2_Gravity(Module_State_2_Gravity_t*, State_General_t*);
 void vEvaluate_Module_2_Gravity(InputValues_t, Module_State_2_Gravity_t*, OutputValues_t*);
